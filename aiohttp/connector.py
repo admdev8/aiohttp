@@ -5,53 +5,52 @@ import random
 import sys
 import traceback
 import warnings
-from collections import defaultdict, deque
+from collections import defaultdict
+from collections import deque
 from contextlib import suppress
 from http.cookies import SimpleCookie
-from itertools import cycle, islice
+from itertools import cycle
+from itertools import islice
 from time import monotonic
 from types import TracebackType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    DefaultDict,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import cast
+from typing import DefaultDict
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 import attr
 
-from . import hdrs, helpers
+from . import hdrs
+from . import helpers
 from .abc import AbstractResolver
-from .client_exceptions import (
-    ClientConnectionError,
-    ClientConnectorCertificateError,
-    ClientConnectorError,
-    ClientConnectorSSLError,
-    ClientHttpProxyError,
-    ClientProxyConnectionError,
-    ServerFingerprintMismatch,
-    cert_errors,
-    ssl_errors,
-)
+from .client_exceptions import cert_errors
+from .client_exceptions import ClientConnectionError
+from .client_exceptions import ClientConnectorCertificateError
+from .client_exceptions import ClientConnectorError
+from .client_exceptions import ClientConnectorSSLError
+from .client_exceptions import ClientHttpProxyError
+from .client_exceptions import ClientProxyConnectionError
+from .client_exceptions import ServerFingerprintMismatch
+from .client_exceptions import ssl_errors
 from .client_proto import ResponseHandler
-from .client_reqrep import SSL_ALLOWED_TYPES, ClientRequest, Fingerprint
-from .helpers import (
-    PY_36,
-    ceil_timeout,
-    get_running_loop,
-    is_ip_address,
-    sentinel,
-)
+from .client_reqrep import ClientRequest
+from .client_reqrep import Fingerprint
+from .client_reqrep import SSL_ALLOWED_TYPES
+from .helpers import ceil_timeout
+from .helpers import get_running_loop
+from .helpers import is_ip_address
+from .helpers import PY_36
+from .helpers import sentinel
 from .http import RESPONSES
 from .locks import EventResultOrError
 from .resolver import DefaultResolver

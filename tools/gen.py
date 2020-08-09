@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-
 import io
 import pathlib
 from collections import defaultdict
 
 import multidict
 
-import aiohttp
 import aiohttp.hdrs
 
 headers = [

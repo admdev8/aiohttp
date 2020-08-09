@@ -1,5 +1,4 @@
 # Tests for aiohttp/protocol.py
-
 import asyncio
 from unittest import mock
 
@@ -8,13 +7,12 @@ from multidict import CIMultiDict
 from yarl import URL
 
 import aiohttp
-from aiohttp import http_exceptions, streams
-from aiohttp.http_parser import (
-    DeflateBuffer,
-    HttpPayloadParser,
-    HttpRequestParserPy,
-    HttpResponseParserPy,
-)
+from aiohttp import http_exceptions
+from aiohttp import streams
+from aiohttp.http_parser import DeflateBuffer
+from aiohttp.http_parser import HttpPayloadParser
+from aiohttp.http_parser import HttpRequestParserPy
+from aiohttp.http_parser import HttpResponseParserPy
 
 try:
     import brotli

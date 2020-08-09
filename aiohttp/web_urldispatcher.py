@@ -7,44 +7,44 @@ import re
 from contextlib import contextmanager
 from pathlib import Path
 from types import MappingProxyType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Container,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Set,
-    Sized,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import cast
+from typing import Container
+from typing import Dict
+from typing import Generator
+from typing import Iterable
+from typing import Iterator
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Set
+from typing import Sized
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 from yarl import URL
 
 from . import hdrs
-from .abc import AbstractMatchInfo, AbstractRouter, AbstractView
-from .helpers import DEBUG, iscoroutinefunction
+from .abc import AbstractMatchInfo
+from .abc import AbstractRouter
+from .abc import AbstractView
+from .helpers import DEBUG
+from .helpers import iscoroutinefunction
 from .http import HttpVersion11
 from .typedefs import PathLike
-from .web_exceptions import (
-    HTTPException,
-    HTTPExpectationFailed,
-    HTTPForbidden,
-    HTTPMethodNotAllowed,
-    HTTPNotFound,
-)
+from .web_exceptions import HTTPException
+from .web_exceptions import HTTPExpectationFailed
+from .web_exceptions import HTTPForbidden
+from .web_exceptions import HTTPMethodNotAllowed
+from .web_exceptions import HTTPNotFound
 from .web_fileresponse import FileResponse
 from .web_request import Request
-from .web_response import Response, StreamResponse
+from .web_response import Response
+from .web_response import StreamResponse
 from .web_routedef import AbstractRouteDef
 
 __all__ = (

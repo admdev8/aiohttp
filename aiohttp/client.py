@@ -1,5 +1,4 @@
 """HTTP Client for asyncio."""
-
 import asyncio
 import base64
 import hashlib
@@ -8,33 +7,36 @@ import os
 import sys
 import traceback
 import warnings
-from types import SimpleNamespace, TracebackType
-from typing import (  # noqa
-    Any,
-    Awaitable,
-    Callable,
-    Coroutine,
-    FrozenSet,
-    Generator,
-    Generic,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
-
-from multidict import CIMultiDict, MultiDict, MultiDictProxy, istr
-from yarl import URL
+from types import SimpleNamespace
+from types import TracebackType
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import Coroutine
+from typing import FrozenSet
+from typing import Generator
+from typing import Generic
+from typing import Iterable
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
+from typing import Union
 
 import attr
+from multidict import CIMultiDict
+from multidict import istr
+from multidict import MultiDict
+from multidict import MultiDictProxy
 from typing_extensions import final
+from yarl import URL
 
-from . import hdrs, http, payload
+from . import hdrs
+from . import http
+from . import payload
 from .abc import AbstractCookieJar
 from .client_exceptions import ClientConnectionError as ClientConnectionError
 from .client_exceptions import (
@@ -65,39 +67,42 @@ from .client_exceptions import (
 from .client_exceptions import ServerTimeoutError as ServerTimeoutError
 from .client_exceptions import TooManyRedirects as TooManyRedirects
 from .client_exceptions import WSServerHandshakeError as WSServerHandshakeError
-from .client_reqrep import SSL_ALLOWED_TYPES as SSL_ALLOWED_TYPES
 from .client_reqrep import ClientRequest as ClientRequest
 from .client_reqrep import ClientResponse as ClientResponse
 from .client_reqrep import Fingerprint as Fingerprint
 from .client_reqrep import RequestInfo as RequestInfo
-from .client_ws import DEFAULT_WS_CLIENT_TIMEOUT
+from .client_reqrep import SSL_ALLOWED_TYPES as SSL_ALLOWED_TYPES
 from .client_ws import ClientWebSocketResponse as ClientWebSocketResponse
 from .client_ws import ClientWSTimeout
+from .client_ws import DEFAULT_WS_CLIENT_TIMEOUT
 from .connector import BaseConnector as BaseConnector
 from .connector import NamedPipeConnector as NamedPipeConnector
 from .connector import TCPConnector as TCPConnector
 from .connector import UnixConnector as UnixConnector
 from .cookiejar import CookieJar
-from .helpers import (
-    PY_36,
-    BasicAuth,
-    TimeoutHandle,
-    ceil_timeout,
-    get_running_loop,
-    proxies_from_env,
-    sentinel,
-    strip_auth_from_url,
-)
-from .http import WS_KEY, HttpVersion, WebSocketReader, WebSocketWriter
-from .http_websocket import (  # noqa
-    WSHandshakeError,
-    WSMessage,
-    ws_ext_gen,
-    ws_ext_parse,
-)
+from .helpers import BasicAuth
+from .helpers import ceil_timeout
+from .helpers import get_running_loop
+from .helpers import proxies_from_env
+from .helpers import PY_36
+from .helpers import sentinel
+from .helpers import strip_auth_from_url
+from .helpers import TimeoutHandle
+from .http import HttpVersion
+from .http import WebSocketReader
+from .http import WebSocketWriter
+from .http import WS_KEY
+from .http_websocket import ws_ext_gen
+from .http_websocket import ws_ext_parse
+from .http_websocket import WSHandshakeError
+from .http_websocket import WSMessage
 from .streams import FlowControlDataQueue
-from .tracing import Trace, TraceConfig
-from .typedefs import JSONEncoder, LooseCookies, LooseHeaders, StrOrURL
+from .tracing import Trace
+from .tracing import TraceConfig
+from .typedefs import JSONEncoder
+from .typedefs import LooseCookies
+from .typedefs import LooseHeaders
+from .typedefs import StrOrURL
 
 __all__ = (
     # client_exceptions

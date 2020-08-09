@@ -1,7 +1,10 @@
 """HTTP related errors."""
-
 import asyncio
-from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
+from typing import Any
+from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 
 from .typedefs import _CIMultiDict
 

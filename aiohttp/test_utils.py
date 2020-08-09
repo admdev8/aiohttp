@@ -1,5 +1,4 @@
 """Utilities shared by tests."""
-
 import asyncio
 import contextlib
 import functools
@@ -10,48 +9,45 @@ import os
 import socket
 import sys
 import unittest
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from types import TracebackType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-    Union,
-)
+from typing import Any
+from typing import Callable
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 from unittest import mock
 
-from multidict import CIMultiDict, CIMultiDictProxy
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
 from yarl import URL
 
 import aiohttp
-from aiohttp.client import (
-    ClientResponse,
-    _RequestContextManager,
-    _WSRequestContextManager,
-)
-
-from . import ClientSession, hdrs
+from . import ClientSession
+from . import hdrs
 from .abc import AbstractCookieJar
 from .client_reqrep import ClientResponse  # noqa
 from .client_ws import ClientWebSocketResponse  # noqa
 from .helpers import sentinel
-from .http import HttpVersion, RawRequestMessage
+from .http import HttpVersion
+from .http import RawRequestMessage
 from .signals import Signal
-from .web import (
-    Application,
-    AppRunner,
-    BaseRunner,
-    Request,
-    Server,
-    ServerRunner,
-    SockSite,
-    UrlMappingMatchInfo,
-)
+from .web import Application
+from .web import AppRunner
+from .web import BaseRunner
+from .web import Request
+from .web import Server
+from .web import ServerRunner
+from .web import SockSite
+from .web import UrlMappingMatchInfo
 from .web_protocol import _RequestHandler
+from aiohttp.client import _RequestContextManager
+from aiohttp.client import _WSRequestContextManager
+from aiohttp.client import ClientResponse
 
 if TYPE_CHECKING:  # pragma: no cover
     from ssl import SSLContext

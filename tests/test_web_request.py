@@ -6,16 +6,20 @@ from typing import Any
 from unittest import mock
 
 import pytest
-from multidict import CIMultiDict, CIMultiDictProxy, MultiDict
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiDict
 from yarl import URL
 
-from aiohttp import HttpVersion, web
+from aiohttp import HttpVersion
+from aiohttp import web
 from aiohttp.client_exceptions import ServerDisconnectedError
 from aiohttp.helpers import DEBUG
 from aiohttp.http_parser import RawRequestMessage
 from aiohttp.streams import StreamReader
 from aiohttp.test_utils import make_mocked_request
-from aiohttp.web import HTTPRequestEntityTooLarge, HTTPUnsupportedMediaType
+from aiohttp.web import HTTPRequestEntityTooLarge
+from aiohttp.web import HTTPUnsupportedMediaType
 
 
 @pytest.fixture

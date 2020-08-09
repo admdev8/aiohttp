@@ -1,12 +1,17 @@
 import warnings
 from http import HTTPStatus
-from typing import Any, Iterable, Optional, Set, Tuple
+from typing import Any
+from typing import Iterable
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
 from multidict import CIMultiDict
 from yarl import URL
 
 from . import hdrs
-from .typedefs import LooseHeaders, StrOrURL
+from .typedefs import LooseHeaders
+from .typedefs import StrOrURL
 
 __all__ = (
     "HTTPException",

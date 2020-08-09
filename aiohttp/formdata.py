@@ -1,10 +1,16 @@
 import io
-from typing import Any, Iterable, List, Optional  # noqa
+from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Optional
 from urllib.parse import urlencode
 
-from multidict import MultiDict, MultiDictProxy
+from multidict import MultiDict
+from multidict import MultiDictProxy
 
-from . import hdrs, multipart, payload
+from . import hdrs
+from . import multipart
+from . import payload
 from .helpers import guess_filename
 from .payload import Payload
 

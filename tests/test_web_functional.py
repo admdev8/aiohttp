@@ -7,18 +7,17 @@ import zlib
 from unittest import mock
 
 import pytest
-from multidict import CIMultiDictProxy, MultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiDict
 from yarl import URL
 
 import aiohttp
-from aiohttp import (
-    FormData,
-    HttpVersion10,
-    HttpVersion11,
-    TraceConfig,
-    multipart,
-    web,
-)
+from aiohttp import FormData
+from aiohttp import HttpVersion10
+from aiohttp import HttpVersion11
+from aiohttp import multipart
+from aiohttp import TraceConfig
+from aiohttp import web
 from aiohttp.test_utils import make_mocked_coro
 
 try:

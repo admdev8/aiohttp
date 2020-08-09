@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """Simple server written using an event loop."""
-
 import argparse
 import asyncio
 import logging
 import os
 import sys
 
-import aiohttp
 import aiohttp.server
 
 try:

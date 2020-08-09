@@ -7,41 +7,42 @@ import warnings
 import zlib
 from collections import deque
 from types import TracebackType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
-from urllib.parse import parse_qsl, unquote, urlencode
+from typing import Any
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
+from urllib.parse import parse_qsl
+from urllib.parse import unquote
+from urllib.parse import urlencode
 
-from multidict import CIMultiDict, CIMultiDictProxy, MultiMapping  # noqa
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiMapping
 
-from .hdrs import (
-    CONTENT_DISPOSITION,
-    CONTENT_ENCODING,
-    CONTENT_LENGTH,
-    CONTENT_TRANSFER_ENCODING,
-    CONTENT_TYPE,
-)
-from .helpers import CHAR, TOKEN, parse_mimetype, reify
+from .hdrs import CONTENT_DISPOSITION
+from .hdrs import CONTENT_ENCODING
+from .hdrs import CONTENT_LENGTH
+from .hdrs import CONTENT_TRANSFER_ENCODING
+from .hdrs import CONTENT_TYPE
+from .helpers import CHAR
+from .helpers import parse_mimetype
+from .helpers import reify
+from .helpers import TOKEN
 from .http import HeadersParser
-from .payload import (
-    JsonPayload,
-    LookupError,
-    Order,
-    Payload,
-    StringPayload,
-    get_payload,
-    payload_type,
-)
+from .payload import get_payload
+from .payload import JsonPayload
+from .payload import LookupError
+from .payload import Order
+from .payload import Payload
+from .payload import payload_type
+from .payload import StringPayload
 from .streams import StreamReader
 
 __all__ = (

@@ -9,28 +9,36 @@ import warnings
 import zlib
 from concurrent.futures import Executor
 from email.utils import parsedate
-from http.cookies import Morsel, SimpleCookie
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-)
+from http.cookies import Morsel
+from http.cookies import SimpleCookie
+from typing import Any
+from typing import cast
+from typing import Dict
+from typing import Iterator
+from typing import Mapping
+from typing import MutableMapping
+from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 
-from multidict import CIMultiDict, istr
+from multidict import CIMultiDict
+from multidict import istr
 
-from . import hdrs, payload
+from . import hdrs
+from . import payload
 from .abc import AbstractStreamWriter
-from .helpers import PY_38, HeadersMixin, rfc822_formatted_time, sentinel
-from .http import RESPONSES, SERVER_SOFTWARE, HttpVersion10, HttpVersion11
+from .helpers import HeadersMixin
+from .helpers import PY_38
+from .helpers import rfc822_formatted_time
+from .helpers import sentinel
+from .http import HttpVersion10
+from .http import HttpVersion11
+from .http import RESPONSES
+from .http import SERVER_SOFTWARE
 from .payload import Payload
-from .typedefs import JSONEncoder, LooseHeaders
+from .typedefs import JSONEncoder
+from .typedefs import LooseHeaders
 
 __all__ = ("ContentCoding", "StreamResponse", "Response", "json_response")
 

@@ -5,60 +5,66 @@ import re
 import sys
 import traceback
 import warnings
-from hashlib import md5, sha1, sha256
-from http.cookies import CookieError, Morsel, SimpleCookie
-from types import MappingProxyType, TracebackType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
-
-from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
-from yarl import URL
+from hashlib import md5
+from hashlib import sha1
+from hashlib import sha256
+from http.cookies import CookieError
+from http.cookies import Morsel
+from http.cookies import SimpleCookie
+from types import MappingProxyType
+from types import TracebackType
+from typing import Any
+from typing import cast
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 import attr
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiDict
+from multidict import MultiDictProxy
+from yarl import URL
 
-from . import hdrs, helpers, http, multipart, payload
+from . import hdrs
+from . import helpers
+from . import http
+from . import multipart
+from . import payload
 from .abc import AbstractStreamWriter
-from .client_exceptions import (
-    ClientConnectionError,
-    ClientOSError,
-    ClientResponseError,
-    ContentTypeError,
-    InvalidURL,
-    ServerFingerprintMismatch,
-)
+from .client_exceptions import ClientConnectionError
+from .client_exceptions import ClientOSError
+from .client_exceptions import ClientResponseError
+from .client_exceptions import ContentTypeError
+from .client_exceptions import InvalidURL
+from .client_exceptions import ServerFingerprintMismatch
 from .formdata import FormData
-from .helpers import (  # noqa
-    PY_36,
-    BaseTimerContext,
-    BasicAuth,
-    HeadersMixin,
-    TimerNoop,
-    is_expected_content_type,
-    noop,
-    reify,
-    set_result,
-)
-from .http import SERVER_SOFTWARE, HttpVersion10, HttpVersion11, StreamWriter
+from .helpers import BaseTimerContext
+from .helpers import BasicAuth
+from .helpers import HeadersMixin
+from .helpers import is_expected_content_type
+from .helpers import noop
+from .helpers import PY_36
+from .helpers import reify
+from .helpers import set_result
+from .helpers import TimerNoop
+from .http import HttpVersion10
+from .http import HttpVersion11
+from .http import SERVER_SOFTWARE
+from .http import StreamWriter
 from .log import client_logger
 from .streams import StreamReader  # noqa
-from .typedefs import (
-    DEFAULT_JSON_DECODER,
-    JSONDecoder,
-    LooseCookies,
-    LooseHeaders,
-    RawHeaders,
-)
+from .typedefs import DEFAULT_JSON_DECODER
+from .typedefs import JSONDecoder
+from .typedefs import LooseCookies
+from .typedefs import LooseHeaders
+from .typedefs import RawHeaders
 
 try:
     import ssl

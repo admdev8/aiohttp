@@ -1,6 +1,10 @@
 import pathlib
 import re
-from collections.abc import Container, Iterable, Mapping, MutableMapping, Sized
+from collections.abc import Container
+from collections.abc import Iterable
+from collections.abc import Mapping
+from collections.abc import MutableMapping
+from collections.abc import Sized
 from functools import partial
 from urllib.parse import unquote
 
@@ -8,22 +12,23 @@ import pytest
 from yarl import URL
 
 import aiohttp
-from aiohttp import hdrs, web
+from aiohttp import hdrs
+from aiohttp import web
 from aiohttp.test_utils import make_mocked_request
-from aiohttp.web import HTTPMethodNotAllowed, HTTPNotFound, Response
-from aiohttp.web_urldispatcher import (
-    PATH_SEP,
-    AbstractResource,
-    Domain,
-    DynamicResource,
-    MaskDomain,
-    PlainResource,
-    ResourceRoute,
-    StaticResource,
-    SystemRoute,
-    View,
-    _default_expect_handler,
-)
+from aiohttp.web import HTTPMethodNotAllowed
+from aiohttp.web import HTTPNotFound
+from aiohttp.web import Response
+from aiohttp.web_urldispatcher import _default_expect_handler
+from aiohttp.web_urldispatcher import AbstractResource
+from aiohttp.web_urldispatcher import Domain
+from aiohttp.web_urldispatcher import DynamicResource
+from aiohttp.web_urldispatcher import MaskDomain
+from aiohttp.web_urldispatcher import PATH_SEP
+from aiohttp.web_urldispatcher import PlainResource
+from aiohttp.web_urldispatcher import ResourceRoute
+from aiohttp.web_urldispatcher import StaticResource
+from aiohttp.web_urldispatcher import SystemRoute
+from aiohttp.web_urldispatcher import View
 
 
 def make_handler():

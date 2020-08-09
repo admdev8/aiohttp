@@ -1,5 +1,4 @@
 """WebSocket protocol versions 13 and 8."""
-
 import asyncio
 import collections
 import json
@@ -9,7 +8,12 @@ import sys
 import zlib
 from enum import IntEnum
 from struct import Struct
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from .base_protocol import BaseProtocol
 from .helpers import NO_EXTENSIONS
