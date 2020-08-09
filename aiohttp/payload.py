@@ -51,8 +51,7 @@ __all__ = (
     "AsyncIterablePayload",
 )
 
-TOO_LARGE_BYTES_BODY = 2 ** 20  # 1 MB
-
+TOO_LARGE_BYTES_BODY = 2**20  # 1 MB
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import List  # noqa
@@ -72,9 +71,10 @@ def get_payload(data: Any, *args: Any, **kwargs: Any) -> "Payload":
     return PAYLOAD_REGISTRY.get(data, *args, **kwargs)
 
 
-def register_payload(
-    factory: Type["Payload"], type: Any, *, order: Order = Order.normal
-) -> None:
+def register_payload(factory: Type["Payload"],
+                     type: Any,
+                     *,
+                     order: Order = Order.normal) -> None:
     PAYLOAD_REGISTRY.register(factory, type, order=order)
 
 
@@ -99,9 +99,8 @@ class PayloadRegistry:
         self._normal = []  # type: List[Tuple[Type[Payload], Any]]
         self._last = []  # type: List[Tuple[Type[Payload], Any]]
 
-    def get(
-        self, data: Any, *args: Any, _CHAIN: Any = chain, **kwargs: Any
-    ) -> "Payload":
+    def get(self, data: Any, *args: Any, _CHAIN: Any = chain,
+            **kwargs: Any) -> "Payload":
         if isinstance(data, Payload):
             return data
         for factory, type in _CHAIN(self._first, self._normal, self._last):
@@ -110,9 +109,11 @@ class PayloadRegistry:
 
         raise LookupError()
 
-    def register(
-        self, factory: Type["Payload"], type: Any, *, order: Order = Order.normal
-    ) -> None:
+    def register(self,
+                 factory: Type["Payload"],
+                 type: Any,
+                 *,
+                 order: Order = Order.normal) -> None:
         if order is Order.try_first:
             self._first.append((factory, type))
         elif order is Order.normal:
@@ -128,17 +129,14 @@ class Payload(ABC):
     _default_content_type = "application/octet-stream"  # type: str
     _size = None  # type: Optional[int]
 
-    def __init__(
-        self,
-        value: Any,
-        headers: Optional[
-            Union[_CIMultiDict, Dict[str, str], Iterable[Tuple[str, str]]]
-        ] = None,
-        content_type: Optional[str] = sentinel,
-        filename: Optional[str] = None,
-        encoding: Optional[str] = None,
-        **kwargs: Any
-    ) -> None:
+    def __init__(self,
+                 value: Any,
+                 headers: Optional[Union[_CIMultiDict, Dict[str, str],
+                                         Iterable[Tuple[str, str]]]] = None,
+                 content_type: Optional[str] = sentinel,
+                 filename: Optional[str] = None,
+                 encoding: Optional[str] = None,
+                 **kwargs: Any) -> None:
         self._encoding = encoding
         self._filename = filename
         self._headers = CIMultiDict()  # type: _CIMultiDict
@@ -172,11 +170,9 @@ class Payload(ABC):
     @property
     def _binary_headers(self) -> bytes:
         return (
-            "".join([k + ": " + v + "\r\n" for k, v in self.headers.items()]).encode(
-                "utf-8"
-            )
-            + b"\r\n"
-        )
+            "".join([k + ": " + v + "\r\n"
+                     for k, v in self.headers.items()]).encode("utf-8") +
+            b"\r\n")
 
     @property
     def encoding(self) -> Optional[str]:
@@ -188,13 +184,13 @@ class Payload(ABC):
         """Content type"""
         return self._headers[hdrs.CONTENT_TYPE]
 
-    def set_content_disposition(
-        self, disptype: str, quote_fields: bool = True, **params: Any
-    ) -> None:
+    def set_content_disposition(self,
+                                disptype: str,
+                                quote_fields: bool = True,
+                                **params: Any) -> None:
         """Sets ``Content-Disposition`` header."""
         self._headers[hdrs.CONTENT_DISPOSITION] = content_disposition_header(
-            disptype, quote_fields=quote_fields, **params
-        )
+            disptype, quote_fields=quote_fields, **params)
 
     @abstractmethod
     async def write(self, writer: AbstractStreamWriter) -> None:
@@ -207,9 +203,8 @@ class Payload(ABC):
 class BytesPayload(Payload):
     def __init__(self, value: ByteString, *args: Any, **kwargs: Any) -> None:
         if not isinstance(value, (bytes, bytearray, memoryview)):
-            raise TypeError(
-                "value argument must be byte-ish, not {!r}".format(type(value))
-            )
+            raise TypeError("value argument must be byte-ish, not {!r}".format(
+                type(value)))
 
         if "content_type" not in kwargs:
             kwargs["content_type"] = "application/octet-stream"
@@ -233,14 +228,12 @@ class BytesPayload(Payload):
 
 
 class StringPayload(BytesPayload):
-    def __init__(
-        self,
-        value: Text,
-        *args: Any,
-        encoding: Optional[str] = None,
-        content_type: Optional[str] = None,
-        **kwargs: Any
-    ) -> None:
+    def __init__(self,
+                 value: Text,
+                 *args: Any,
+                 encoding: Optional[str] = None,
+                 content_type: Optional[str] = None,
+                 **kwargs: Any) -> None:
 
         if encoding is None:
             if content_type is None:
@@ -269,43 +262,40 @@ class StringIOPayload(StringPayload):
 
 
 class IOBasePayload(Payload):
-    def __init__(
-        self, value: IO[Any], disposition: str = "attachment", *args: Any, **kwargs: Any
-    ) -> None:
+    def __init__(self,
+                 value: IO[Any],
+                 disposition: str = "attachment",
+                 *args: Any,
+                 **kwargs: Any) -> None:
         if "filename" not in kwargs:
             kwargs["filename"] = guess_filename(value)
 
         super().__init__(value, *args, **kwargs)
 
-        if (
-            self._filename is not None
-            and disposition is not None
-            and hdrs.CONTENT_DISPOSITION not in self.headers
-        ):
+        if (self._filename is not None and disposition is not None
+                and hdrs.CONTENT_DISPOSITION not in self.headers):
             self.set_content_disposition(disposition, filename=self._filename)
 
     async def write(self, writer: AbstractStreamWriter) -> None:
         loop = asyncio.get_event_loop()
         try:
-            chunk = await loop.run_in_executor(None, self._value.read, DEFAULT_LIMIT)
+            chunk = await loop.run_in_executor(None, self._value.read,
+                                               DEFAULT_LIMIT)
             while chunk:
                 await writer.write(chunk)
-                chunk = await loop.run_in_executor(
-                    None, self._value.read, DEFAULT_LIMIT
-                )
+                chunk = await loop.run_in_executor(None, self._value.read,
+                                                   DEFAULT_LIMIT)
         finally:
             await loop.run_in_executor(None, self._value.close)
 
 
 class TextIOPayload(IOBasePayload):
-    def __init__(
-        self,
-        value: TextIO,
-        *args: Any,
-        encoding: Optional[str] = None,
-        content_type: Optional[str] = None,
-        **kwargs: Any
-    ) -> None:
+    def __init__(self,
+                 value: TextIO,
+                 *args: Any,
+                 encoding: Optional[str] = None,
+                 content_type: Optional[str] = None,
+                 **kwargs: Any) -> None:
 
         if encoding is None:
             if content_type is None:
@@ -319,7 +309,11 @@ class TextIOPayload(IOBasePayload):
                 content_type = "text/plain; charset=%s" % encoding
 
         super().__init__(
-            value, content_type=content_type, encoding=encoding, *args, **kwargs,
+            value,
+            content_type=content_type,
+            encoding=encoding,
+            *args,
+            **kwargs,
         )
 
     @property
@@ -332,12 +326,12 @@ class TextIOPayload(IOBasePayload):
     async def write(self, writer: AbstractStreamWriter) -> None:
         loop = asyncio.get_event_loop()
         try:
-            chunk = await loop.run_in_executor(None, self._value.read, DEFAULT_LIMIT)
+            chunk = await loop.run_in_executor(None, self._value.read,
+                                               DEFAULT_LIMIT)
             while chunk:
                 await writer.write(chunk.encode(self._encoding))
-                chunk = await loop.run_in_executor(
-                    None, self._value.read, DEFAULT_LIMIT
-                )
+                chunk = await loop.run_in_executor(None, self._value.read,
+                                                   DEFAULT_LIMIT)
         finally:
             await loop.run_in_executor(None, self._value.close)
 
@@ -363,15 +357,13 @@ class BufferedReaderPayload(IOBasePayload):
 
 
 class JsonPayload(BytesPayload):
-    def __init__(
-        self,
-        value: Any,
-        encoding: str = "utf-8",
-        content_type: str = "application/json",
-        dumps: JSONEncoder = json.dumps,
-        *args: Any,
-        **kwargs: Any
-    ) -> None:
+    def __init__(self,
+                 value: Any,
+                 encoding: str = "utf-8",
+                 content_type: str = "application/json",
+                 dumps: JSONEncoder = json.dumps,
+                 *args: Any,
+                 **kwargs: Any) -> None:
 
         super().__init__(
             dumps(value).encode(encoding),
@@ -398,13 +390,12 @@ class AsyncIterablePayload(Payload):
 
     _iter = None  # type: Optional[_AsyncIterator]
 
-    def __init__(self, value: _AsyncIterable, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, value: _AsyncIterable, *args: Any,
+                 **kwargs: Any) -> None:
         if not isinstance(value, AsyncIterable):
-            raise TypeError(
-                "value argument must support "
-                "collections.abc.AsyncIterablebe interface, "
-                "got {!r}".format(type(value))
-            )
+            raise TypeError("value argument must support "
+                            "collections.abc.AsyncIterablebe interface, "
+                            "got {!r}".format(type(value)))
 
         if "content_type" not in kwargs:
             kwargs["content_type"] = "application/octet-stream"
@@ -436,9 +427,12 @@ PAYLOAD_REGISTRY.register(StringPayload, str)
 PAYLOAD_REGISTRY.register(StringIOPayload, io.StringIO)
 PAYLOAD_REGISTRY.register(TextIOPayload, io.TextIOBase)
 PAYLOAD_REGISTRY.register(BytesIOPayload, io.BytesIO)
-PAYLOAD_REGISTRY.register(BufferedReaderPayload, (io.BufferedReader, io.BufferedRandom))
+PAYLOAD_REGISTRY.register(BufferedReaderPayload,
+                          (io.BufferedReader, io.BufferedRandom))
 PAYLOAD_REGISTRY.register(IOBasePayload, io.IOBase)
 PAYLOAD_REGISTRY.register(StreamReaderPayload, StreamReader)
 # try_last for giving a chance to more specialized async interables like
 # multidict.BodyPartReaderPayload override the default
-PAYLOAD_REGISTRY.register(AsyncIterablePayload, AsyncIterable, order=Order.try_last)
+PAYLOAD_REGISTRY.register(AsyncIterablePayload,
+                          AsyncIterable,
+                          order=Order.try_last)

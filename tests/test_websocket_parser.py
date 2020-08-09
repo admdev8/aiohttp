@@ -21,9 +21,12 @@ from aiohttp.http_websocket import PACK_LEN3
 from aiohttp.http_websocket import WebSocketReader
 
 
-def build_frame(
-    message, opcode, use_mask=False, noheader=False, is_fin=True, compress=False
-):
+def build_frame(message,
+                opcode,
+                use_mask=False,
+                noheader=False,
+                is_fin=True,
+                compress=False):
     # Send a frame over the websocket with message as its payload.
     if compress:
         compressobj = zlib.compressobj(wbits=-9)
@@ -64,9 +67,9 @@ def build_close_frame(code=1000, message=b"", noheader=False):
     # Close the websocket, sending the specified code and message.
     if isinstance(message, str):  # pragma: no cover
         message = message.encode("utf-8")
-    return build_frame(
-        PACK_CLOSE_CODE(code) + message, opcode=WSMsgType.CLOSE, noheader=noheader
-    )
+    return build_frame(PACK_CLOSE_CODE(code) + message,
+                       opcode=WSMsgType.CLOSE,
+                       noheader=noheader)
 
 
 @pytest.fixture()
@@ -89,8 +92,7 @@ def test_parse_frame(parser) -> None:
 
 def test_parse_frame_length0(parser) -> None:
     fin, opcode, payload, compress = parser.parse_frame(
-        struct.pack("!BB", 0b00000001, 0b00000000)
-    )[0]
+        struct.pack("!BB", 0b00000001, 0b00000000))[0]
 
     assert (0, 1, b"", False) == (fin, opcode, payload, not not compress)
 
@@ -299,7 +301,8 @@ def test_continuation_with_close(out, parser) -> None:
     parser.parse_frame = mock.Mock()
     parser.parse_frame.return_value = [
         (0, WSMsgType.TEXT, b"line1", False),
-        (0, WSMsgType.CLOSE, build_close_frame(1002, b"test", noheader=True), False),
+        (0, WSMsgType.CLOSE, build_close_frame(1002, b"test",
+                                               noheader=True), False),
         (1, WSMsgType.CONTINUATION, b"line2", False),
     ]
 
@@ -333,7 +336,8 @@ def test_continuation_with_close_bad_code(out, parser) -> None:
     parser.parse_frame = mock.Mock()
     parser.parse_frame.return_value = [
         (0, WSMsgType.TEXT, b"line1", False),
-        (0, WSMsgType.CLOSE, build_close_frame(1, b"test", noheader=True), False),
+        (0, WSMsgType.CLOSE, build_close_frame(1, b"test",
+                                               noheader=True), False),
         (1, WSMsgType.CONTINUATION, b"line2", False),
     ]
 
@@ -374,9 +378,8 @@ def test_continuation_with_close_empty(out, parser) -> None:
 
 websocket_mask_data = b"some very long data for masking by websocket"
 websocket_mask_mask = b"1234"
-websocket_mask_masked = (
-    b"B]^Q\x11DVFH\x12_[_U\x13PPFR\x14W]A\x14\\S@_X" b"\\T\x14SK\x13CTP@[RYV@"
-)
+websocket_mask_masked = (b"B]^Q\x11DVFH\x12_[_U\x13PPFR\x14W]A\x14\\S@_X"
+                         b"\\T\x14SK\x13CTP@[RYV@")
 
 
 def test_websocket_mask_python() -> None:
@@ -385,9 +388,8 @@ def test_websocket_mask_python() -> None:
     assert message == websocket_mask_masked
 
 
-@pytest.mark.skipif(
-    not hasattr(http_websocket, "_websocket_mask_cython"), reason="Requires Cython"
-)
+@pytest.mark.skipif(not hasattr(http_websocket, "_websocket_mask_cython"),
+                    reason="Requires Cython")
 def test_websocket_mask_cython() -> None:
     message = bytearray(websocket_mask_data)
     http_websocket._websocket_mask_cython(websocket_mask_mask, message)
@@ -400,9 +402,8 @@ def test_websocket_mask_python_empty() -> None:
     assert message == bytearray()
 
 
-@pytest.mark.skipif(
-    not hasattr(http_websocket, "_websocket_mask_cython"), reason="Requires Cython"
-)
+@pytest.mark.skipif(not hasattr(http_websocket, "_websocket_mask_cython"),
+                    reason="Requires Cython")
 def test_websocket_mask_cython_empty() -> None:
     message = bytearray()
     http_websocket._websocket_mask_cython(websocket_mask_mask, message)
@@ -451,7 +452,8 @@ def test_parse_compress_error_frame(parser) -> None:
 def test_parse_no_compress_frame_single() -> None:
     parser_no_compress = WebSocketReader(out, 0, compress=False)
     with pytest.raises(WebSocketError) as ctx:
-        parser_no_compress.parse_frame(struct.pack("!BB", 0b11000001, 0b00000001))
+        parser_no_compress.parse_frame(
+            struct.pack("!BB", 0b11000001, 0b00000001))
         parser_no_compress.parse_frame(b"1")
 
     assert ctx.value.code == WSCloseCode.PROTOCOL_ERROR

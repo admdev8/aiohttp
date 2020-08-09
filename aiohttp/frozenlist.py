@@ -55,7 +55,8 @@ class FrozenList(MutableSequence):
         self._items.insert(pos, item)
 
     def __repr__(self):
-        return "<FrozenList(frozen={}, {!r})>".format(self._frozen, self._items)
+        return "<FrozenList(frozen={}, {!r})>".format(self._frozen,
+                                                      self._items)
 
 
 PyFrozenList = FrozenList

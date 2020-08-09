@@ -165,6 +165,7 @@ async def test_repr(app) -> None:
     signal.append(callback)
 
     assert re.match(
-        r"<Signal owner=<Application .+>, frozen=False, " r"\[<Mock id='\d+'>\]>",
+        r"<Signal owner=<Application .+>, frozen=False, "
+        r"\[<Mock id='\d+'>\]>",
         repr(signal),
     )

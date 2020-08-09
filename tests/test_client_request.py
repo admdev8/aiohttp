@@ -102,9 +102,8 @@ def test_version_default(make_request) -> None:
 
 def test_request_info(make_request) -> None:
     req = make_request("get", "http://python.org/")
-    assert req.request_info == aiohttp.RequestInfo(
-        URL("http://python.org/"), "GET", req.headers
-    )
+    assert req.request_info == aiohttp.RequestInfo(URL("http://python.org/"),
+                                                   "GET", req.headers)
 
 
 def test_request_info_with_fragment(make_request) -> None:
@@ -124,7 +123,9 @@ def test_version_err(make_request) -> None:
 
 def test_https_proxy(make_request) -> None:
     with pytest.raises(ValueError):
-        make_request("get", "http://python.org/", proxy=URL("https://proxy.org"))
+        make_request("get",
+                     "http://python.org/",
+                     proxy=URL("https://proxy.org"))
 
 
 def test_keep_alive(make_request) -> None:
@@ -145,9 +146,10 @@ def test_keep_alive(make_request) -> None:
     req = make_request("get", "http://python.org/", version=(1, 1))
     assert req.keep_alive()
 
-    req = make_request(
-        "get", "http://python.org/", version=(1, 1), headers={"connection": "close"}
-    )
+    req = make_request("get",
+                       "http://python.org/",
+                       version=(1, 1),
+                       headers={"connection": "close"})
     assert not req.keep_alive()
 
 
@@ -253,12 +255,16 @@ def test_host_header_host_unicode(make_request) -> None:
 
 
 def test_host_header_explicit_host(make_request) -> None:
-    req = make_request("get", "http://python.org/", headers={"host": "example.com"})
+    req = make_request("get",
+                       "http://python.org/",
+                       headers={"host": "example.com"})
     assert req.headers["HOST"] == "example.com"
 
 
 def test_host_header_explicit_host_with_port(make_request) -> None:
-    req = make_request("get", "http://python.org/", headers={"host": "example.com:99"})
+    req = make_request("get",
+                       "http://python.org/",
+                       headers={"host": "example.com:99"})
     assert req.headers["HOST"] == "example.com:99"
 
 
@@ -290,26 +296,26 @@ def test_default_headers_useragent(make_request) -> None:
 
 
 def test_default_headers_useragent_custom(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org/", headers={"user-agent": "my custom agent"}
-    )
+    req = make_request("get",
+                       "http://python.org/",
+                       headers={"user-agent": "my custom agent"})
 
     assert "USER-Agent" in req.headers
     assert "my custom agent" == req.headers["User-Agent"]
 
 
 def test_skip_default_useragent_header(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org/", skip_auto_headers=set([istr("user-agent")])
-    )
+    req = make_request("get",
+                       "http://python.org/",
+                       skip_auto_headers=set([istr("user-agent")]))
 
     assert "User-Agent" not in req.headers
 
 
 def test_headers(make_request) -> None:
-    req = make_request(
-        "post", "http://python.org/", headers={"Content-Type": "text/plain"}
-    )
+    req = make_request("post",
+                       "http://python.org/",
+                       headers={"Content-Type": "text/plain"})
 
     assert "CONTENT-TYPE" in req.headers
     assert req.headers["CONTENT-TYPE"] == "text/plain"
@@ -317,17 +323,17 @@ def test_headers(make_request) -> None:
 
 
 def test_headers_list(make_request) -> None:
-    req = make_request(
-        "post", "http://python.org/", headers=[("Content-Type", "text/plain")]
-    )
+    req = make_request("post",
+                       "http://python.org/",
+                       headers=[("Content-Type", "text/plain")])
     assert "CONTENT-TYPE" in req.headers
     assert req.headers["CONTENT-TYPE"] == "text/plain"
 
 
 def test_headers_default(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org/", headers={"ACCEPT-ENCODING": "deflate"}
-    )
+    req = make_request("get",
+                       "http://python.org/",
+                       headers={"ACCEPT-ENCODING": "deflate"})
     assert req.headers["ACCEPT-ENCODING"] == "deflate"
 
 
@@ -370,17 +376,17 @@ def test_ipv6_nondefault_https_port(make_request) -> None:
 
 
 def test_basic_auth(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org", auth=aiohttp.BasicAuth("nkim", "1234")
-    )
+    req = make_request("get",
+                       "http://python.org",
+                       auth=aiohttp.BasicAuth("nkim", "1234"))
     assert "AUTHORIZATION" in req.headers
     assert "Basic bmtpbToxMjM0" == req.headers["AUTHORIZATION"]
 
 
 def test_basic_auth_utf8(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org", auth=aiohttp.BasicAuth("nkim", "секрет", "utf-8")
-    )
+    req = make_request("get",
+                       "http://python.org",
+                       auth=aiohttp.BasicAuth("nkim", "секрет", "utf-8"))
     assert "AUTHORIZATION" in req.headers
     assert "Basic bmtpbTrRgdC10LrRgNC10YI=" == req.headers["AUTHORIZATION"]
 
@@ -398,9 +404,9 @@ def test_basic_auth_from_url(make_request) -> None:
 
 
 def test_basic_auth_from_url_overridden(make_request) -> None:
-    req = make_request(
-        "get", "http://garbage@python.org", auth=aiohttp.BasicAuth("nkim", "1234")
-    )
+    req = make_request("get",
+                       "http://garbage@python.org",
+                       auth=aiohttp.BasicAuth("nkim", "1234"))
     assert "AUTHORIZATION" in req.headers
     assert "Basic bmtpbToxMjM0" == req.headers["AUTHORIZATION"]
     assert "python.org" == req.host
@@ -427,14 +433,16 @@ def test_path_safe_chars_preserved(make_request) -> None:
 
 
 def test_params_are_added_before_fragment1(make_request) -> None:
-    req = make_request("GET", "http://example.com/path#fragment", params={"a": "b"})
+    req = make_request("GET",
+                       "http://example.com/path#fragment",
+                       params={"a": "b"})
     assert str(req.url) == "http://example.com/path?a=b"
 
 
 def test_params_are_added_before_fragment2(make_request) -> None:
-    req = make_request(
-        "GET", "http://example.com/path?key=value#fragment", params={"a": "b"}
-    )
+    req = make_request("GET",
+                       "http://example.com/path?key=value#fragment",
+                       params={"a": "b"})
     assert str(req.url) == "http://example.com/path?key=value&a=b"
 
 
@@ -449,7 +457,9 @@ def test_path_not_contain_fragment2(make_request) -> None:
 
 
 def test_cookies(make_request) -> None:
-    req = make_request("get", "http://test.com/path", cookies={"cookie1": "val1"})
+    req = make_request("get",
+                       "http://test.com/path",
+                       cookies={"cookie1": "val1"})
 
     assert "COOKIE" in req.headers
     assert "cookie1=val1" == req.headers["COOKIE"]
@@ -468,9 +478,9 @@ def test_cookies_merge_with_headers(make_request) -> None:
 
 def test_query_multivalued_param(make_request) -> None:
     for meth in ClientRequest.ALL_METHODS:
-        req = make_request(
-            meth, "http://python.org", params=(("test", "foo"), ("test", "baz"))
-        )
+        req = make_request(meth,
+                           "http://python.org",
+                           params=(("test", "foo"), ("test", "baz")))
 
         assert str(req.url) == "http://python.org/?test=foo&test=baz"
 
@@ -494,9 +504,9 @@ def test_query_str_param_is_not_encoded(make_request) -> None:
 
 
 def test_params_update_path_and_url(make_request) -> None:
-    req = make_request(
-        "get", "http://python.org", params=(("test", "foo"), ("test", "baz"))
-    )
+    req = make_request("get",
+                       "http://python.org",
+                       params=(("test", "foo"), ("test", "baz")))
     assert str(req.url) == "http://python.org/?test=foo&test=baz"
 
 
@@ -510,26 +520,21 @@ def test_params_empty_path_and_url(make_request) -> None:
 def test_gen_netloc_all(make_request) -> None:
     req = make_request(
         "get",
-        "https://aiohttp:pwpwpw@"
-        + "12345678901234567890123456789"
-        + "012345678901234567890:8080",
+        "https://aiohttp:pwpwpw@" + "12345678901234567890123456789" +
+        "012345678901234567890:8080",
     )
-    assert (
-        req.headers["HOST"]
-        == "12345678901234567890123456789" + "012345678901234567890:8080"
-    )
+    assert (req.headers["HOST"] == "12345678901234567890123456789" +
+            "012345678901234567890:8080")
 
 
 def test_gen_netloc_no_port(make_request) -> None:
     req = make_request(
         "get",
-        "https://aiohttp:pwpwpw@"
-        + "12345678901234567890123456789"
-        + "012345678901234567890/",
+        "https://aiohttp:pwpwpw@" + "12345678901234567890123456789" +
+        "012345678901234567890/",
     )
-    assert (
-        req.headers["HOST"] == "12345678901234567890123456789" + "012345678901234567890"
-    )
+    assert (req.headers["HOST"] == "12345678901234567890123456789" +
+            "012345678901234567890")
 
 
 async def test_connection_header(loop, conn) -> None:
@@ -579,16 +584,21 @@ async def test_content_type_auto_header_get(loop, conn) -> None:
 
 
 async def test_content_type_auto_header_form(loop, conn) -> None:
-    req = ClientRequest(
-        "post", URL("http://python.org"), data={"hey": "you"}, loop=loop
-    )
+    req = ClientRequest("post",
+                        URL("http://python.org"),
+                        data={"hey": "you"},
+                        loop=loop)
     resp = await req.send(conn)
-    assert "application/x-www-form-urlencoded" == req.headers.get("CONTENT-TYPE")
+    assert "application/x-www-form-urlencoded" == req.headers.get(
+        "CONTENT-TYPE")
     resp.close()
 
 
 async def test_content_type_auto_header_bytes(loop, conn) -> None:
-    req = ClientRequest("post", URL("http://python.org"), data=b"hey you", loop=loop)
+    req = ClientRequest("post",
+                        URL("http://python.org"),
+                        data=b"hey you",
+                        loop=loop)
     resp = await req.send(conn)
     assert "application/octet-stream" == req.headers.get("CONTENT-TYPE")
     resp.close()
@@ -620,7 +630,8 @@ async def test_content_type_skip_auto_header_form(loop, conn) -> None:
     resp.close()
 
 
-async def test_content_type_auto_header_content_length_no_skip(loop, conn) -> None:
+async def test_content_type_auto_header_content_length_no_skip(loop,
+                                                               conn) -> None:
     req = ClientRequest(
         "post",
         URL("http://python.org"),
@@ -642,26 +653,31 @@ async def test_urlencoded_formdata_charset(loop, conn) -> None:
     )
     await req.send(conn)
     assert "application/x-www-form-urlencoded; charset=koi8-r" == req.headers.get(
-        "CONTENT-TYPE"
-    )
+        "CONTENT-TYPE")
 
 
 async def test_post_data(loop, conn) -> None:
     for meth in ClientRequest.POST_METHODS:
-        req = ClientRequest(
-            meth, URL("http://python.org/"), data={"life": "42"}, loop=loop
-        )
+        req = ClientRequest(meth,
+                            URL("http://python.org/"),
+                            data={"life": "42"},
+                            loop=loop)
         resp = await req.send(conn)
         assert "/" == req.url.path
         assert b"life=42" == req.body._value
-        assert "application/x-www-form-urlencoded" == req.headers["CONTENT-TYPE"]
+        assert "application/x-www-form-urlencoded" == req.headers[
+            "CONTENT-TYPE"]
         await req.close()
         resp.close()
 
 
 async def test_pass_falsy_data(loop) -> None:
-    with mock.patch("aiohttp.client_reqrep.ClientRequest.update_body_from_data"):
-        req = ClientRequest("post", URL("http://python.org/"), data={}, loop=loop)
+    with mock.patch(
+            "aiohttp.client_reqrep.ClientRequest.update_body_from_data"):
+        req = ClientRequest("post",
+                            URL("http://python.org/"),
+                            data={},
+                            loop=loop)
         req.update_body_from_data.assert_called_once_with({})
     await req.close()
 
@@ -685,9 +701,10 @@ async def test_pass_falsy_data_file(loop, tmp_path) -> None:
 # Elasticsearch API requires to send request body with GET-requests
 async def test_get_with_data(loop) -> None:
     for meth in ClientRequest.GET_METHODS:
-        req = ClientRequest(
-            meth, URL("http://python.org/"), data={"life": "42"}, loop=loop
-        )
+        req = ClientRequest(meth,
+                            URL("http://python.org/"),
+                            data={"life": "42"},
+                            loop=loop)
         assert "/" == req.url.path
         assert b"life=42" == req.body._value
         await req.close()
@@ -695,9 +712,10 @@ async def test_get_with_data(loop) -> None:
 
 async def test_bytes_data(loop, conn) -> None:
     for meth in ClientRequest.POST_METHODS:
-        req = ClientRequest(
-            meth, URL("http://python.org/"), data=b"binary data", loop=loop
-        )
+        req = ClientRequest(meth,
+                            URL("http://python.org/"),
+                            data=b"binary data",
+                            loop=loop)
         resp = await req.send(conn)
         assert "/" == req.url.path
         assert isinstance(req.body, payload.BytesPayload)
@@ -708,9 +726,11 @@ async def test_bytes_data(loop, conn) -> None:
 
 
 async def test_content_encoding(loop, conn) -> None:
-    req = ClientRequest(
-        "post", URL("http://python.org/"), data="foo", compress="deflate", loop=loop
-    )
+    req = ClientRequest("post",
+                        URL("http://python.org/"),
+                        data="foo",
+                        compress="deflate",
+                        loop=loop)
     with mock.patch("aiohttp.client_reqrep.StreamWriter") as m_writer:
         m_writer.return_value.write_headers = make_mocked_coro()
         resp = await req.send(conn)
@@ -721,10 +741,12 @@ async def test_content_encoding(loop, conn) -> None:
     resp.close()
 
 
-async def test_content_encoding_dont_set_headers_if_no_body(loop, conn) -> None:
-    req = ClientRequest(
-        "post", URL("http://python.org/"), compress="deflate", loop=loop
-    )
+async def test_content_encoding_dont_set_headers_if_no_body(loop,
+                                                            conn) -> None:
+    req = ClientRequest("post",
+                        URL("http://python.org/"),
+                        compress="deflate",
+                        loop=loop)
     with mock.patch("aiohttp.client_reqrep.http"):
         resp = await req.send(conn)
     assert "TRANSFER-ENCODING" not in req.headers
@@ -790,7 +812,10 @@ async def test_chunked2(loop, conn) -> None:
 
 
 async def test_chunked_explicit(loop, conn) -> None:
-    req = ClientRequest("post", URL("http://python.org/"), chunked=True, loop=loop)
+    req = ClientRequest("post",
+                        URL("http://python.org/"),
+                        chunked=True,
+                        loop=loop)
     with mock.patch("aiohttp.client_reqrep.StreamWriter") as m_writer:
         m_writer.return_value.write_headers = make_mocked_coro()
         resp = await req.send(conn)
@@ -826,7 +851,10 @@ async def test_chunked_transfer_encoding(loop, conn) -> None:
 async def test_file_upload_not_chunked(loop) -> None:
     file_path = pathlib.Path(__file__).parent / "aiohttp.png"
     with file_path.open("rb") as f:
-        req = ClientRequest("post", URL("http://python.org/"), data=f, loop=loop)
+        req = ClientRequest("post",
+                            URL("http://python.org/"),
+                            data=f,
+                            loop=loop)
         assert not req.chunked
         assert req.headers["CONTENT-LENGTH"] == str(file_path.stat().st_size)
         await req.close()
@@ -852,24 +880,33 @@ async def test_file_upload_not_chunked_seek(loop) -> None:
     file_path = pathlib.Path(__file__).parent / "aiohttp.png"
     with file_path.open("rb") as f:
         f.seek(100)
-        req = ClientRequest("post", URL("http://python.org/"), data=f, loop=loop)
-        assert req.headers["CONTENT-LENGTH"] == str(file_path.stat().st_size - 100)
+        req = ClientRequest("post",
+                            URL("http://python.org/"),
+                            data=f,
+                            loop=loop)
+        assert req.headers["CONTENT-LENGTH"] == str(file_path.stat().st_size -
+                                                    100)
         await req.close()
 
 
 async def test_file_upload_force_chunked(loop) -> None:
     file_path = pathlib.Path(__file__).parent / "aiohttp.png"
     with file_path.open("rb") as f:
-        req = ClientRequest(
-            "post", URL("http://python.org/"), data=f, chunked=True, loop=loop
-        )
+        req = ClientRequest("post",
+                            URL("http://python.org/"),
+                            data=f,
+                            chunked=True,
+                            loop=loop)
         assert req.chunked
         assert "CONTENT-LENGTH" not in req.headers
         await req.close()
 
 
 async def test_expect100(loop, conn) -> None:
-    req = ClientRequest("get", URL("http://python.org/"), expect100=True, loop=loop)
+    req = ClientRequest("get",
+                        URL("http://python.org/"),
+                        expect100=True,
+                        loop=loop)
     resp = await req.send(conn)
     assert "100-continue" == req.headers["EXPECT"]
     assert req._continue is not None
@@ -878,9 +915,10 @@ async def test_expect100(loop, conn) -> None:
 
 
 async def test_expect_100_continue_header(loop, conn) -> None:
-    req = ClientRequest(
-        "get", URL("http://python.org/"), headers={"expect": "100-continue"}, loop=loop
-    )
+    req = ClientRequest("get",
+                        URL("http://python.org/"),
+                        headers={"expect": "100-continue"},
+                        loop=loop)
     resp = await req.send(conn)
     assert "100-continue" == req.headers["EXPECT"]
     assert req._continue is not None
@@ -893,7 +931,10 @@ async def test_data_stream(loop, buf, conn) -> None:
         yield b"binary data"
         yield b" result"
 
-    req = ClientRequest("POST", URL("http://python.org/"), data=gen(), loop=loop)
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=gen(),
+                        loop=loop)
     assert req.chunked
     assert req.headers["TRANSFER-ENCODING"] == "chunked"
 
@@ -901,9 +942,8 @@ async def test_data_stream(loop, buf, conn) -> None:
     assert asyncio.isfuture(req._writer)
     await resp.wait_for_close()
     assert req._writer is None
-    assert (
-        buf.split(b"\r\n\r\n", 1)[1] == b"b\r\nbinary data\r\n7\r\n result\r\n0\r\n\r\n"
-    )
+    assert (buf.split(
+        b"\r\n\r\n", 1)[1] == b"b\r\nbinary data\r\n7\r\n result\r\n0\r\n\r\n")
     await req.close()
 
 
@@ -922,7 +962,8 @@ async def test_data_file(loop, buf, conn) -> None:
     assert asyncio.isfuture(req._writer)
     await resp.wait_for_close()
     assert req._writer is None
-    assert buf.split(b"\r\n\r\n", 1)[1] == b"2\r\n" + b"*" * 2 + b"\r\n0\r\n\r\n"
+    assert buf.split(b"\r\n\r\n",
+                     1)[1] == b"2\r\n" + b"*" * 2 + b"\r\n0\r\n\r\n"
     await req.close()
 
 
@@ -933,7 +974,10 @@ async def test_data_stream_exc(loop, conn) -> None:
         yield b"binary data"
         await fut
 
-    req = ClientRequest("POST", URL("http://python.org/"), data=gen(), loop=loop)
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=gen(),
+                        loop=loop)
     assert req.chunked
     assert req.headers["TRANSFER-ENCODING"] == "chunked"
 
@@ -957,7 +1001,10 @@ async def test_data_stream_exc_chain(loop, conn) -> None:
         await fut
         return
 
-    req = ClientRequest("POST", URL("http://python.org/"), data=gen(), loop=loop)
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=gen(),
+                        loop=loop)
 
     inner_exc = ValueError()
 
@@ -983,9 +1030,11 @@ async def test_data_stream_continue(loop, buf, conn) -> None:
         yield b"binary data"
         yield b" result"
 
-    req = ClientRequest(
-        "POST", URL("http://python.org/"), data=gen(), expect100=True, loop=loop
-    )
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=gen(),
+                        expect100=True,
+                        loop=loop)
     assert req.chunked
 
     async def coro():
@@ -996,17 +1045,18 @@ async def test_data_stream_continue(loop, buf, conn) -> None:
 
     resp = await req.send(conn)
     await req._writer
-    assert (
-        buf.split(b"\r\n\r\n", 1)[1] == b"b\r\nbinary data\r\n7\r\n result\r\n0\r\n\r\n"
-    )
+    assert (buf.split(
+        b"\r\n\r\n", 1)[1] == b"b\r\nbinary data\r\n7\r\n result\r\n0\r\n\r\n")
     await req.close()
     resp.close()
 
 
 async def test_data_continue(loop, buf, conn) -> None:
-    req = ClientRequest(
-        "POST", URL("http://python.org/"), data=b"data", expect100=True, loop=loop
-    )
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=b"data",
+                        expect100=True,
+                        loop=loop)
 
     async def coro():
         await asyncio.sleep(0.0001)
@@ -1027,7 +1077,10 @@ async def test_close(loop, buf, conn) -> None:
         await asyncio.sleep(0.00001)
         yield b"result"
 
-    req = ClientRequest("POST", URL("http://python.org/"), data=gen(), loop=loop)
+    req = ClientRequest("POST",
+                        URL("http://python.org/"),
+                        data=gen(),
+                        loop=loop)
     resp = await req.send(conn)
     await req.close()
     assert buf.split(b"\r\n\r\n", 1)[1] == b"6\r\nresult\r\n0\r\n\r\n"
@@ -1040,9 +1093,10 @@ async def test_custom_response_class(loop, conn) -> None:
         def read(self, decode=False):
             return "customized!"
 
-    req = ClientRequest(
-        "GET", URL("http://python.org/"), response_class=CustomResponse, loop=loop
-    )
+    req = ClientRequest("GET",
+                        URL("http://python.org/"),
+                        response_class=CustomResponse,
+                        loop=loop)
     resp = await req.send(conn)
     assert "customized!" == resp.read()
     await req.close()
@@ -1143,9 +1197,9 @@ async def test_custom_req_rep(loop, create_mocked_conn) -> None:
     connector = BaseConnector()
     connector._create_connection = create_connection
 
-    session = aiohttp.ClientSession(
-        request_class=CustomRequest, response_class=CustomResponse, connector=connector
-    )
+    session = aiohttp.ClientSession(request_class=CustomRequest,
+                                    response_class=CustomResponse,
+                                    connector=connector)
 
     resp = await session.request("get", URL("http://example.com/path/to"))
     assert isinstance(resp, CustomResponse)
@@ -1178,10 +1232,18 @@ def test_loose_cookies_types(loop) -> None:
     accepted_types = [
         [("str", BaseCookie())],
         [("str", morsel)],
-        [("str", "str"),],
-        {"str": BaseCookie()},
-        {"str": morsel},
-        {"str": "str"},
+        [
+            ("str", "str"),
+        ],
+        {
+            "str": BaseCookie()
+        },
+        {
+            "str": morsel
+        },
+        {
+            "str": "str"
+        },
         SimpleCookie(),
     ]
 

@@ -73,7 +73,8 @@ def test_string_payload() -> None:
     assert p.encoding == "koi8-r"
     assert p.content_type == "text/plain; charset=koi8-r"
 
-    p = payload.StringPayload("test", content_type="text/plain; charset=koi8-r")
+    p = payload.StringPayload("test",
+                              content_type="text/plain; charset=koi8-r")
     assert p.encoding == "koi8-r"
     assert p.content_type == "text/plain; charset=koi8-r"
 

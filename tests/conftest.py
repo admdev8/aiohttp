@@ -42,7 +42,11 @@ def tls_certificate_authority():
 
 @pytest.fixture
 def tls_certificate(tls_certificate_authority):
-    return tls_certificate_authority.issue_server_cert("localhost", "127.0.0.1", "::1",)
+    return tls_certificate_authority.issue_server_cert(
+        "localhost",
+        "127.0.0.1",
+        "::1",
+    )
 
 
 @pytest.fixture
@@ -121,9 +125,11 @@ def unix_sockname(tmp_path, tmp_path_factory):
 
     root_tmp_dir = Path("/tmp").resolve()
     os_tmp_dir = Path(os.getenv("TMPDIR", "/tmp")).resolve()
-    original_base_tmp_path = Path(str(tmp_path_factory.getbasetemp()),).resolve()
+    original_base_tmp_path = Path(str(
+        tmp_path_factory.getbasetemp()), ).resolve()
 
-    original_base_tmp_path_hash = md5(str(original_base_tmp_path).encode(),).hexdigest()
+    original_base_tmp_path_hash = md5(
+        str(original_base_tmp_path).encode(), ).hexdigest()
 
     def make_tmp_dir(base_tmp_dir):
         return TemporaryDirectory(
@@ -141,8 +147,7 @@ def unix_sockname(tmp_path, tmp_path_factory):
             "long but the current kernel only has {max_sock_len} bytes "
             "allocated to hold it so it must be shorter. "
             "See https://github.com/aio-libs/aiohttp/issues/3572 "
-            "for more info."
-        ).format_map(locals())
+            "for more info.").format_map(locals())
 
     paths = original_base_tmp_path, os_tmp_dir, root_tmp_dir
     unique_paths = [p for n, p in enumerate(paths) if p not in paths[:n]]
@@ -163,7 +168,8 @@ def unix_sockname(tmp_path, tmp_path_factory):
                 if max_sock_len - sock_path_len >= unique_prefix_len:
                     # If we're lucky to have extra space in the path,
                     # let's also make it more unique
-                    sock_path = str(tmpd / "".join((unique_prefix, sock_file_name)))
+                    sock_path = str(tmpd / "".join(
+                        (unique_prefix, sock_file_name)))
                     # Double-checking it:
                     assert_sock_fits(sock_path)
                 yield sock_path

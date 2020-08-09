@@ -61,7 +61,8 @@ def proxy_test_server(aiohttp_raw_server, loop, monkeypatch):
 def get_request(loop):
     async def _request(method="GET", *, url, trust_env=False, **kwargs):
         connector = aiohttp.TCPConnector(ssl=False)
-        client = aiohttp.ClientSession(connector=connector, trust_env=trust_env)
+        client = aiohttp.ClientSession(connector=connector,
+                                       trust_env=trust_env)
         try:
             resp = await client.request(method, url, **kwargs)
             await resp.release()
@@ -72,7 +73,8 @@ def get_request(loop):
     return _request
 
 
-async def test_proxy_http_absolute_path(proxy_test_server, get_request) -> None:
+async def test_proxy_http_absolute_path(proxy_test_server,
+                                        get_request) -> None:
     url = "http://aiohttp.io/path?query=yes"
     proxy = await proxy_test_server()
 
@@ -162,7 +164,8 @@ async def test_proxy_http_auth_utf8(proxy_test_server, get_request) -> None:
     assert "Proxy-Authorization" not in proxy.request.headers
 
 
-async def test_proxy_http_auth_from_url(proxy_test_server, get_request) -> None:
+async def test_proxy_http_auth_from_url(proxy_test_server,
+                                        get_request) -> None:
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
 
@@ -197,7 +200,8 @@ async def test_proxy_http_acquired_cleanup(proxy_test_server, loop) -> None:
 
 
 @pytest.mark.skip("we need to reconsider how we test this")
-async def test_proxy_http_acquired_cleanup_force(proxy_test_server, loop) -> None:
+async def test_proxy_http_acquired_cleanup_force(proxy_test_server,
+                                                 loop) -> None:
     url = "http://aiohttp.io/path"
 
     conn = aiohttp.TCPConnector(force_close=True)
@@ -289,7 +293,7 @@ async def xtest_proxy_https_connect_with_port(proxy_test_server, get_request):
 async def xtest_proxy_https_send_body(proxy_test_server, loop):
     sess = aiohttp.ClientSession()
     proxy = await proxy_test_server()
-    proxy.return_value = {"status": 200, "body": b"1" * (2 ** 20)}
+    proxy.return_value = {"status": 200, "body": b"1" * (2**20)}
     url = "https://www.google.com.ua/search?q=aiohttp proxy"
 
     resp = await sess.get(url, proxy=proxy.url)
@@ -297,7 +301,7 @@ async def xtest_proxy_https_send_body(proxy_test_server, loop):
     await resp.release()
     await sess.close()
 
-    assert body == b"1" * (2 ** 20)
+    assert body == b"1" * (2**20)
 
 
 @pytest.mark.xfail
@@ -321,7 +325,8 @@ async def test_proxy_https_connection_error(get_request) -> None:
         await get_request(url=url, proxy=proxy_url)
 
 
-async def test_proxy_https_bad_response(proxy_test_server, get_request) -> None:
+async def test_proxy_https_bad_response(proxy_test_server,
+                                        get_request) -> None:
     proxy = await proxy_test_server()
     proxy.return_value = dict(status=502, headers={"Proxy-Agent": "TestProxy"})
 
@@ -460,9 +465,12 @@ async def xtest_proxy_https_multi_conn_limit(proxy_test_server, loop):
 
 def _patch_ssl_transport(monkeypatch):
     # Make ssl transport substitution to prevent ssl handshake.
-    def _make_ssl_transport_dummy(
-        self, rawsock, protocol, sslcontext, waiter=None, **kwargs
-    ):
+    def _make_ssl_transport_dummy(self,
+                                  rawsock,
+                                  protocol,
+                                  sslcontext,
+                                  waiter=None,
+                                  **kwargs):
         return self._make_socket_transport(
             rawsock,
             protocol,
@@ -488,7 +496,8 @@ def mock_is_file(self):
         return original_is_file(self)
 
 
-async def test_proxy_from_env_http(proxy_test_server, get_request, mocker) -> None:
+async def test_proxy_from_env_http(proxy_test_server, get_request,
+                                   mocker) -> None:
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
     mocker.patch.dict(os.environ, {"http_proxy": str(proxy.url)})
@@ -503,16 +512,16 @@ async def test_proxy_from_env_http(proxy_test_server, get_request, mocker) -> No
     assert "Proxy-Authorization" not in proxy.request.headers
 
 
-async def test_proxy_from_env_http_with_auth(proxy_test_server, get_request, mocker):
+async def test_proxy_from_env_http_with_auth(proxy_test_server, get_request,
+                                             mocker):
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
     auth = aiohttp.BasicAuth("user", "pass")
     mocker.patch.dict(
         os.environ,
         {
-            "http_proxy": str(
-                proxy.url.with_user(auth.login).with_password(auth.password)
-            )
+            "http_proxy":
+            str(proxy.url.with_user(auth.login).with_password(auth.password))
         },
     )
 
@@ -526,8 +535,7 @@ async def test_proxy_from_env_http_with_auth(proxy_test_server, get_request, moc
 
 
 async def test_proxy_from_env_http_with_auth_from_netrc(
-    proxy_test_server, get_request, tmp_path, mocker
-):
+        proxy_test_server, get_request, tmp_path, mocker):
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
     auth = aiohttp.BasicAuth("user", "pass")
@@ -538,9 +546,10 @@ async def test_proxy_from_env_http_with_auth_from_netrc(
     )
     with netrc_file.open("w") as f:
         f.write(netrc_file_data)
-    mocker.patch.dict(
-        os.environ, {"http_proxy": str(proxy.url), "NETRC": str(netrc_file)}
-    )
+    mocker.patch.dict(os.environ, {
+        "http_proxy": str(proxy.url),
+        "NETRC": str(netrc_file)
+    })
 
     await get_request(url=url, trust_env=True)
 
@@ -552,8 +561,7 @@ async def test_proxy_from_env_http_with_auth_from_netrc(
 
 
 async def test_proxy_from_env_http_without_auth_from_netrc(
-    proxy_test_server, get_request, tmp_path, mocker
-):
+        proxy_test_server, get_request, tmp_path, mocker):
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
     auth = aiohttp.BasicAuth("user", "pass")
@@ -564,9 +572,10 @@ async def test_proxy_from_env_http_without_auth_from_netrc(
     )
     with netrc_file.open("w") as f:
         f.write(netrc_file_data)
-    mocker.patch.dict(
-        os.environ, {"http_proxy": str(proxy.url), "NETRC": str(netrc_file)}
-    )
+    mocker.patch.dict(os.environ, {
+        "http_proxy": str(proxy.url),
+        "NETRC": str(netrc_file)
+    })
 
     await get_request(url=url, trust_env=True)
 
@@ -578,8 +587,7 @@ async def test_proxy_from_env_http_without_auth_from_netrc(
 
 
 async def test_proxy_from_env_http_without_auth_from_wrong_netrc(
-    proxy_test_server, get_request, tmp_path, mocker
-):
+        proxy_test_server, get_request, tmp_path, mocker):
     url = "http://aiohttp.io/path"
     proxy = await proxy_test_server()
     auth = aiohttp.BasicAuth("user", "pass")
@@ -588,9 +596,10 @@ async def test_proxy_from_env_http_without_auth_from_wrong_netrc(
     with netrc_file.open("w") as f:
         f.write(invalid_data)
 
-    mocker.patch.dict(
-        os.environ, {"http_proxy": str(proxy.url), "NETRC": str(netrc_file)}
-    )
+    mocker.patch.dict(os.environ, {
+        "http_proxy": str(proxy.url),
+        "NETRC": str(netrc_file)
+    })
 
     await get_request(url=url, trust_env=True)
 
@@ -618,16 +627,16 @@ async def xtest_proxy_from_env_https(proxy_test_server, get_request, mocker):
 
 
 @pytest.mark.xfail
-async def xtest_proxy_from_env_https_with_auth(proxy_test_server, get_request, mocker):
+async def xtest_proxy_from_env_https_with_auth(proxy_test_server, get_request,
+                                               mocker):
     url = "https://aiohttp.io/path"
     proxy = await proxy_test_server()
     auth = aiohttp.BasicAuth("user", "pass")
     mocker.patch.dict(
         os.environ,
         {
-            "https_proxy": str(
-                proxy.url.with_user(auth.login).with_password(auth.password)
-            )
+            "https_proxy":
+            str(proxy.url.with_user(auth.login).with_password(auth.password))
         },
     )
 
@@ -650,8 +659,8 @@ async def xtest_proxy_from_env_https_with_auth(proxy_test_server, get_request, m
 async def test_proxy_auth() -> None:
     async with aiohttp.ClientSession() as session:
         with pytest.raises(
-            ValueError, match=r"proxy_auth must be None or BasicAuth\(\) tuple"
-        ):
+                ValueError,
+                match=r"proxy_auth must be None or BasicAuth\(\) tuple"):
             await session.get(
                 "http://python.org",
                 proxy="http://proxy.example.com",

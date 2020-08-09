@@ -14,7 +14,7 @@ from . import payload
 from .helpers import guess_filename
 from .payload import Payload
 
-__all__ = ("FormData",)
+__all__ = ("FormData", )
 
 
 class FormData:
@@ -22,10 +22,10 @@ class FormData:
     application/x-www-form-urlencoded body generation."""
 
     def __init__(
-        self,
-        fields: Iterable[Any] = (),
-        quote_fields: bool = True,
-        charset: Optional[str] = None,
+            self,
+            fields: Iterable[Any] = (),
+            quote_fields: bool = True,
+            charset: Optional[str] = None,
     ) -> None:
         self._writer = multipart.MultipartWriter("form-data")
         self._fields = []  # type: List[Any]
@@ -37,22 +37,20 @@ class FormData:
         if isinstance(fields, dict):
             fields = list(fields.items())
         elif not isinstance(fields, (list, tuple)):
-            fields = (fields,)
+            fields = (fields, )
         self.add_fields(*fields)
 
     @property
     def is_multipart(self) -> bool:
         return self._is_multipart
 
-    def add_field(
-        self,
-        name: str,
-        value: Any,
-        *,
-        content_type: Optional[str] = None,
-        filename: Optional[str] = None,
-        content_transfer_encoding: Optional[str] = None
-    ) -> None:
+    def add_field(self,
+                  name: str,
+                  value: Any,
+                  *,
+                  content_type: Optional[str] = None,
+                  filename: Optional[str] = None,
+                  content_transfer_encoding: Optional[str] = None) -> None:
 
         if isinstance(value, io.IOBase):
             self._is_multipart = True
@@ -62,9 +60,8 @@ class FormData:
 
         type_options: MultiDict[str] = MultiDict({"name": name})
         if filename is not None and not isinstance(filename, str):
-            raise TypeError(
-                "filename must be an instance of str. " "Got: %s" % filename
-            )
+            raise TypeError("filename must be an instance of str. "
+                            "Got: %s" % filename)
         if filename is None and isinstance(value, io.IOBase):
             filename = guess_filename(value, name)
         if filename is not None:
@@ -74,17 +71,14 @@ class FormData:
         headers = {}
         if content_type is not None:
             if not isinstance(content_type, str):
-                raise TypeError(
-                    "content_type must be an instance of str. " "Got: %s" % content_type
-                )
+                raise TypeError("content_type must be an instance of str. "
+                                "Got: %s" % content_type)
             headers[hdrs.CONTENT_TYPE] = content_type
             self._is_multipart = True
         if content_transfer_encoding is not None:
             if not isinstance(content_transfer_encoding, str):
-                raise TypeError(
-                    "content_transfer_encoding must be an instance"
-                    " of str. Got: %s" % content_transfer_encoding
-                )
+                raise TypeError("content_transfer_encoding must be an instance"
+                                " of str. Got: %s" % content_transfer_encoding)
             headers[hdrs.CONTENT_TRANSFER_ENCODING] = content_transfer_encoding
             self._is_multipart = True
 
@@ -111,14 +105,12 @@ class FormData:
                 raise TypeError(
                     "Only io.IOBase, multidict and (name, file) "
                     "pairs allowed, use .add_field() for passing "
-                    "more complex parameters, got {!r}".format(rec)
-                )
+                    "more complex parameters, got {!r}".format(rec))
 
     def _gen_form_urlencoded(self) -> payload.BytesPayload:
         # form data (x-www-form-urlencoded)
-        data = [
-            (type_options["name"], value) for type_options, _, value in self._fields
-        ]
+        data = [(type_options["name"], value)
+                for type_options, _, value in self._fields]
 
         charset = self._charset if self._charset is not None else "utf-8"
 
@@ -146,19 +138,18 @@ class FormData:
                         encoding=self._charset,
                     )
                 else:
-                    part = payload.get_payload(
-                        value, headers=headers, encoding=self._charset
-                    )
+                    part = payload.get_payload(value,
+                                               headers=headers,
+                                               encoding=self._charset)
             except Exception as exc:
-                raise TypeError(
-                    "Can not serialize value type: %r\n "
-                    "headers: %r\n value: %r" % (type(value), headers, value)
-                ) from exc
+                raise TypeError("Can not serialize value type: %r\n "
+                                "headers: %r\n value: %r" %
+                                (type(value), headers, value)) from exc
 
             if dispparams:
-                part.set_content_disposition(
-                    "form-data", quote_fields=self._quote_fields, **dispparams
-                )
+                part.set_content_disposition("form-data",
+                                             quote_fields=self._quote_fields,
+                                             **dispparams)
                 # FIXME cgi.FieldStorage doesn't likes body parts with
                 # Content-Length which were sent via chunked transfer encoding
                 assert part.headers is not None

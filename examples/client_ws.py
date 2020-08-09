@@ -46,14 +46,18 @@ async def start_client(loop, url):
 
 
 ARGS = argparse.ArgumentParser(
-    description="websocket console client for wssrv.py example."
-)
-ARGS.add_argument(
-    "--host", action="store", dest="host", default="127.0.0.1", help="Host name"
-)
-ARGS.add_argument(
-    "--port", action="store", dest="port", default=8080, type=int, help="Port number"
-)
+    description="websocket console client for wssrv.py example.")
+ARGS.add_argument("--host",
+                  action="store",
+                  dest="host",
+                  default="127.0.0.1",
+                  help="Host name")
+ARGS.add_argument("--port",
+                  action="store",
+                  dest="port",
+                  default=8080,
+                  type=int,
+                  help="Port number")
 
 if __name__ == "__main__":
     args = ARGS.parse_args()

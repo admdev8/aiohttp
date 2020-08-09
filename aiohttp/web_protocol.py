@@ -44,27 +44,20 @@ __all__ = ("RequestHandler", "RequestPayloadError", "PayloadAccessError")
 if TYPE_CHECKING:  # pragma: no cover
     from .web_server import Server  # noqa
 
-
-_RequestFactory = Callable[
-    [
-        RawRequestMessage,
-        StreamReader,
-        "RequestHandler",
-        AbstractStreamWriter,
-        "asyncio.Task[None]",
-    ],
-    BaseRequest,
-]
+_RequestFactory = Callable[[
+    RawRequestMessage,
+    StreamReader,
+    "RequestHandler",
+    AbstractStreamWriter,
+    "asyncio.Task[None]",
+], BaseRequest, ]
 
 _RequestHandler = Callable[[BaseRequest], Awaitable[StreamResponse]]
-_AnyAbstractAccessLogger = Union[
-    Type[AbstractAsyncAccessLogger], Type[AbstractAccessLogger],
-]
+_AnyAbstractAccessLogger = Union[Type[AbstractAsyncAccessLogger],
+                                 Type[AbstractAccessLogger], ]
 
-
-ERROR = RawRequestMessage(
-    "UNKNOWN", "/", HttpVersion10, {}, {}, True, False, False, False, yarl.URL("/")
-)
+ERROR = RawRequestMessage("UNKNOWN", "/", HttpVersion10, {}, {}, True, False,
+                          False, False, yarl.URL("/"))
 
 
 class RequestPayloadError(Exception):
@@ -85,9 +78,8 @@ class AccessLoggerWrapper(AbstractAsyncAccessLogger):
         self.access_logger = access_logger
         super().__init__()
 
-    async def log(
-        self, request: BaseRequest, response: StreamResponse, request_start: float
-    ) -> None:
+    async def log(self, request: BaseRequest, response: StreamResponse,
+                  request_start: float) -> None:
         self.access_logger.log(request, response, request_start)
 
 
@@ -160,21 +152,20 @@ class RequestHandler(BaseProtocol):
     )
 
     def __init__(
-        self,
-        manager: "Server",
-        *,
-        loop: asyncio.AbstractEventLoop,
-        keepalive_timeout: float = 75.0,  # NGINX default is 75 secs
-        tcp_keepalive: bool = True,
-        logger: Logger = server_logger,
-        access_log_class: _AnyAbstractAccessLogger = AccessLogger,
-        access_log: Logger = access_logger,
-        access_log_format: str = AccessLogger.LOG_FORMAT,
-        max_line_size: int = 8190,
-        max_headers: int = 32768,
-        max_field_size: int = 8190,
-        lingering_time: float = 10.0
-    ):
+            self,
+            manager: "Server",
+            *,
+            loop: asyncio.AbstractEventLoop,
+            keepalive_timeout: float = 75.0,  # NGINX default is 75 secs
+            tcp_keepalive: bool = True,
+            logger: Logger = server_logger,
+            access_log_class: _AnyAbstractAccessLogger = AccessLogger,
+            access_log: Logger = access_logger,
+            access_log_format: str = AccessLogger.LOG_FORMAT,
+            max_line_size: int = 8190,
+            max_headers: int = 32768,
+            max_field_size: int = 8190,
+            lingering_time: float = 10.0):
 
         super().__init__(loop)
 
@@ -182,12 +173,10 @@ class RequestHandler(BaseProtocol):
         self._keepalive = False
         self._current_request = None  # type: Optional[BaseRequest]
         self._manager = manager  # type: Optional[Server]
-        self._request_handler = (
-            manager.request_handler
-        )  # type: Optional[_RequestHandler]  # noqa
-        self._request_factory = (
-            manager.request_factory
-        )  # type: Optional[_RequestFactory]  # noqa
+        self._request_handler = (manager.request_handler
+                                 )  # type: Optional[_RequestHandler]  # noqa
+        self._request_factory = (manager.request_factory
+                                 )  # type: Optional[_RequestFactory]  # noqa
 
         self._tcp_keepalive = tcp_keepalive
         # placeholder to be replaced on keepalive timeout setup
@@ -255,13 +244,15 @@ class RequestHandler(BaseProtocol):
         # wait for handlers
         with suppress(asyncio.CancelledError, asyncio.TimeoutError):
             async with ceil_timeout(timeout):
-                if self._error_handler is not None and not self._error_handler.done():
+                if self._error_handler is not None and not self._error_handler.done(
+                ):
                     await self._error_handler
 
                 if self._current_request is not None:
                     self._current_request._cancel(asyncio.CancelledError())
 
-                if self._task_handler is not None and not self._task_handler.done():
+                if self._task_handler is not None and not self._task_handler.done(
+                ):
                     await self._task_handler
 
         # force-close non-idle handler
@@ -337,16 +328,14 @@ class RequestHandler(BaseProtocol):
             except HttpProcessingError as exc:
                 # something happened during parsing
                 self._error_handler = self._loop.create_task(
-                    self.handle_parse_error(
-                        StreamWriter(self, self._loop), 400, exc, exc.message
-                    )
-                )
+                    self.handle_parse_error(StreamWriter(self, self._loop),
+                                            400, exc, exc.message))
                 self.close()
             except Exception as exc:
                 # 500: internal error
                 self._error_handler = self._loop.create_task(
-                    self.handle_parse_error(StreamWriter(self, self._loop), 500, exc)
-                )
+                    self.handle_parse_error(StreamWriter(self, self._loop),
+                                            500, exc))
                 self.close()
             else:
                 if messages:
@@ -401,13 +390,11 @@ class RequestHandler(BaseProtocol):
             self.transport.close()
             self.transport = None
 
-    async def log_access(
-        self, request: BaseRequest, response: StreamResponse, request_start: float
-    ) -> None:
+    async def log_access(self, request: BaseRequest, response: StreamResponse,
+                         request_start: float) -> None:
         if self.access_logger is not None:
-            await self.access_logger.log(
-                request, response, self._loop.time() - request_start
-            )
+            await self.access_logger.log(request, response,
+                                         self._loop.time() - request_start)
 
     def log_debug(self, *args: Any, **kw: Any) -> None:
         if self._loop.get_debug():
@@ -430,11 +417,12 @@ class RequestHandler(BaseProtocol):
         # not all request handlers are done,
         # reschedule itself to next second
         self._keepalive_handle = self._loop.call_later(
-            self.KEEPALIVE_RESCHEDULE_DELAY, self._process_keepalive
-        )
+            self.KEEPALIVE_RESCHEDULE_DELAY, self._process_keepalive)
 
     async def _handle_request(
-        self, request: BaseRequest, start_time: float,
+            self,
+            request: BaseRequest,
+            start_time: float,
     ) -> Tuple[StreamResponse, bool]:
         assert self._request_handler is not None
         try:
@@ -444,9 +432,10 @@ class RequestHandler(BaseProtocol):
             finally:
                 self._current_request = None
         except HTTPException as exc:
-            resp = Response(
-                status=exc.status, reason=exc.reason, text=exc.text, headers=exc.headers
-            )
+            resp = Response(status=exc.status,
+                            reason=exc.reason,
+                            text=exc.text,
+                            headers=exc.headers)
             reset = await self.finish_response(request, resp, start_time)
         except asyncio.CancelledError:
             raise
@@ -498,10 +487,12 @@ class RequestHandler(BaseProtocol):
 
             manager.requests_count += 1
             writer = StreamWriter(self, loop)
-            request = self._request_factory(message, payload, self, writer, handler)
+            request = self._request_factory(message, payload, self, writer,
+                                            handler)
             try:
                 # a new task is used for copy context vars (#3406)
-                task = self._loop.create_task(self._handle_request(request, start))
+                task = self._loop.create_task(
+                    self._handle_request(request, start))
                 try:
                     resp, reset = await task
                 except (asyncio.CancelledError, ConnectionError):
@@ -522,13 +513,14 @@ class RequestHandler(BaseProtocol):
                     lingering_time = self._lingering_time
                     if not self._force_close and lingering_time:
                         self.log_debug(
-                            "Start lingering close timer for %s sec.", lingering_time
-                        )
+                            "Start lingering close timer for %s sec.",
+                            lingering_time)
 
                         now = loop.time()
                         end_t = now + lingering_time
 
-                        with suppress(asyncio.TimeoutError, asyncio.CancelledError):
+                        with suppress(asyncio.TimeoutError,
+                                      asyncio.CancelledError):
                             while not payload.is_eof() and now < end_t:
                                 async with ceil_timeout(end_t - now):
                                     # read and ignore
@@ -547,7 +539,8 @@ class RequestHandler(BaseProtocol):
                 break
             except RuntimeError as exc:
                 if self._loop.get_debug():
-                    self.log_exception("Unhandled runtime exception", exc_info=exc)
+                    self.log_exception("Unhandled runtime exception",
+                                       exc_info=exc)
                 self.force_close()
             except Exception as exc:
                 self.log_exception("Unhandled exception", exc_info=exc)
@@ -563,8 +556,8 @@ class RequestHandler(BaseProtocol):
                             self._keepalive_time = now
                             if self._keepalive_handle is None:
                                 self._keepalive_handle = loop.call_at(
-                                    now + keepalive_timeout, self._process_keepalive
-                                )
+                                    now + keepalive_timeout,
+                                    self._process_keepalive)
                     else:
                         break
 
@@ -574,9 +567,8 @@ class RequestHandler(BaseProtocol):
             if self.transport is not None and self._error_handler is None:
                 self.transport.close()
 
-    async def finish_response(
-        self, request: BaseRequest, resp: StreamResponse, start_time: float
-    ) -> bool:
+    async def finish_response(self, request: BaseRequest, resp: StreamResponse,
+                              start_time: float) -> bool:
         """
         Prepare the response and write_eof, then log access. This has to
         be called within the context of any exception so the access logger
@@ -594,13 +586,12 @@ class RequestHandler(BaseProtocol):
             prepare_meth = resp.prepare
         except AttributeError:
             if resp is None:
-                raise RuntimeError("Missing return " "statement on request handler")
+                raise RuntimeError("Missing return "
+                                   "statement on request handler")
             else:
-                raise RuntimeError(
-                    "Web-handler should return "
-                    "a response instance, "
-                    "got {!r}".format(resp)
-                )
+                raise RuntimeError("Web-handler should return "
+                                   "a response instance, "
+                                   "got {!r}".format(resp))
         try:
             await prepare_meth(request)
             await resp.write_eof()
@@ -612,11 +603,11 @@ class RequestHandler(BaseProtocol):
             return False
 
     def handle_error(
-        self,
-        request: BaseRequest,
-        status: int = 500,
-        exc: Optional[BaseException] = None,
-        message: Optional[str] = None,
+            self,
+            request: BaseRequest,
+            status: int = 500,
+            exc: Optional[BaseException] = None,
+            message: Optional[str] = None,
     ) -> StreamResponse:
         """Handle errors.
 
@@ -626,7 +617,8 @@ class RequestHandler(BaseProtocol):
 
         ct = "text/plain"
         if status == HTTPStatus.INTERNAL_SERVER_ERROR:
-            title = "{0.value} {0.phrase}".format(HTTPStatus.INTERNAL_SERVER_ERROR)
+            title = "{0.value} {0.phrase}".format(
+                HTTPStatus.INTERNAL_SERVER_ERROR)
             msg = HTTPStatus.INTERNAL_SERVER_ERROR.description
             tb = None
             if self._loop.get_debug():
@@ -637,12 +629,11 @@ class RequestHandler(BaseProtocol):
                 if tb:
                     tb = html_escape(tb)
                     msg = "<h2>Traceback:</h2>\n<pre>{}</pre>".format(tb)
-                message = (
-                    "<html><head>"
-                    "<title>{title}</title>"
-                    "</head><body>\n<h1>{title}</h1>"
-                    "\n{msg}\n</body></html>\n"
-                ).format(title=title, msg=msg)
+                message = ("<html><head>"
+                           "<title>{title}</title>"
+                           "</head><body>\n<h1>{title}</h1>"
+                           "\n{msg}\n</body></html>\n").format(title=title,
+                                                               msg=msg)
                 ct = "text/html"
             else:
                 if tb:
@@ -659,11 +650,11 @@ class RequestHandler(BaseProtocol):
         return resp
 
     async def handle_parse_error(
-        self,
-        writer: AbstractStreamWriter,
-        status: int,
-        exc: Optional[BaseException] = None,
-        message: Optional[str] = None,
+            self,
+            writer: AbstractStreamWriter,
+            status: int,
+            exc: Optional[BaseException] = None,
+            message: Optional[str] = None,
     ) -> None:
         request = BaseRequest(
             ERROR,
