@@ -40,27 +40,19 @@ from .client_exceptions import (
     ClientConnectorCertificateError as ClientConnectorCertificateError,
 )
 from .client_exceptions import ClientConnectorError as ClientConnectorError
-from .client_exceptions import (
-    ClientConnectorSSLError as ClientConnectorSSLError,
-)
+from .client_exceptions import ClientConnectorSSLError as ClientConnectorSSLError
 from .client_exceptions import ClientError as ClientError
 from .client_exceptions import ClientHttpProxyError as ClientHttpProxyError
 from .client_exceptions import ClientOSError as ClientOSError
 from .client_exceptions import ClientPayloadError as ClientPayloadError
-from .client_exceptions import (
-    ClientProxyConnectionError as ClientProxyConnectionError,
-)
+from .client_exceptions import ClientProxyConnectionError as ClientProxyConnectionError
 from .client_exceptions import ClientResponseError as ClientResponseError
 from .client_exceptions import ClientSSLError as ClientSSLError
 from .client_exceptions import ContentTypeError as ContentTypeError
 from .client_exceptions import InvalidURL as InvalidURL
 from .client_exceptions import ServerConnectionError as ServerConnectionError
-from .client_exceptions import (
-    ServerDisconnectedError as ServerDisconnectedError,
-)
-from .client_exceptions import (
-    ServerFingerprintMismatch as ServerFingerprintMismatch,
-)
+from .client_exceptions import ServerDisconnectedError as ServerDisconnectedError
+from .client_exceptions import ServerFingerprintMismatch as ServerFingerprintMismatch
 from .client_exceptions import ServerTimeoutError as ServerTimeoutError
 from .client_exceptions import TooManyRedirects as TooManyRedirects
 from .client_exceptions import WSServerHandshakeError as WSServerHandshakeError
@@ -100,41 +92,42 @@ from .typedefs import JSONEncoder, LooseCookies, LooseHeaders, StrOrURL
 
 __all__ = (
     # client_exceptions
-    'ClientConnectionError',
-    'ClientConnectorCertificateError',
-    'ClientConnectorError',
-    'ClientConnectorSSLError',
-    'ClientError',
-    'ClientHttpProxyError',
-    'ClientOSError',
-    'ClientPayloadError',
-    'ClientProxyConnectionError',
-    'ClientResponseError',
-    'ClientSSLError',
-    'ContentTypeError',
-    'InvalidURL',
-    'ServerConnectionError',
-    'ServerDisconnectedError',
-    'ServerFingerprintMismatch',
-    'ServerTimeoutError',
-    'TooManyRedirects',
-    'WSServerHandshakeError',
+    "ClientConnectionError",
+    "ClientConnectorCertificateError",
+    "ClientConnectorError",
+    "ClientConnectorSSLError",
+    "ClientError",
+    "ClientHttpProxyError",
+    "ClientOSError",
+    "ClientPayloadError",
+    "ClientProxyConnectionError",
+    "ClientResponseError",
+    "ClientSSLError",
+    "ContentTypeError",
+    "InvalidURL",
+    "ServerConnectionError",
+    "ServerDisconnectedError",
+    "ServerFingerprintMismatch",
+    "ServerTimeoutError",
+    "TooManyRedirects",
+    "WSServerHandshakeError",
     # client_reqrep
-    'ClientRequest',
-    'ClientResponse',
-    'Fingerprint',
-    'RequestInfo',
+    "ClientRequest",
+    "ClientResponse",
+    "Fingerprint",
+    "RequestInfo",
     # connector
-    'BaseConnector',
-    'TCPConnector',
-    'UnixConnector',
-    'NamedPipeConnector',
+    "BaseConnector",
+    "TCPConnector",
+    "UnixConnector",
+    "NamedPipeConnector",
     # client_ws
-    'ClientWebSocketResponse',
+    "ClientWebSocketResponse",
     # client
-    'ClientSession',
-    'ClientTimeout',
-    'request')
+    "ClientSession",
+    "ClientTimeout",
+    "request",
+)
 
 
 try:
@@ -165,9 +158,9 @@ class ClientTimeout:
 
 
 # 5 Minute default read timeout
-DEFAULT_TIMEOUT = ClientTimeout(total=5*60)
+DEFAULT_TIMEOUT = ClientTimeout(total=5 * 60)
 
-_RetType = TypeVar('_RetType')
+_RetType = TypeVar("_RetType")
 
 
 @final
@@ -175,34 +168,53 @@ class ClientSession:
     """First-class interface for making HTTP requests."""
 
     __slots__ = (
-        '_source_traceback', '_connector',
-        '_loop', '_cookie_jar',
-        '_connector_owner', '_default_auth',
-        '_version', '_json_serialize',
-        '_requote_redirect_url',
-        '_timeout', '_raise_for_status', '_auto_decompress',
-        '_trust_env', '_default_headers', '_skip_auto_headers',
-        '_request_class', '_response_class',
-        '_ws_response_class', '_trace_configs')
+        "_source_traceback",
+        "_connector",
+        "_loop",
+        "_cookie_jar",
+        "_connector_owner",
+        "_default_auth",
+        "_version",
+        "_json_serialize",
+        "_requote_redirect_url",
+        "_timeout",
+        "_raise_for_status",
+        "_auto_decompress",
+        "_trust_env",
+        "_default_headers",
+        "_skip_auto_headers",
+        "_request_class",
+        "_response_class",
+        "_ws_response_class",
+        "_trace_configs",
+    )
 
-    def __init__(self, *, connector: Optional[BaseConnector]=None,
-                 cookies: Optional[LooseCookies]=None,
-                 headers: Optional[LooseHeaders]=None,
-                 skip_auto_headers: Optional[Iterable[str]]=None,
-                 auth: Optional[BasicAuth]=None,
-                 json_serialize: JSONEncoder=json.dumps,
-                 request_class: Type[ClientRequest]=ClientRequest,
-                 response_class: Type[ClientResponse]=ClientResponse,
-                 ws_response_class: Type[ClientWebSocketResponse]=ClientWebSocketResponse,  # noqa
-                 version: HttpVersion=http.HttpVersion11,
-                 cookie_jar: Optional[AbstractCookieJar]=None,
-                 connector_owner: bool=True,
-                 raise_for_status: Union[bool, Callable[[ClientResponse], Awaitable[None]]]=False,  # noqa
-                 timeout: Union[object, ClientTimeout]=sentinel,
-                 auto_decompress: bool=True,
-                 trust_env: bool=False,
-                 requote_redirect_url: bool=True,
-                 trace_configs: Optional[List[TraceConfig]]=None) -> None:
+    def __init__(
+        self,
+        *,
+        connector: Optional[BaseConnector] = None,
+        cookies: Optional[LooseCookies] = None,
+        headers: Optional[LooseHeaders] = None,
+        skip_auto_headers: Optional[Iterable[str]] = None,
+        auth: Optional[BasicAuth] = None,
+        json_serialize: JSONEncoder = json.dumps,
+        request_class: Type[ClientRequest] = ClientRequest,
+        response_class: Type[ClientResponse] = ClientResponse,
+        ws_response_class: Type[
+            ClientWebSocketResponse
+        ] = ClientWebSocketResponse,  # noqa
+        version: HttpVersion = http.HttpVersion11,
+        cookie_jar: Optional[AbstractCookieJar] = None,
+        connector_owner: bool = True,
+        raise_for_status: Union[
+            bool, Callable[[ClientResponse], Awaitable[None]]
+        ] = False,  # noqa
+        timeout: Union[object, ClientTimeout] = sentinel,
+        auto_decompress: bool = True,
+        trust_env: bool = False,
+        requote_redirect_url: bool = True,
+        trace_configs: Optional[List[TraceConfig]] = None
+    ) -> None:
         loop = get_running_loop()
 
         if connector is None:
@@ -213,13 +225,14 @@ class ClientSession:
         self._connector = connector  # type: Optional[BaseConnector]
         self._loop = loop
         if loop.get_debug():
-            self._source_traceback = traceback.extract_stack(sys._getframe(1))  # type: Optional[traceback.StackSummary]  # noqa
+            self._source_traceback = traceback.extract_stack(
+                sys._getframe(1)
+            )  # type: Optional[traceback.StackSummary]  # noqa
         else:
             self._source_traceback = None
 
         if connector._loop is not loop:
-            raise RuntimeError(
-                "Session and connector have to use same event loop")
+            raise RuntimeError("Session and connector have to use same event loop")
 
         if cookie_jar is None:
             cookie_jar = CookieJar()
@@ -246,10 +259,9 @@ class ClientSession:
             real_headers = CIMultiDict(headers)  # type: CIMultiDict[str]
         else:
             real_headers = CIMultiDict()
-        self._default_headers = real_headers   # type: CIMultiDict[str]
+        self._default_headers = real_headers  # type: CIMultiDict[str]
         if skip_auto_headers is not None:
-            self._skip_auto_headers = frozenset([istr(i)
-                                                 for i in skip_auto_headers])
+            self._skip_auto_headers = frozenset([istr(i) for i in skip_auto_headers])
         else:
             self._skip_auto_headers = frozenset()
 
@@ -261,58 +273,63 @@ class ClientSession:
         for trace_config in self._trace_configs:
             trace_config.freeze()
 
-    def __init_subclass__(cls: Type['ClientSession']) -> None:
-        raise TypeError("Inheritance class {} from ClientSession "
-                        "is forbidden".format(cls.__name__))
+    def __init_subclass__(cls: Type["ClientSession"]) -> None:
+        raise TypeError(
+            "Inheritance class {} from ClientSession "
+            "is forbidden".format(cls.__name__)
+        )
 
-    def __del__(self, _warnings: Any=warnings) -> None:
+    def __del__(self, _warnings: Any = warnings) -> None:
         try:
             if not self.closed:
-                kwargs = {'source': self} if PY_36 else {}
-                _warnings.warn("Unclosed client session {!r}".format(self),
-                               ResourceWarning,
-                               **kwargs)
-                context = {'client_session': self,
-                           'message': 'Unclosed client session'}
+                kwargs = {"source": self} if PY_36 else {}
+                _warnings.warn(
+                    "Unclosed client session {!r}".format(self),
+                    ResourceWarning,
+                    **kwargs
+                )
+                context = {"client_session": self, "message": "Unclosed client session"}
                 if self._source_traceback is not None:
-                    context['source_traceback'] = self._source_traceback
+                    context["source_traceback"] = self._source_traceback
                 self._loop.call_exception_handler(context)
         except AttributeError:
             # loop was not initialized yet,
             # either self._connector or self._loop doesn't exist
             pass
 
-    def request(self,
-                method: str,
-                url: StrOrURL,
-                **kwargs: Any) -> '_RequestContextManager':
+    def request(
+        self, method: str, url: StrOrURL, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP request."""
         return _RequestContextManager(self._request(method, url, **kwargs))
 
     async def _request(
-            self,
-            method: str,
-            str_or_url: StrOrURL, *,
-            params: Optional[Mapping[str, str]]=None,
-            data: Any=None,
-            json: Any=None,
-            cookies: Optional[LooseCookies]=None,
-            headers: LooseHeaders=None,
-            skip_auto_headers: Optional[Iterable[str]]=None,
-            auth: Optional[BasicAuth]=None,
-            allow_redirects: bool=True,
-            max_redirects: int=10,
-            compress: Optional[str]=None,
-            chunked: Optional[bool]=None,
-            expect100: bool=False,
-            raise_for_status: Union[None, bool, Callable[[ClientResponse], Awaitable[None]]]=None,  # noqa
-            read_until_eof: bool=True,
-            proxy: Optional[StrOrURL]=None,
-            proxy_auth: Optional[BasicAuth]=None,
-            timeout: Union[ClientTimeout, object]=sentinel,
-            ssl: Optional[Union[SSLContext, bool, Fingerprint]]=None,
-            proxy_headers: Optional[LooseHeaders]=None,
-            trace_request_ctx: Optional[SimpleNamespace]=None
+        self,
+        method: str,
+        str_or_url: StrOrURL,
+        *,
+        params: Optional[Mapping[str, str]] = None,
+        data: Any = None,
+        json: Any = None,
+        cookies: Optional[LooseCookies] = None,
+        headers: LooseHeaders = None,
+        skip_auto_headers: Optional[Iterable[str]] = None,
+        auth: Optional[BasicAuth] = None,
+        allow_redirects: bool = True,
+        max_redirects: int = 10,
+        compress: Optional[str] = None,
+        chunked: Optional[bool] = None,
+        expect100: bool = False,
+        raise_for_status: Union[
+            None, bool, Callable[[ClientResponse], Awaitable[None]]
+        ] = None,  # noqa
+        read_until_eof: bool = True,
+        proxy: Optional[StrOrURL] = None,
+        proxy_auth: Optional[BasicAuth] = None,
+        timeout: Union[ClientTimeout, object] = sentinel,
+        ssl: Optional[Union[SSLContext, bool, Fingerprint]] = None,
+        proxy_headers: Optional[LooseHeaders] = None,
+        trace_request_ctx: Optional[SimpleNamespace] = None
     ) -> ClientResponse:
 
         # NOTE: timeout clamps existing connect and read timeouts.  We cannot
@@ -320,15 +337,18 @@ class ClientSession:
         # to use the existing timeouts by setting timeout to None.
 
         if self.closed:
-            raise RuntimeError('Session is closed')
+            raise RuntimeError("Session is closed")
 
         if not isinstance(ssl, SSL_ALLOWED_TYPES):
-            raise TypeError("ssl should be SSLContext, bool, Fingerprint, "
-                            "or None, got {!r} instead.".format(ssl))
+            raise TypeError(
+                "ssl should be SSLContext, bool, Fingerprint, "
+                "or None, got {!r} instead.".format(ssl)
+            )
 
         if data is not None and json is not None:
             raise ValueError(
-                'data and json parameters can not be used at the same time')
+                "data and json parameters can not be used at the same time"
+            )
         elif json is not None:
             data = payload.JsonPayload(json, dumps=self._json_serialize)
 
@@ -372,18 +392,13 @@ class ClientSession:
             Trace(
                 self,
                 trace_config,
-                trace_config.trace_config_ctx(
-                    trace_request_ctx=trace_request_ctx)
+                trace_config.trace_config_ctx(trace_request_ctx=trace_request_ctx),
             )
             for trace_config in self._trace_configs
         ]
 
         for trace in traces:
-            await trace.send_request_start(
-                method,
-                url,
-                headers
-            )
+            await trace.send_request_start(method, url, headers)
 
         timer = tm.timer()
         try:
@@ -391,8 +406,10 @@ class ClientSession:
                 while True:
                     url, auth_from_url = strip_auth_from_url(url)
                     if auth and auth_from_url:
-                        raise ValueError("Cannot combine AUTH argument with "
-                                         "credentials encoded in URL")
+                        raise ValueError(
+                            "Cannot combine AUTH argument with "
+                            "credentials encoded in URL"
+                        )
 
                     if auth is None:
                         auth = auth_from_url
@@ -400,12 +417,16 @@ class ClientSession:
                         auth = self._default_auth
                     # It would be confusing if we support explicit
                     # Authorization header with auth argument
-                    if (headers is not None and
-                            auth is not None and
-                            hdrs.AUTHORIZATION in headers):
-                        raise ValueError("Cannot combine AUTHORIZATION header "
-                                         "with AUTH argument or credentials "
-                                         "encoded in URL")
+                    if (
+                        headers is not None
+                        and auth is not None
+                        and hdrs.AUTHORIZATION in headers
+                    ):
+                        raise ValueError(
+                            "Cannot combine AUTHORIZATION header "
+                            "with AUTH argument or credentials "
+                            "encoded in URL"
+                        )
 
                     all_cookies = self._cookie_jar.filter_cookies(url)
 
@@ -426,39 +447,51 @@ class ClientSession:
                                 break
 
                     req = self._request_class(
-                        method, url, params=params, headers=headers,
-                        skip_auto_headers=skip_headers, data=data,
-                        cookies=all_cookies, auth=auth, version=version,
-                        compress=compress, chunked=chunked,
-                        expect100=expect100, loop=self._loop,
+                        method,
+                        url,
+                        params=params,
+                        headers=headers,
+                        skip_auto_headers=skip_headers,
+                        data=data,
+                        cookies=all_cookies,
+                        auth=auth,
+                        version=version,
+                        compress=compress,
+                        chunked=chunked,
+                        expect100=expect100,
+                        loop=self._loop,
                         response_class=self._response_class,
-                        proxy=proxy, proxy_auth=proxy_auth, timer=timer,
+                        proxy=proxy,
+                        proxy_auth=proxy_auth,
+                        timer=timer,
                         session=self,
-                        ssl=ssl, proxy_headers=proxy_headers, traces=traces)
+                        ssl=ssl,
+                        proxy_headers=proxy_headers,
+                        traces=traces,
+                    )
 
                     # connection timeout
                     try:
                         async with ceil_timeout(real_timeout.connect):
                             assert self._connector is not None
                             conn = await self._connector.connect(
-                                req,
-                                traces=traces,
-                                timeout=real_timeout
+                                req, traces=traces, timeout=real_timeout
                             )
                     except asyncio.TimeoutError as exc:
                         raise ServerTimeoutError(
-                            'Connection timeout '
-                            'to host {0}'.format(url)) from exc
+                            "Connection timeout " "to host {0}".format(url)
+                        ) from exc
 
                     assert conn.transport is not None
 
                     assert conn.protocol is not None
                     conn.protocol.set_response_params(
                         timer=timer,
-                        skip_payload=method.upper() == 'HEAD',
+                        skip_payload=method.upper() == "HEAD",
                         read_until_eof=read_until_eof,
                         auto_decompress=self._auto_decompress,
-                        read_timeout=real_timeout.sock_read)
+                        read_timeout=real_timeout.sock_read,
+                    )
 
                     try:
                         try:
@@ -479,15 +512,11 @@ class ClientSession:
                     self._cookie_jar.update_cookies(resp.cookies, resp.url)
 
                     # redirects
-                    if resp.status in (
-                            301, 302, 303, 307, 308) and allow_redirects:
+                    if resp.status in (301, 302, 303, 307, 308) and allow_redirects:
 
                         for trace in traces:
                             await trace.send_request_redirect(
-                                method,
-                                url,
-                                headers,
-                                resp
+                                method, url, headers, resp
                             )
 
                         redirects += 1
@@ -495,21 +524,22 @@ class ClientSession:
                         if max_redirects and redirects >= max_redirects:
                             resp.close()
                             raise TooManyRedirects(
-                                history[0].request_info, tuple(history))
+                                history[0].request_info, tuple(history)
+                            )
 
                         # For 301 and 302, mimic IE, now changed in RFC
                         # https://github.com/kennethreitz/requests/pull/269
-                        if (resp.status == 303 and
-                                resp.method != hdrs.METH_HEAD) \
-                                or (resp.status in (301, 302) and
-                                    resp.method == hdrs.METH_POST):
+                        if (resp.status == 303 and resp.method != hdrs.METH_HEAD) or (
+                            resp.status in (301, 302) and resp.method == hdrs.METH_POST
+                        ):
                             method = hdrs.METH_GET
                             data = None
                             if headers.get(hdrs.CONTENT_LENGTH):
                                 headers.pop(hdrs.CONTENT_LENGTH)
 
-                        r_url = (resp.headers.get(hdrs.LOCATION) or
-                                 resp.headers.get(hdrs.URI))
+                        r_url = resp.headers.get(hdrs.LOCATION) or resp.headers.get(
+                            hdrs.URI
+                        )
                         if r_url is None:
                             # see github.com/aio-libs/aiohttp/issues/2022
                             break
@@ -519,17 +549,15 @@ class ClientSession:
                             resp.release()
 
                         try:
-                            r_url = URL(
-                                r_url, encoded=not self._requote_redirect_url)
+                            r_url = URL(r_url, encoded=not self._requote_redirect_url)
 
                         except ValueError:
                             raise InvalidURL(r_url)
 
                         scheme = r_url.scheme
-                        if scheme not in ('http', 'https', ''):
+                        if scheme not in ("http", "https", ""):
                             resp.close()
-                            raise ValueError(
-                                'Can redirect only to http or https')
+                            raise ValueError("Can redirect only to http or https")
                         elif not scheme:
                             r_url = url.join(r_url)
 
@@ -565,12 +593,7 @@ class ClientSession:
             resp._history = tuple(history)
 
             for trace in traces:
-                await trace.send_request_end(
-                    method,
-                    url,
-                    headers,
-                    resp
-                )
+                await trace.send_request_end(method, url, headers, resp)
             return resp
 
         except BaseException as e:
@@ -581,91 +604,96 @@ class ClientSession:
                 handle = None
 
             for trace in traces:
-                await trace.send_request_exception(
-                    method,
-                    url,
-                    headers,
-                    e
-                )
+                await trace.send_request_exception(method, url, headers, e)
             raise
 
     def ws_connect(
-            self,
-            url: StrOrURL, *,
-            method: str=hdrs.METH_GET,
-            protocols: Iterable[str]=(),
-            timeout: Union[ClientWSTimeout, float]=sentinel,
-            receive_timeout: Optional[float]=None,
-            autoclose: bool=True,
-            autoping: bool=True,
-            heartbeat: Optional[float]=None,
-            auth: Optional[BasicAuth]=None,
-            origin: Optional[str]=None,
-            headers: Optional[LooseHeaders]=None,
-            proxy: Optional[StrOrURL]=None,
-            proxy_auth: Optional[BasicAuth]=None,
-            ssl: Union[SSLContext, bool, None, Fingerprint]=None,
-            proxy_headers: Optional[LooseHeaders]=None,
-            compress: int=0,
-            max_msg_size: int=4*1024*1024) -> '_WSRequestContextManager':
+        self,
+        url: StrOrURL,
+        *,
+        method: str = hdrs.METH_GET,
+        protocols: Iterable[str] = (),
+        timeout: Union[ClientWSTimeout, float] = sentinel,
+        receive_timeout: Optional[float] = None,
+        autoclose: bool = True,
+        autoping: bool = True,
+        heartbeat: Optional[float] = None,
+        auth: Optional[BasicAuth] = None,
+        origin: Optional[str] = None,
+        headers: Optional[LooseHeaders] = None,
+        proxy: Optional[StrOrURL] = None,
+        proxy_auth: Optional[BasicAuth] = None,
+        ssl: Union[SSLContext, bool, None, Fingerprint] = None,
+        proxy_headers: Optional[LooseHeaders] = None,
+        compress: int = 0,
+        max_msg_size: int = 4 * 1024 * 1024
+    ) -> "_WSRequestContextManager":
         """Initiate websocket connection."""
         return _WSRequestContextManager(
-            self._ws_connect(url,
-                             method=method,
-                             protocols=protocols,
-                             timeout=timeout,
-                             receive_timeout=receive_timeout,
-                             autoclose=autoclose,
-                             autoping=autoping,
-                             heartbeat=heartbeat,
-                             auth=auth,
-                             origin=origin,
-                             headers=headers,
-                             proxy=proxy,
-                             proxy_auth=proxy_auth,
-                             ssl=ssl,
-                             proxy_headers=proxy_headers,
-                             compress=compress,
-                             max_msg_size=max_msg_size))
+            self._ws_connect(
+                url,
+                method=method,
+                protocols=protocols,
+                timeout=timeout,
+                receive_timeout=receive_timeout,
+                autoclose=autoclose,
+                autoping=autoping,
+                heartbeat=heartbeat,
+                auth=auth,
+                origin=origin,
+                headers=headers,
+                proxy=proxy,
+                proxy_auth=proxy_auth,
+                ssl=ssl,
+                proxy_headers=proxy_headers,
+                compress=compress,
+                max_msg_size=max_msg_size,
+            )
+        )
 
     async def _ws_connect(
-            self,
-            url: StrOrURL, *,
-            method: str=hdrs.METH_GET,
-            protocols: Iterable[str]=(),
-            timeout: Union[ClientWSTimeout, float]=sentinel,
-            receive_timeout: Optional[float]=None,
-            autoclose: bool=True,
-            autoping: bool=True,
-            heartbeat: Optional[float]=None,
-            auth: Optional[BasicAuth]=None,
-            origin: Optional[str]=None,
-            headers: Optional[LooseHeaders]=None,
-            proxy: Optional[StrOrURL]=None,
-            proxy_auth: Optional[BasicAuth]=None,
-            ssl: Union[SSLContext, bool, None, Fingerprint]=None,
-            proxy_headers: Optional[LooseHeaders]=None,
-            compress: int=0,
-            max_msg_size: int=4*1024*1024
+        self,
+        url: StrOrURL,
+        *,
+        method: str = hdrs.METH_GET,
+        protocols: Iterable[str] = (),
+        timeout: Union[ClientWSTimeout, float] = sentinel,
+        receive_timeout: Optional[float] = None,
+        autoclose: bool = True,
+        autoping: bool = True,
+        heartbeat: Optional[float] = None,
+        auth: Optional[BasicAuth] = None,
+        origin: Optional[str] = None,
+        headers: Optional[LooseHeaders] = None,
+        proxy: Optional[StrOrURL] = None,
+        proxy_auth: Optional[BasicAuth] = None,
+        ssl: Union[SSLContext, bool, None, Fingerprint] = None,
+        proxy_headers: Optional[LooseHeaders] = None,
+        compress: int = 0,
+        max_msg_size: int = 4 * 1024 * 1024
     ) -> ClientWebSocketResponse:
         if timeout is not sentinel:
             if isinstance(timeout, ClientWSTimeout):
                 ws_timeout = timeout
             else:
-                warnings.warn("parameter 'timeout' of type 'float' "
-                              "is deprecated, please use "
-                              "'timeout=ClientWSTimeout(ws_close=...)'",
-                              DeprecationWarning,
-                              stacklevel=2)
+                warnings.warn(
+                    "parameter 'timeout' of type 'float' "
+                    "is deprecated, please use "
+                    "'timeout=ClientWSTimeout(ws_close=...)'",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
                 ws_timeout = ClientWSTimeout(ws_close=timeout)
         else:
             ws_timeout = DEFAULT_WS_CLIENT_TIMEOUT
         if receive_timeout is not None:
-            warnings.warn("float parameter 'receive_timeout' "
-                          "is deprecated, please use parameter "
-                          "'timeout=ClientWSTimeout(ws_receive=...)'",
-                          DeprecationWarning,
-                          stacklevel=2)
+            warnings.warn(
+                "float parameter 'receive_timeout' "
+                "is deprecated, please use parameter "
+                "'timeout=ClientWSTimeout(ws_receive=...)'",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             ws_timeout = attr.evolve(ws_timeout, ws_receive=receive_timeout)
 
         if headers is None:
@@ -676,7 +704,7 @@ class ClientSession:
         default_headers = {
             hdrs.UPGRADE: hdrs.WEBSOCKET,
             hdrs.CONNECTION: hdrs.UPGRADE,
-            hdrs.SEC_WEBSOCKET_VERSION: '13',
+            hdrs.SEC_WEBSOCKET_VERSION: "13",
         }
 
         for key, value in default_headers.items():
@@ -686,7 +714,7 @@ class ClientSession:
         real_headers[hdrs.SEC_WEBSOCKET_KEY] = sec_key.decode()
 
         if protocols:
-            real_headers[hdrs.SEC_WEBSOCKET_PROTOCOL] = ','.join(protocols)
+            real_headers[hdrs.SEC_WEBSOCKET_PROTOCOL] = ",".join(protocols)
         if origin is not None:
             real_headers[hdrs.ORIGIN] = origin
         if compress:
@@ -694,18 +722,23 @@ class ClientSession:
             real_headers[hdrs.SEC_WEBSOCKET_EXTENSIONS] = extstr
 
         if not isinstance(ssl, SSL_ALLOWED_TYPES):
-            raise TypeError("ssl should be SSLContext, bool, Fingerprint, "
-                            "or None, got {!r} instead.".format(ssl))
+            raise TypeError(
+                "ssl should be SSLContext, bool, Fingerprint, "
+                "or None, got {!r} instead.".format(ssl)
+            )
 
         # send request
-        resp = await self.request(method, url,
-                                  headers=real_headers,
-                                  read_until_eof=False,
-                                  auth=auth,
-                                  proxy=proxy,
-                                  proxy_auth=proxy_auth,
-                                  ssl=ssl,
-                                  proxy_headers=proxy_headers)
+        resp = await self.request(
+            method,
+            url,
+            headers=real_headers,
+            read_until_eof=False,
+            auth=auth,
+            proxy=proxy,
+            proxy_auth=proxy_auth,
+            ssl=ssl,
+            proxy_headers=proxy_headers,
+        )
 
         try:
             # check handshake
@@ -713,44 +746,48 @@ class ClientSession:
                 raise WSServerHandshakeError(
                     resp.request_info,
                     resp.history,
-                    message='Invalid response status',
+                    message="Invalid response status",
                     status=resp.status,
-                    headers=resp.headers)
+                    headers=resp.headers,
+                )
 
-            if resp.headers.get(hdrs.UPGRADE, '').lower() != 'websocket':
+            if resp.headers.get(hdrs.UPGRADE, "").lower() != "websocket":
                 raise WSServerHandshakeError(
                     resp.request_info,
                     resp.history,
-                    message='Invalid upgrade header',
+                    message="Invalid upgrade header",
                     status=resp.status,
-                    headers=resp.headers)
+                    headers=resp.headers,
+                )
 
-            if resp.headers.get(hdrs.CONNECTION, '').lower() != 'upgrade':
+            if resp.headers.get(hdrs.CONNECTION, "").lower() != "upgrade":
                 raise WSServerHandshakeError(
                     resp.request_info,
                     resp.history,
-                    message='Invalid connection header',
+                    message="Invalid connection header",
                     status=resp.status,
-                    headers=resp.headers)
+                    headers=resp.headers,
+                )
 
             # key calculation
-            key = resp.headers.get(hdrs.SEC_WEBSOCKET_ACCEPT, '')
-            match = base64.b64encode(
-                hashlib.sha1(sec_key + WS_KEY).digest()).decode()
+            key = resp.headers.get(hdrs.SEC_WEBSOCKET_ACCEPT, "")
+            match = base64.b64encode(hashlib.sha1(sec_key + WS_KEY).digest()).decode()
             if key != match:
                 raise WSServerHandshakeError(
                     resp.request_info,
                     resp.history,
-                    message='Invalid challenge response',
+                    message="Invalid challenge response",
                     status=resp.status,
-                    headers=resp.headers)
+                    headers=resp.headers,
+                )
 
             # websocket protocol
             protocol = None
             if protocols and hdrs.SEC_WEBSOCKET_PROTOCOL in resp.headers:
                 resp_protocols = [
-                    proto.strip() for proto in
-                    resp.headers[hdrs.SEC_WEBSOCKET_PROTOCOL].split(',')]
+                    proto.strip()
+                    for proto in resp.headers[hdrs.SEC_WEBSOCKET_PROTOCOL].split(",")
+                ]
 
                 for proto in resp_protocols:
                     if proto in protocols:
@@ -770,7 +807,8 @@ class ClientSession:
                             resp.history,
                             message=exc.args[0],
                             status=resp.status,
-                            headers=resp.headers)
+                            headers=resp.headers,
+                        )
                 else:
                     compress = 0
                     notakeover = False
@@ -782,30 +820,35 @@ class ClientSession:
             transport = conn.transport
             assert transport is not None
             reader = FlowControlDataQueue(
-                proto, limit=2 ** 16, loop=self._loop)  # type: FlowControlDataQueue[WSMessage]  # noqa
+                proto, limit=2 ** 16, loop=self._loop
+            )  # type: FlowControlDataQueue[WSMessage]  # noqa
             proto.set_parser(WebSocketReader(reader, max_msg_size), reader)
             writer = WebSocketWriter(
-                proto, transport, use_mask=True,
-                compress=compress, notakeover=notakeover)
+                proto,
+                transport,
+                use_mask=True,
+                compress=compress,
+                notakeover=notakeover,
+            )
         except BaseException:
             resp.close()
             raise
         else:
-            return self._ws_response_class(reader,
-                                           writer,
-                                           protocol,
-                                           resp,
-                                           ws_timeout,
-                                           autoclose,
-                                           autoping,
-                                           self._loop,
-                                           heartbeat=heartbeat,
-                                           compress=compress,
-                                           client_notakeover=notakeover)
+            return self._ws_response_class(
+                reader,
+                writer,
+                protocol,
+                resp,
+                ws_timeout,
+                autoclose,
+                autoping,
+                self._loop,
+                heartbeat=heartbeat,
+                compress=compress,
+                client_notakeover=notakeover,
+            )
 
-    def _prepare_headers(
-            self,
-            headers: Optional[LooseHeaders]) -> 'CIMultiDict[str]':
+    def _prepare_headers(self, headers: Optional[LooseHeaders]) -> "CIMultiDict[str]":
         """ Add default headers and transform it to CIMultiDict
         """
         # Convert headers to MultiDict
@@ -822,59 +865,61 @@ class ClientSession:
                     added_names.add(key)
         return result
 
-    def get(self, url: StrOrURL, *, allow_redirects: bool=True,
-            **kwargs: Any) -> '_RequestContextManager':
+    def get(
+        self, url: StrOrURL, *, allow_redirects: bool = True, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP GET request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_GET, url,
-                          allow_redirects=allow_redirects,
-                          **kwargs))
+            self._request(hdrs.METH_GET, url, allow_redirects=allow_redirects, **kwargs)
+        )
 
-    def options(self, url: StrOrURL, *, allow_redirects: bool=True,
-                **kwargs: Any) -> '_RequestContextManager':
+    def options(
+        self, url: StrOrURL, *, allow_redirects: bool = True, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP OPTIONS request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_OPTIONS, url,
-                          allow_redirects=allow_redirects,
-                          **kwargs))
+            self._request(
+                hdrs.METH_OPTIONS, url, allow_redirects=allow_redirects, **kwargs
+            )
+        )
 
-    def head(self, url: StrOrURL, *, allow_redirects: bool=False,
-             **kwargs: Any) -> '_RequestContextManager':
+    def head(
+        self, url: StrOrURL, *, allow_redirects: bool = False, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP HEAD request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_HEAD, url,
-                          allow_redirects=allow_redirects,
-                          **kwargs))
+            self._request(
+                hdrs.METH_HEAD, url, allow_redirects=allow_redirects, **kwargs
+            )
+        )
 
-    def post(self, url: StrOrURL,
-             *, data: Any=None, **kwargs: Any) -> '_RequestContextManager':
+    def post(
+        self, url: StrOrURL, *, data: Any = None, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP POST request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_POST, url,
-                          data=data,
-                          **kwargs))
+            self._request(hdrs.METH_POST, url, data=data, **kwargs)
+        )
 
-    def put(self, url: StrOrURL,
-            *, data: Any=None, **kwargs: Any) -> '_RequestContextManager':
+    def put(
+        self, url: StrOrURL, *, data: Any = None, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP PUT request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_PUT, url,
-                          data=data,
-                          **kwargs))
+            self._request(hdrs.METH_PUT, url, data=data, **kwargs)
+        )
 
-    def patch(self, url: StrOrURL,
-              *, data: Any=None, **kwargs: Any) -> '_RequestContextManager':
+    def patch(
+        self, url: StrOrURL, *, data: Any = None, **kwargs: Any
+    ) -> "_RequestContextManager":
         """Perform HTTP PATCH request."""
         return _RequestContextManager(
-            self._request(hdrs.METH_PATCH, url,
-                          data=data,
-                          **kwargs))
+            self._request(hdrs.METH_PATCH, url, data=data, **kwargs)
+        )
 
-    def delete(self, url: StrOrURL, **kwargs: Any) -> '_RequestContextManager':
+    def delete(self, url: StrOrURL, **kwargs: Any) -> "_RequestContextManager":
         """Perform HTTP DELETE request."""
-        return _RequestContextManager(
-            self._request(hdrs.METH_DELETE, url,
-                          **kwargs))
+        return _RequestContextManager(self._request(hdrs.METH_DELETE, url, **kwargs))
 
     async def close(self) -> None:
         """Close underlying connector.
@@ -920,7 +965,7 @@ class ClientSession:
         return self._timeout
 
     @property
-    def headers(self) -> 'CIMultiDict[str]':
+    def headers(self) -> "CIMultiDict[str]":
         """The default headers of the client session."""
         return self._default_headers
 
@@ -946,7 +991,7 @@ class ClientSession:
 
     @property
     def raise_for_status(
-        self
+        self,
     ) -> Union[bool, Callable[[ClientResponse], Awaitable[None]]]:
         """
         Should `ClientResponse.raise_for_status()`
@@ -980,30 +1025,26 @@ class ClientSession:
         """
         self._connector = None
 
-    async def __aenter__(self) -> 'ClientSession':
+    async def __aenter__(self) -> "ClientSession":
         return self
 
-    async def __aexit__(self,
-                        exc_type: Optional[Type[BaseException]],
-                        exc_val: Optional[BaseException],
-                        exc_tb: Optional[TracebackType]) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         await self.close()
 
 
-class _BaseRequestContextManager(Coroutine[Any,
-                                           Any,
-                                           _RetType],
-                                 Generic[_RetType]):
+class _BaseRequestContextManager(Coroutine[Any, Any, _RetType], Generic[_RetType]):
 
-    __slots__ = ('_coro', '_resp')
+    __slots__ = ("_coro", "_resp")
 
-    def __init__(
-            self,
-            coro: Coroutine['asyncio.Future[Any]', None, _RetType]
-    ) -> None:
+    def __init__(self, coro: Coroutine["asyncio.Future[Any]", None, _RetType]) -> None:
         self._coro = coro
 
-    def send(self, arg: None) -> 'asyncio.Future[Any]':
+    def send(self, arg: None) -> "asyncio.Future[Any]":
         return self._coro.send(arg)
 
     def throw(self, arg: BaseException) -> None:  # type: ignore
@@ -1024,10 +1065,12 @@ class _BaseRequestContextManager(Coroutine[Any,
 
 
 class _RequestContextManager(_BaseRequestContextManager[ClientResponse]):
-    async def __aexit__(self,
-                        exc_type: Optional[Type[BaseException]],
-                        exc: Optional[BaseException],
-                        tb: Optional[TracebackType]) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
         # We're basing behavior on the exception as it can be caused by
         # user code unrelated to the status of the connection.  If you
         # would like to close a connection you must do that
@@ -1036,22 +1079,25 @@ class _RequestContextManager(_BaseRequestContextManager[ClientResponse]):
         self._resp.release()
 
 
-class _WSRequestContextManager(_BaseRequestContextManager[
-        ClientWebSocketResponse]):
-    async def __aexit__(self,
-                        exc_type: Optional[Type[BaseException]],
-                        exc: Optional[BaseException],
-                        tb: Optional[TracebackType]) -> None:
+class _WSRequestContextManager(_BaseRequestContextManager[ClientWebSocketResponse]):
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
         await self._resp.close()
 
 
 class _SessionRequestContextManager:
 
-    __slots__ = ('_coro', '_resp', '_session')
+    __slots__ = ("_coro", "_resp", "_session")
 
-    def __init__(self,
-                 coro: Coroutine['asyncio.Future[Any]', None, ClientResponse],
-                 session: ClientSession) -> None:
+    def __init__(
+        self,
+        coro: Coroutine["asyncio.Future[Any]", None, ClientResponse],
+        session: ClientSession,
+    ) -> None:
         self._coro = coro
         self._resp = None  # type: Optional[ClientResponse]
         self._session = session
@@ -1065,37 +1111,40 @@ class _SessionRequestContextManager:
         else:
             return self._resp
 
-    async def __aexit__(self,
-                        exc_type: Optional[Type[BaseException]],
-                        exc: Optional[BaseException],
-                        tb: Optional[TracebackType]) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
         assert self._resp is not None
         self._resp.close()
         await self._session.close()
 
 
 def request(
-        method: str,
-        url: StrOrURL, *,
-        params: Optional[Mapping[str, str]]=None,
-        data: Any=None,
-        json: Any=None,
-        headers: LooseHeaders=None,
-        skip_auto_headers: Optional[Iterable[str]]=None,
-        auth: Optional[BasicAuth]=None,
-        allow_redirects: bool=True,
-        max_redirects: int=10,
-        compress: Optional[str]=None,
-        chunked: Optional[bool]=None,
-        expect100: bool=False,
-        raise_for_status: Optional[bool]=None,
-        read_until_eof: bool=True,
-        proxy: Optional[StrOrURL]=None,
-        proxy_auth: Optional[BasicAuth]=None,
-        timeout: Union[ClientTimeout, object]=sentinel,
-        cookies: Optional[LooseCookies]=None,
-        version: HttpVersion=http.HttpVersion11,
-        connector: Optional[BaseConnector]=None
+    method: str,
+    url: StrOrURL,
+    *,
+    params: Optional[Mapping[str, str]] = None,
+    data: Any = None,
+    json: Any = None,
+    headers: LooseHeaders = None,
+    skip_auto_headers: Optional[Iterable[str]] = None,
+    auth: Optional[BasicAuth] = None,
+    allow_redirects: bool = True,
+    max_redirects: int = 10,
+    compress: Optional[str] = None,
+    chunked: Optional[bool] = None,
+    expect100: bool = False,
+    raise_for_status: Optional[bool] = None,
+    read_until_eof: bool = True,
+    proxy: Optional[StrOrURL] = None,
+    proxy_auth: Optional[BasicAuth] = None,
+    timeout: Union[ClientTimeout, object] = sentinel,
+    cookies: Optional[LooseCookies] = None,
+    version: HttpVersion = http.HttpVersion11,
+    connector: Optional[BaseConnector] = None
 ) -> _SessionRequestContextManager:
     """Constructs and sends a request. Returns response object.
     method - HTTP method
@@ -1137,24 +1186,32 @@ def request(
         connector = TCPConnector(force_close=True)
 
     session = ClientSession(
-        cookies=cookies, version=version, timeout=timeout,
-        connector=connector, connector_owner=connector_owner)
+        cookies=cookies,
+        version=version,
+        timeout=timeout,
+        connector=connector,
+        connector_owner=connector_owner,
+    )
 
     return _SessionRequestContextManager(
-        session._request(method, url,
-                         params=params,
-                         data=data,
-                         json=json,
-                         headers=headers,
-                         skip_auto_headers=skip_auto_headers,
-                         auth=auth,
-                         allow_redirects=allow_redirects,
-                         max_redirects=max_redirects,
-                         compress=compress,
-                         chunked=chunked,
-                         expect100=expect100,
-                         raise_for_status=raise_for_status,
-                         read_until_eof=read_until_eof,
-                         proxy=proxy,
-                         proxy_auth=proxy_auth,),
-        session)
+        session._request(
+            method,
+            url,
+            params=params,
+            data=data,
+            json=json,
+            headers=headers,
+            skip_auto_headers=skip_auto_headers,
+            auth=auth,
+            allow_redirects=allow_redirects,
+            max_redirects=max_redirects,
+            compress=compress,
+            chunked=chunked,
+            expect100=expect100,
+            raise_for_status=raise_for_status,
+            read_until_eof=read_until_eof,
+            proxy=proxy,
+            proxy_auth=proxy_auth,
+        ),
+        session,
+    )
