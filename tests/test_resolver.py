@@ -1,15 +1,19 @@
 import asyncio
 import ipaddress
 import socket
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 
-from aiohttp.resolver import AsyncResolver, DefaultResolver, ThreadedResolver
+from aiohttp.resolver import AsyncResolver
+from aiohttp.resolver import DefaultResolver
+from aiohttp.resolver import ThreadedResolver
 
 try:
     import aiodns
-    gethostbyname = hasattr(aiodns.DNSResolver, 'gethostbyname')
+
+    gethostbyname = hasattr(aiodns.DNSResolver, "gethostbyname")
 except ImportError:
     aiodns = None
     gethostbyname = False
@@ -30,8 +34,7 @@ async def fake_result(addresses):
 
 
 async def fake_query_result(result):
-    return [FakeQueryResult(host=h)
-            for h in result]
+    return [FakeQueryResult(host=h) for h in result]
 
 
 def fake_addrinfo(hosts):
@@ -46,42 +49,42 @@ def fake_addrinfo(hosts):
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
 async def test_async_resolver_positive_lookup(loop) -> None:
-    with patch('aiodns.DNSResolver') as mock:
-        mock().gethostbyname.return_value = fake_result(['127.0.0.1'])
+    with patch("aiodns.DNSResolver") as mock:
+        mock().gethostbyname.return_value = fake_result(["127.0.0.1"])
         resolver = AsyncResolver()
-        real = await resolver.resolve('www.python.org')
-        ipaddress.ip_address(real[0]['host'])
-        mock().gethostbyname.assert_called_with('www.python.org',
+        real = await resolver.resolve("www.python.org")
+        ipaddress.ip_address(real[0]["host"])
+        mock().gethostbyname.assert_called_with("www.python.org",
                                                 socket.AF_INET)
 
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
 async def test_async_resolver_multiple_replies(loop) -> None:
-    with patch('aiodns.DNSResolver') as mock:
-        ips = ['127.0.0.1', '127.0.0.2', '127.0.0.3', '127.0.0.4']
+    with patch("aiodns.DNSResolver") as mock:
+        ips = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"]
         mock().gethostbyname.return_value = fake_result(ips)
         resolver = AsyncResolver()
-        real = await resolver.resolve('www.google.com')
-        ips = [ipaddress.ip_address(x['host']) for x in real]
+        real = await resolver.resolve("www.google.com")
+        ips = [ipaddress.ip_address(x["host"]) for x in real]
         assert len(ips) > 3, "Expecting multiple addresses"
 
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
 async def test_async_resolver_negative_lookup(loop) -> None:
-    with patch('aiodns.DNSResolver') as mock:
+    with patch("aiodns.DNSResolver") as mock:
         mock().gethostbyname.side_effect = aiodns.error.DNSError()
         resolver = AsyncResolver()
         with pytest.raises(OSError):
-            await resolver.resolve('doesnotexist.bla')
+            await resolver.resolve("doesnotexist.bla")
 
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
 async def test_async_resolver_no_hosts_in_gethostbyname(loop) -> None:
-    with patch('aiodns.DNSResolver') as mock:
+    with patch("aiodns.DNSResolver") as mock:
         mock().gethostbyname.return_value = fake_result([])
         resolver = AsyncResolver()
         with pytest.raises(OSError):
-            await resolver.resolve('doesnotexist.bla')
+            await resolver.resolve("doesnotexist.bla")
 
 
 async def test_threaded_resolver_positive_lookup() -> None:
@@ -89,18 +92,18 @@ async def test_threaded_resolver_positive_lookup() -> None:
     loop.getaddrinfo = fake_addrinfo(["127.0.0.1"])
     resolver = ThreadedResolver()
     resolver._loop = loop
-    real = await resolver.resolve('www.python.org')
-    ipaddress.ip_address(real[0]['host'])
+    real = await resolver.resolve("www.python.org")
+    ipaddress.ip_address(real[0]["host"])
 
 
 async def test_threaded_resolver_multiple_replies() -> None:
     loop = Mock()
-    ips = ['127.0.0.1', '127.0.0.2', '127.0.0.3', '127.0.0.4']
+    ips = ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"]
     loop.getaddrinfo = fake_addrinfo(ips)
     resolver = ThreadedResolver()
     resolver._loop = loop
-    real = await resolver.resolve('www.google.com')
-    ips = [ipaddress.ip_address(x['host']) for x in real]
+    real = await resolver.resolve("www.google.com")
+    ips = [ipaddress.ip_address(x["host"]) for x in real]
     assert len(ips) > 3, "Expecting multiple addresses"
 
 
@@ -111,7 +114,7 @@ async def test_threaded_negative_lookup() -> None:
     resolver = ThreadedResolver()
     resolver._loop = loop
     with pytest.raises(socket.gaierror):
-        await resolver.resolve('doesnotexist.bla')
+        await resolver.resolve("doesnotexist.bla")
 
 
 async def test_close_for_threaded_resolver(loop) -> None:
@@ -140,13 +143,12 @@ async def test_default_loop_for_async_resolver(loop) -> None:
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
 async def test_async_resolver_ipv6_positive_lookup(loop) -> None:
-    with patch('aiodns.DNSResolver') as mock:
-        mock().gethostbyname.return_value = fake_result(['::1'])
+    with patch("aiodns.DNSResolver") as mock:
+        mock().gethostbyname.return_value = fake_result(["::1"])
         resolver = AsyncResolver()
-        real = await resolver.resolve('www.python.org',
-                                      family=socket.AF_INET6)
-        ipaddress.ip_address(real[0]['host'])
-        mock().gethostbyname.assert_called_with('www.python.org',
+        real = await resolver.resolve("www.python.org", family=socket.AF_INET6)
+        ipaddress.ip_address(real[0]["host"])
+        mock().gethostbyname.assert_called_with("www.python.org",
                                                 socket.AF_INET6)
 
 

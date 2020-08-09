@@ -1,4 +1,3 @@
-import asyncio
 import asyncio.streams
 import traceback
 from collections import deque
@@ -6,65 +5,59 @@ from contextlib import suppress
 from html import escape as html_escape
 from http import HTTPStatus
 from logging import Logger
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import cast
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 import yarl
 
-from .abc import (
-    AbstractAccessLogger,
-    AbstractAsyncAccessLogger,
-    AbstractStreamWriter,
-)
+from .abc import AbstractAccessLogger
+from .abc import AbstractAsyncAccessLogger
+from .abc import AbstractStreamWriter
 from .base_protocol import BaseProtocol
-from .helpers import ceil_timeout, current_task
-from .http import (
-    HttpProcessingError,
-    HttpRequestParser,
-    HttpVersion10,
-    RawRequestMessage,
-    StreamWriter,
-)
-from .log import access_logger, server_logger
-from .streams import EMPTY_PAYLOAD, StreamReader
+from .helpers import ceil_timeout
+from .helpers import current_task
+from .http import HttpProcessingError
+from .http import HttpRequestParser
+from .http import HttpVersion10
+from .http import RawRequestMessage
+from .http import StreamWriter
+from .log import access_logger
+from .log import server_logger
+from .streams import EMPTY_PAYLOAD
+from .streams import StreamReader
 from .tcp_helpers import tcp_keepalive
 from .web_exceptions import HTTPException
 from .web_log import AccessLogger
 from .web_request import BaseRequest
-from .web_response import Response, StreamResponse
+from .web_response import Response
+from .web_response import StreamResponse
 
-__all__ = ('RequestHandler', 'RequestPayloadError', 'PayloadAccessError')
+__all__ = ("RequestHandler", "RequestPayloadError", "PayloadAccessError")
 
 if TYPE_CHECKING:  # pragma: no cover
     from .web_server import Server  # noqa
 
-
-_RequestFactory = Callable[[RawRequestMessage,
-                            StreamReader,
-                            'RequestHandler',
-                            AbstractStreamWriter,
-                            'asyncio.Task[None]'],
-                           BaseRequest]
+_RequestFactory = Callable[[
+    RawRequestMessage,
+    StreamReader,
+    "RequestHandler",
+    AbstractStreamWriter,
+    "asyncio.Task[None]",
+], BaseRequest, ]
 
 _RequestHandler = Callable[[BaseRequest], Awaitable[StreamResponse]]
-_AnyAbstractAccessLogger = Union[
-    Type[AbstractAsyncAccessLogger],
-    Type[AbstractAccessLogger],
-]
+_AnyAbstractAccessLogger = Union[Type[AbstractAsyncAccessLogger],
+                                 Type[AbstractAccessLogger], ]
 
-
-ERROR = RawRequestMessage(
-    'UNKNOWN', '/', HttpVersion10, {},
-    {}, True, False, False, False, yarl.URL('/'))
+ERROR = RawRequestMessage("UNKNOWN", "/", HttpVersion10, {}, {}, True, False,
+                          False, False, yarl.URL("/"))
 
 
 class RequestPayloadError(Exception):
@@ -80,13 +73,12 @@ class AccessLoggerWrapper(AbstractAsyncAccessLogger):
     Wraps an AbstractAccessLogger so it behaves
     like an AbstractAsyncAccessLogger.
     """
+
     def __init__(self, access_logger: AbstractAccessLogger):
         self.access_logger = access_logger
         super().__init__()
 
-    async def log(self,
-                  request: BaseRequest,
-                  response: StreamResponse,
+    async def log(self, request: BaseRequest, response: StreamResponse,
                   request_start: float) -> None:
         self.access_logger.log(request, response, request_start)
 
@@ -128,30 +120,52 @@ class RequestHandler(BaseProtocol):
     :param int max_headers: Optional maximum header size
 
     """
+
     KEEPALIVE_RESCHEDULE_DELAY = 1
 
-    __slots__ = ('_request_count', '_keepalive', '_manager',
-                 '_request_handler', '_request_factory', '_tcp_keepalive',
-                 '_keepalive_time', '_keepalive_handle', '_keepalive_timeout',
-                 '_lingering_time', '_messages', '_message_tail',
-                 '_waiter', '_error_handler', '_task_handler',
-                 '_upgrade', '_payload_parser', '_request_parser',
-                 '_reading_paused', 'logger', 'access_log',
-                 'access_logger', '_close', '_force_close',
-                 '_current_request')
+    __slots__ = (
+        "_request_count",
+        "_keepalive",
+        "_manager",
+        "_request_handler",
+        "_request_factory",
+        "_tcp_keepalive",
+        "_keepalive_time",
+        "_keepalive_handle",
+        "_keepalive_timeout",
+        "_lingering_time",
+        "_messages",
+        "_message_tail",
+        "_waiter",
+        "_error_handler",
+        "_task_handler",
+        "_upgrade",
+        "_payload_parser",
+        "_request_parser",
+        "_reading_paused",
+        "logger",
+        "access_log",
+        "access_logger",
+        "_close",
+        "_force_close",
+        "_current_request",
+    )
 
-    def __init__(self, manager: 'Server', *,
-                 loop: asyncio.AbstractEventLoop,
-                 keepalive_timeout: float=75.,  # NGINX default is 75 secs
-                 tcp_keepalive: bool=True,
-                 logger: Logger=server_logger,
-                 access_log_class: _AnyAbstractAccessLogger=AccessLogger,
-                 access_log: Logger=access_logger,
-                 access_log_format: str=AccessLogger.LOG_FORMAT,
-                 max_line_size: int=8190,
-                 max_headers: int=32768,
-                 max_field_size: int=8190,
-                 lingering_time: float=10.0):
+    def __init__(
+            self,
+            manager: "Server",
+            *,
+            loop: asyncio.AbstractEventLoop,
+            keepalive_timeout: float = 75.0,  # NGINX default is 75 secs
+            tcp_keepalive: bool = True,
+            logger: Logger = server_logger,
+            access_log_class: _AnyAbstractAccessLogger = AccessLogger,
+            access_log: Logger = access_logger,
+            access_log_format: str = AccessLogger.LOG_FORMAT,
+            max_line_size: int = 8190,
+            max_headers: int = 32768,
+            max_field_size: int = 8190,
+            lingering_time: float = 10.0):
 
         super().__init__(loop)
 
@@ -159,8 +173,10 @@ class RequestHandler(BaseProtocol):
         self._keepalive = False
         self._current_request = None  # type: Optional[BaseRequest]
         self._manager = manager  # type: Optional[Server]
-        self._request_handler = manager.request_handler  # type: Optional[_RequestHandler]  # noqa
-        self._request_factory = manager.request_factory  # type: Optional[_RequestFactory]  # noqa
+        self._request_handler = (manager.request_handler
+                                 )  # type: Optional[_RequestHandler]  # noqa
+        self._request_factory = (manager.request_factory
+                                 )  # type: Optional[_RequestFactory]  # noqa
 
         self._tcp_keepalive = tcp_keepalive
         # placeholder to be replaced on keepalive timeout setup
@@ -170,7 +186,7 @@ class RequestHandler(BaseProtocol):
         self._lingering_time = float(lingering_time)
 
         self._messages = deque()  # type: Any  # Python 3.5 has no typing.Deque
-        self._message_tail = b''
+        self._message_tail = b""
 
         self._waiter = None  # type: Optional[asyncio.Future[None]]
         self._error_handler = None  # type: Optional[asyncio.Task[None]]
@@ -179,17 +195,21 @@ class RequestHandler(BaseProtocol):
         self._upgrade = False
         self._payload_parser = None  # type: Any
         self._request_parser = HttpRequestParser(
-            self, loop,
+            self,
+            loop,
             max_line_size=max_line_size,
             max_field_size=max_field_size,
             max_headers=max_headers,
-            payload_exception=RequestPayloadError)   # type: Optional[HttpRequestParser]  # noqa
+            payload_exception=RequestPayloadError,
+        )  # type: Optional[HttpRequestParser]  # noqa
 
         self.logger = logger
         self.access_log = access_log
         if access_log:
             if issubclass(access_log_class, AbstractAsyncAccessLogger):
-                self.access_logger = access_log_class()  # type: Optional[AbstractAsyncAccessLogger]  # noqa
+                self.access_logger = (
+                    access_log_class()
+                )  # type: Optional[AbstractAsyncAccessLogger]  # noqa
             else:
                 access_logger = access_log_class(access_log, access_log_format)
                 self.access_logger = AccessLoggerWrapper(access_logger)
@@ -202,13 +222,14 @@ class RequestHandler(BaseProtocol):
     def __repr__(self) -> str:
         return "<{} {}>".format(
             self.__class__.__name__,
-            'connected' if self.transport is not None else 'disconnected')
+            "connected" if self.transport is not None else "disconnected",
+        )
 
     @property
     def keepalive_timeout(self) -> float:
         return self._keepalive_timeout
 
-    async def shutdown(self, timeout: Optional[float]=15.0) -> None:
+    async def shutdown(self, timeout: Optional[float] = 15.0) -> None:
         """Worker process is about to exit, we need cleanup everything and
         stop accepting requests. It is especially important for keep-alive
         connections."""
@@ -223,15 +244,15 @@ class RequestHandler(BaseProtocol):
         # wait for handlers
         with suppress(asyncio.CancelledError, asyncio.TimeoutError):
             async with ceil_timeout(timeout):
-                if (self._error_handler is not None and
-                        not self._error_handler.done()):
+                if self._error_handler is not None and not self._error_handler.done(
+                ):
                     await self._error_handler
 
                 if self._current_request is not None:
                     self._current_request._cancel(asyncio.CancelledError())
 
-                if (self._task_handler is not None and
-                        not self._task_handler.done()):
+                if self._task_handler is not None and not self._task_handler.done(
+                ):
                     await self._task_handler
 
         # force-close non-idle handler
@@ -291,7 +312,7 @@ class RequestHandler(BaseProtocol):
 
         if self._message_tail:
             self._payload_parser.feed_data(self._message_tail)
-            self._message_tail = b''
+            self._message_tail = b""
 
     def eof_received(self) -> None:
         pass
@@ -307,16 +328,14 @@ class RequestHandler(BaseProtocol):
             except HttpProcessingError as exc:
                 # something happened during parsing
                 self._error_handler = self._loop.create_task(
-                    self.handle_parse_error(
-                        StreamWriter(self, self._loop),
-                        400, exc, exc.message))
+                    self.handle_parse_error(StreamWriter(self, self._loop),
+                                            400, exc, exc.message))
                 self.close()
             except Exception as exc:
                 # 500: internal error
                 self._error_handler = self._loop.create_task(
-                    self.handle_parse_error(
-                        StreamWriter(self, self._loop),
-                        500, exc))
+                    self.handle_parse_error(StreamWriter(self, self._loop),
+                                            500, exc))
                 self.close()
             else:
                 if messages:
@@ -371,9 +390,7 @@ class RequestHandler(BaseProtocol):
             self.transport.close()
             self.transport = None
 
-    async def log_access(self,
-                         request: BaseRequest,
-                         response: StreamResponse,
+    async def log_access(self, request: BaseRequest, response: StreamResponse,
                          request_start: float) -> None:
         if self.access_logger is not None:
             await self.access_logger.log(request, response,
@@ -402,10 +419,11 @@ class RequestHandler(BaseProtocol):
         self._keepalive_handle = self._loop.call_later(
             self.KEEPALIVE_RESCHEDULE_DELAY, self._process_keepalive)
 
-    async def _handle_request(self,
-                              request: BaseRequest,
-                              start_time: float,
-                              ) -> Tuple[StreamResponse, bool]:
+    async def _handle_request(
+            self,
+            request: BaseRequest,
+            start_time: float,
+    ) -> Tuple[StreamResponse, bool]:
         assert self._request_handler is not None
         try:
             try:
@@ -422,7 +440,7 @@ class RequestHandler(BaseProtocol):
         except asyncio.CancelledError:
             raise
         except asyncio.TimeoutError as exc:
-            self.log_debug('Request handler timed out.', exc_info=exc)
+            self.log_debug("Request handler timed out.", exc_info=exc)
             resp = self.handle_error(request, 504)
             reset = await self.finish_response(request, resp, start_time)
         except Exception as exc:
@@ -469,8 +487,8 @@ class RequestHandler(BaseProtocol):
 
             manager.requests_count += 1
             writer = StreamWriter(self, loop)
-            request = self._request_factory(
-                message, payload, self, writer, handler)
+            request = self._request_factory(message, payload, self, writer,
+                                            handler)
             try:
                 # a new task is used for copy context vars (#3406)
                 task = self._loop.create_task(
@@ -478,13 +496,13 @@ class RequestHandler(BaseProtocol):
                 try:
                     resp, reset = await task
                 except (asyncio.CancelledError, ConnectionError):
-                    self.log_debug('Ignored premature client disconnection')
+                    self.log_debug("Ignored premature client disconnection")
                     break
 
                 # Drop the processed task from asyncio.Task.all_tasks() early
                 del task
                 if reset:
-                    self.log_debug('Ignored premature client disconnection 2')
+                    self.log_debug("Ignored premature client disconnection 2")
                     break
 
                 # notify server about keep-alive
@@ -495,14 +513,14 @@ class RequestHandler(BaseProtocol):
                     lingering_time = self._lingering_time
                     if not self._force_close and lingering_time:
                         self.log_debug(
-                            'Start lingering close timer for %s sec.',
+                            "Start lingering close timer for %s sec.",
                             lingering_time)
 
                         now = loop.time()
                         end_t = now + lingering_time
 
-                        with suppress(
-                                asyncio.TimeoutError, asyncio.CancelledError):
+                        with suppress(asyncio.TimeoutError,
+                                      asyncio.CancelledError):
                             while not payload.is_eof() and now < end_t:
                                 async with ceil_timeout(end_t - now):
                                     # read and ignore
@@ -511,25 +529,25 @@ class RequestHandler(BaseProtocol):
 
                     # if payload still uncompleted
                     if not payload.is_eof() and not self._force_close:
-                        self.log_debug('Uncompleted request.')
+                        self.log_debug("Uncompleted request.")
                         self.close()
 
                 payload.set_exception(PayloadAccessError())
 
             except asyncio.CancelledError:
-                self.log_debug('Ignored premature client disconnection ')
+                self.log_debug("Ignored premature client disconnection ")
                 break
             except RuntimeError as exc:
                 if self._loop.get_debug():
-                    self.log_exception(
-                        'Unhandled runtime exception', exc_info=exc)
+                    self.log_exception("Unhandled runtime exception",
+                                       exc_info=exc)
                 self.force_close()
             except Exception as exc:
-                self.log_exception('Unhandled exception', exc_info=exc)
+                self.log_exception("Unhandled exception", exc_info=exc)
                 self.force_close()
             finally:
                 if self.transport is None and resp is not None:
-                    self.log_debug('Ignored premature client disconnection.')
+                    self.log_debug("Ignored premature client disconnection.")
                 elif not self._force_close:
                     if self._keepalive and not self._close:
                         # start keep-alive timer
@@ -549,9 +567,7 @@ class RequestHandler(BaseProtocol):
             if self.transport is not None and self._error_handler is None:
                 self.transport.close()
 
-    async def finish_response(self,
-                              request: BaseRequest,
-                              resp: StreamResponse,
+    async def finish_response(self, request: BaseRequest, resp: StreamResponse,
                               start_time: float) -> bool:
         """
         Prepare the response and write_eof, then log access. This has to
@@ -565,7 +581,7 @@ class RequestHandler(BaseProtocol):
             self._upgrade = False
             if self._message_tail:
                 self._request_parser.feed_data(self._message_tail)
-                self._message_tail = b''
+                self._message_tail = b""
         try:
             prepare_meth = resp.prepare
         except AttributeError:
@@ -586,43 +602,43 @@ class RequestHandler(BaseProtocol):
             await self.log_access(request, resp, start_time)
             return False
 
-    def handle_error(self,
-                     request: BaseRequest,
-                     status: int=500,
-                     exc: Optional[BaseException]=None,
-                     message: Optional[str]=None) -> StreamResponse:
+    def handle_error(
+            self,
+            request: BaseRequest,
+            status: int = 500,
+            exc: Optional[BaseException] = None,
+            message: Optional[str] = None,
+    ) -> StreamResponse:
         """Handle errors.
 
         Returns HTTP response with specific status code. Logs additional
         information. It always closes current connection."""
         self.log_exception("Error handling request", exc_info=exc)
 
-        ct = 'text/plain'
+        ct = "text/plain"
         if status == HTTPStatus.INTERNAL_SERVER_ERROR:
-            title = '{0.value} {0.phrase}'.format(
-                HTTPStatus.INTERNAL_SERVER_ERROR
-            )
+            title = "{0.value} {0.phrase}".format(
+                HTTPStatus.INTERNAL_SERVER_ERROR)
             msg = HTTPStatus.INTERNAL_SERVER_ERROR.description
             tb = None
             if self._loop.get_debug():
                 with suppress(Exception):
                     tb = traceback.format_exc()
 
-            if 'text/html' in request.headers.get('Accept', ''):
+            if "text/html" in request.headers.get("Accept", ""):
                 if tb:
                     tb = html_escape(tb)
-                    msg = '<h2>Traceback:</h2>\n<pre>{}</pre>'.format(tb)
-                message = (
-                    "<html><head>"
-                    "<title>{title}</title>"
-                    "</head><body>\n<h1>{title}</h1>"
-                    "\n{msg}\n</body></html>\n"
-                ).format(title=title, msg=msg)
-                ct = 'text/html'
+                    msg = "<h2>Traceback:</h2>\n<pre>{}</pre>".format(tb)
+                message = ("<html><head>"
+                           "<title>{title}</title>"
+                           "</head><body>\n<h1>{title}</h1>"
+                           "\n{msg}\n</body></html>\n").format(title=title,
+                                                               msg=msg)
+                ct = "text/html"
             else:
                 if tb:
                     msg = tb
-                message = title + '\n\n' + msg
+                message = title + "\n\n" + msg
 
         resp = Response(status=status, text=message, content_type=ct)
         resp.force_close()
@@ -633,17 +649,21 @@ class RequestHandler(BaseProtocol):
 
         return resp
 
-    async def handle_parse_error(self,
-                                 writer: AbstractStreamWriter,
-                                 status: int,
-                                 exc: Optional[BaseException]=None,
-                                 message: Optional[str]=None) -> None:
+    async def handle_parse_error(
+            self,
+            writer: AbstractStreamWriter,
+            status: int,
+            exc: Optional[BaseException] = None,
+            message: Optional[str] = None,
+    ) -> None:
         request = BaseRequest(
             ERROR,
             EMPTY_PAYLOAD,  # type: ignore
-            self, writer,
+            self,
+            writer,
             current_task(),
-            self._loop)
+            self._loop,
+        )
 
         resp = self.handle_error(request, status, exc, message)
         await resp.prepare(request)

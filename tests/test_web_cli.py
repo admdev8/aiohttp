@@ -11,9 +11,7 @@ def test_entry_func_empty(mocker) -> None:
 
         web.main(argv)
 
-    error.assert_called_with(
-        "'entry-func' not in 'module:function' syntax"
-    )
+    error.assert_called_with("'entry-func' not in 'module:function' syntax")
 
 
 def test_entry_func_only_module(mocker) -> None:
@@ -24,9 +22,7 @@ def test_entry_func_only_module(mocker) -> None:
         argv = ["test"]
         web.main(argv)
 
-    error.assert_called_with(
-        "'entry-func' not in 'module:function' syntax"
-    )
+    error.assert_called_with("'entry-func' not in 'module:function' syntax")
 
 
 def test_entry_func_only_function(mocker) -> None:
@@ -37,9 +33,7 @@ def test_entry_func_only_function(mocker) -> None:
         argv = [":test"]
         web.main(argv)
 
-    error.assert_called_with(
-        "'entry-func' not in 'module:function' syntax"
-    )
+    error.assert_called_with("'entry-func' not in 'module:function' syntax")
 
 
 def test_entry_func_only_separator(mocker) -> None:
@@ -50,9 +44,7 @@ def test_entry_func_only_separator(mocker) -> None:
         argv = [":"]
         web.main(argv)
 
-    error.assert_called_with(
-        "'entry-func' not in 'module:function' syntax"
-    )
+    error.assert_called_with("'entry-func' not in 'module:function' syntax")
 
 
 def test_entry_func_relative_module(mocker) -> None:
@@ -77,7 +69,7 @@ def test_entry_func_non_existent_module(mocker) -> None:
 
         web.main(argv)
 
-    error.assert_called_with('unable to import alpha.beta: Test Error')
+    error.assert_called_with("unable to import alpha.beta: Test Error")
 
 
 def test_entry_func_non_existent_attribute(mocker) -> None:
@@ -91,9 +83,8 @@ def test_entry_func_non_existent_attribute(mocker) -> None:
         argv = ["alpha.beta:func"]
         web.main(argv)
 
-    error.assert_called_with(
-        "module %r has no attribute %r" % ("alpha.beta", "func")
-    )
+    error.assert_called_with("module %r has no attribute %r" %
+                             ("alpha.beta", "func"))
 
 
 def test_path_when_unsupported(mocker, monkeypatch) -> None:
@@ -122,8 +113,7 @@ def test_entry_func_call(mocker) -> None:
 
     module.func.assert_called_with(
         ("--extra-optional-eins --extra-optional-zwei extra positional "
-         "args").split()
-    )
+         "args").split())
 
 
 def test_running_application(mocker) -> None:

@@ -7,47 +7,53 @@ import warnings
 import zlib
 from collections import deque
 from types import TracebackType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
-from urllib.parse import parse_qsl, unquote, urlencode
+from typing import Any
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
+from urllib.parse import parse_qsl
+from urllib.parse import unquote
+from urllib.parse import urlencode
 
-from multidict import CIMultiDict, CIMultiDictProxy, MultiMapping  # noqa
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiMapping
 
-from .hdrs import (
-    CONTENT_DISPOSITION,
-    CONTENT_ENCODING,
-    CONTENT_LENGTH,
-    CONTENT_TRANSFER_ENCODING,
-    CONTENT_TYPE,
-)
-from .helpers import CHAR, TOKEN, parse_mimetype, reify
+from .hdrs import CONTENT_DISPOSITION
+from .hdrs import CONTENT_ENCODING
+from .hdrs import CONTENT_LENGTH
+from .hdrs import CONTENT_TRANSFER_ENCODING
+from .hdrs import CONTENT_TYPE
+from .helpers import CHAR
+from .helpers import parse_mimetype
+from .helpers import reify
+from .helpers import TOKEN
 from .http import HeadersParser
-from .payload import (
-    JsonPayload,
-    LookupError,
-    Order,
-    Payload,
-    StringPayload,
-    get_payload,
-    payload_type,
-)
+from .payload import get_payload
+from .payload import JsonPayload
+from .payload import LookupError
+from .payload import Order
+from .payload import Payload
+from .payload import payload_type
+from .payload import StringPayload
 from .streams import StreamReader
 
-__all__ = ('MultipartReader', 'MultipartWriter', 'BodyPartReader',
-           'BadContentDispositionHeader', 'BadContentDispositionParam',
-           'parse_content_disposition', 'content_disposition_filename')
-
+__all__ = (
+    "MultipartReader",
+    "MultipartWriter",
+    "BodyPartReader",
+    "BadContentDispositionHeader",
+    "BadContentDispositionParam",
+    "parse_content_disposition",
+    "content_disposition_filename",
+)
 
 if TYPE_CHECKING:  # pragma: no cover
     from .client_reqrep import ClientResponse  # noqa
@@ -61,9 +67,8 @@ class BadContentDispositionParam(RuntimeWarning):
     pass
 
 
-def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
-                                                              Dict[str, str]]:
-
+def parse_content_disposition(header: Optional[str],
+                              ) -> Tuple[Optional[str], Dict[str, str]]:
     def is_token(string: str) -> bool:
         return bool(string) and TOKEN >= set(string)
 
@@ -74,23 +79,23 @@ def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
         return is_token(string) and string.count("'") == 2
 
     def is_extended_param(string: str) -> bool:
-        return string.endswith('*')
+        return string.endswith("*")
 
     def is_continuous_param(string: str) -> bool:
-        pos = string.find('*') + 1
+        pos = string.find("*") + 1
         if not pos:
             return False
-        substring = string[pos:-1] if string.endswith('*') else string[pos:]
+        substring = string[pos:-1] if string.endswith("*") else string[pos:]
         return substring.isdigit()
 
-    def unescape(text: str, *,
-                 chars: str=''.join(map(re.escape, CHAR))) -> str:
-        return re.sub('\\\\([{}])'.format(chars), '\\1', text)
+    def unescape(text: str, *, chars: str = "".join(map(re.escape,
+                                                        CHAR))) -> str:
+        return re.sub("\\\\([{}])".format(chars), "\\1", text)
 
     if not header:
         return None, {}
 
-    disptype, *parts = header.split(';')
+    disptype, *parts = header.split(";")
     if not is_token(disptype):
         warnings.warn(BadContentDispositionHeader(header))
         return None, {}
@@ -99,11 +104,11 @@ def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
     while parts:
         item = parts.pop(0)
 
-        if '=' not in item:
+        if "=" not in item:
             warnings.warn(BadContentDispositionHeader(header))
             return None, {}
 
-        key, value = item.split('=', 1)
+        key, value = item.split("=", 1)
         key = key.lower().strip()
         value = value.lstrip()
 
@@ -125,13 +130,13 @@ def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
         elif is_extended_param(key):
             if is_rfc5987(value):
                 encoding, _, value = value.split("'", 2)
-                encoding = encoding or 'utf-8'
+                encoding = encoding or "utf-8"
             else:
                 warnings.warn(BadContentDispositionParam(item))
                 continue
 
             try:
-                value = unquote(value, encoding, 'strict')
+                value = unquote(value, encoding, "strict")
             except UnicodeDecodeError:  # pragma: nocover
                 warnings.warn(BadContentDispositionParam(item))
                 continue
@@ -140,16 +145,16 @@ def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
             failed = True
             if is_quoted(value):
                 failed = False
-                value = unescape(value[1:-1].lstrip('\\/'))
+                value = unescape(value[1:-1].lstrip("\\/"))
             elif is_token(value):
                 failed = False
             elif parts:
                 # maybe just ; in filename, in any case this is just
                 # one case fix, for proper fix we need to redesign parser
-                _value = '%s;%s' % (value, parts[0])
+                _value = "%s;%s" % (value, parts[0])
                 if is_quoted(_value):
                     parts.pop(0)
-                    value = unescape(_value[1:-1].lstrip('\\/'))
+                    value = unescape(_value[1:-1].lstrip("\\/"))
                     failed = False
 
             if failed:
@@ -162,8 +167,8 @@ def parse_content_disposition(header: Optional[str]) -> Tuple[Optional[str],
 
 
 def content_disposition_filename(params: Mapping[str, str],
-                                 name: str='filename') -> Optional[str]:
-    name_suf = '%s*' % name
+                                 name: str = "filename") -> Optional[str]:
+    name_suf = "%s*" % name
     if not params:
         return None
     elif name_suf in params:
@@ -172,12 +177,11 @@ def content_disposition_filename(params: Mapping[str, str],
         return params[name]
     else:
         parts = []
-        fnparams = sorted((key, value)
-                          for key, value in params.items()
+        fnparams = sorted((key, value) for key, value in params.items()
                           if key.startswith(name_suf))
         for num, (key, value) in enumerate(fnparams):
-            _, tail = key.split('*', 1)
-            if tail.endswith('*'):
+            _, tail = key.split("*", 1)
+            if tail.endswith("*"):
                 tail = tail[:-1]
             if tail == str(num):
                 parts.append(value)
@@ -185,11 +189,11 @@ def content_disposition_filename(params: Mapping[str, str],
                 break
         if not parts:
             return None
-        value = ''.join(parts)
+        value = "".join(parts)
         if "'" in value:
             encoding, _, value = value.split("'", 2)
-            encoding = encoding or 'utf-8'
-            return unquote(value, encoding, 'strict')
+            encoding = encoding or "utf-8"
+            return unquote(value, encoding, "strict")
         return value
 
 
@@ -201,19 +205,17 @@ class MultipartResponseWrapper:
     """
 
     def __init__(
-        self,
-        resp: 'ClientResponse',
-        stream: 'MultipartReader',
+            self,
+            resp: "ClientResponse",
+            stream: "MultipartReader",
     ) -> None:
         self.resp = resp
         self.stream = stream
 
-    def __aiter__(self) -> 'MultipartResponseWrapper':
+    def __aiter__(self) -> "MultipartResponseWrapper":
         return self
 
-    async def __anext__(
-        self,
-    ) -> Union['MultipartReader', 'BodyPartReader']:
+    async def __anext__(self, ) -> Union["MultipartReader", "BodyPartReader"]:
         part = await self.next()
         if part is None:
             raise StopAsyncIteration  # NOQA
@@ -223,9 +225,8 @@ class MultipartResponseWrapper:
         """Returns True when all response data had been read."""
         return self.resp.content.at_eof()
 
-    async def next(
-        self,
-    ) -> Optional[Union['MultipartReader', 'BodyPartReader']]:
+    async def next(self,
+                   ) -> Optional[Union["MultipartReader", "BodyPartReader"]]:
         """Emits next multipart reader object."""
         item = await self.stream.next()
         if self.stream.at_eof():
@@ -243,14 +244,12 @@ class BodyPartReader:
 
     chunk_size = 8192
 
-    def __init__(
-        self,
-        boundary: bytes,
-        headers: 'CIMultiDictProxy[str]',
-        content: StreamReader,
-        *,
-        _newline: bytes = b'\r\n'
-    ) -> None:
+    def __init__(self,
+                 boundary: bytes,
+                 headers: "CIMultiDictProxy[str]",
+                 content: StreamReader,
+                 *,
+                 _newline: bytes = b"\r\n") -> None:
         self.headers = headers
         self._boundary = boundary
         self._newline = _newline
@@ -265,7 +264,7 @@ class BodyPartReader:
         self._content_eof = 0
         self._cache = {}  # type: Dict[str, Any]
 
-    def __aiter__(self) -> 'BodyPartReader':
+    def __aiter__(self) -> "BodyPartReader":
         return self
 
     async def __anext__(self) -> bytes:
@@ -280,7 +279,7 @@ class BodyPartReader:
             return None
         return item
 
-    async def read(self, *, decode: bool=False) -> bytes:
+    async def read(self, *, decode: bool = False) -> bytes:
         """Reads body part data.
 
         decode: Decodes data following by encoding
@@ -288,7 +287,7 @@ class BodyPartReader:
                 data remains untouched
         """
         if self._at_eof:
-            return b''
+            return b""
         data = bytearray()
         while not self._at_eof:
             data.extend((await self.read_chunk(self.chunk_size)))
@@ -296,13 +295,13 @@ class BodyPartReader:
             return self.decode(data)
         return data
 
-    async def read_chunk(self, size: int=chunk_size) -> bytes:
+    async def read_chunk(self, size: int = chunk_size) -> bytes:
         """Reads body part content chunk of the specified size.
 
         size: chunk size
         """
         if self._at_eof:
-            return b''
+            return b""
         if self._length:
             chunk = await self._read_chunk_from_length(size)
         else:
@@ -311,13 +310,13 @@ class BodyPartReader:
         # For the case of base64 data, we must read a fragment of size with a
         # remainder of 0 by dividing by 4 for string without symbols \n or \r
         encoding = self.headers.get(CONTENT_TRANSFER_ENCODING)
-        if encoding and encoding.lower() == 'base64':
-            stripped_chunk = b''.join(chunk.split())
+        if encoding and encoding.lower() == "base64":
+            stripped_chunk = b"".join(chunk.split())
             remainder = len(stripped_chunk) % 4
 
             while remainder != 0 and not self.at_eof():
                 over_chunk_size = 4 - remainder
-                over_chunk = b''
+                over_chunk = b""
 
                 if self._prev_chunk:
                     over_chunk = self._prev_chunk[:over_chunk_size]
@@ -329,7 +328,7 @@ class BodyPartReader:
                 if not over_chunk:
                     self._at_eof = True
 
-                stripped_chunk += b''.join(over_chunk.split())
+                stripped_chunk += b"".join(over_chunk.split())
                 chunk += over_chunk
                 remainder = len(stripped_chunk) % 4
 
@@ -338,15 +337,14 @@ class BodyPartReader:
             self._at_eof = True
         if self._at_eof:
             newline = await self._content.readline()
-            assert newline == self._newline, \
-                'reader did not read all the data or it is malformed'
+            assert (newline == self._newline
+                    ), "reader did not read all the data or it is malformed"
         return chunk
 
     async def _read_chunk_from_length(self, size: int) -> bytes:
         # Reads body part content chunk of the specified size.
         # The body part must has Content-Length header with proper value.
-        assert self._length is not None, \
-            'Content-Length required for chunked read'
+        assert self._length is not None, "Content-Length required for chunked read"
         chunk_size = min(size, self._length - self._read_bytes)
         chunk = await self._content.read(chunk_size)
         return chunk
@@ -354,8 +352,9 @@ class BodyPartReader:
     async def _read_chunk_from_stream(self, size: int) -> bytes:
         # Reads content chunk of body part with unknown length.
         # The Content-Length header for body part is not necessary.
-        assert size >= len(self._boundary) + 2, \
-            'Chunk size must be greater or equal than boundary length + 2'
+        assert (
+            size >= len(self._boundary) +
+            2), "Chunk size must be greater or equal than boundary length + 2"
         first_chunk = self._prev_chunk is None
         if first_chunk:
             self._prev_chunk = await self._content.read(size)
@@ -377,8 +376,7 @@ class BodyPartReader:
         if idx >= 0:
             # pushing boundary back to content
             with warnings.catch_warnings():
-                warnings.filterwarnings("ignore",
-                                        category=DeprecationWarning)
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
                 self._content.unread_data(window[idx:])
             if size > idx:
                 self._prev_chunk = self._prev_chunk[:idx]
@@ -393,7 +391,7 @@ class BodyPartReader:
     async def readline(self) -> bytes:
         """Reads body part by line by line."""
         if self._at_eof:
-            return b''
+            return b""
 
         if self._unread:
             line = self._unread.popleft()
@@ -403,14 +401,14 @@ class BodyPartReader:
         if line.startswith(self._boundary):
             # the very last boundary may not come with \r\n,
             # so set single rules for everyone
-            sline = line.rstrip(b'\r\n')
+            sline = line.rstrip(b"\r\n")
             boundary = self._boundary
-            last_boundary = self._boundary + b'--'
+            last_boundary = self._boundary + b"--"
             # ensure that we read exactly the boundary, not something alike
             if sline in [boundary, last_boundary]:
                 self._at_eof = True
                 self._unread.append(line)
-                return b''
+                return b""
         else:
             next_line = await self._content.readline()
             if next_line.startswith(self._boundary):
@@ -427,26 +425,25 @@ class BodyPartReader:
         while not self._at_eof:
             await self.read_chunk(self.chunk_size)
 
-    async def text(self, *, encoding: Optional[str]=None) -> str:
+    async def text(self, *, encoding: Optional[str] = None) -> str:
         """Like read(), but assumes that body part contains text data."""
         data = await self.read(decode=True)
         # see https://www.w3.org/TR/html5/forms.html#multipart/form-data-encoding-algorithm # NOQA
         # and https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#dom-xmlhttprequest-send # NOQA
-        encoding = encoding or self.get_charset(default='utf-8')
+        encoding = encoding or self.get_charset(default="utf-8")
         return data.decode(encoding)
 
-    async def json(self,
-                   *,
-                   encoding: Optional[str]=None) -> Optional[Dict[str, Any]]:
+    async def json(self, *,
+                   encoding: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Like read(), but assumes that body parts contains JSON data."""
         data = await self.read(decode=True)
         if not data:
             return None
-        encoding = encoding or self.get_charset(default='utf-8')
+        encoding = encoding or self.get_charset(default="utf-8")
         return json.loads(data.decode(encoding))
 
     async def form(self, *,
-                   encoding: Optional[str]=None) -> List[Tuple[str, str]]:
+                   encoding: Optional[str] = None) -> List[Tuple[str, str]]:
         """Like read(), but assumes that body parts contains form
         urlencoded data.
         """
@@ -456,10 +453,12 @@ class BodyPartReader:
         if encoding is not None:
             real_encoding = encoding
         else:
-            real_encoding = self.get_charset(default='utf-8')
-        return parse_qsl(data.rstrip().decode(real_encoding),
-                         keep_blank_values=True,
-                         encoding=real_encoding)
+            real_encoding = self.get_charset(default="utf-8")
+        return parse_qsl(
+            data.rstrip().decode(real_encoding),
+            keep_blank_values=True,
+            encoding=real_encoding,
+        )
 
     def at_eof(self) -> bool:
         """Returns True if the boundary was reached or False otherwise."""
@@ -476,35 +475,35 @@ class BodyPartReader:
         return data
 
     def _decode_content(self, data: bytes) -> bytes:
-        encoding = self.headers.get(CONTENT_ENCODING, '').lower()
+        encoding = self.headers.get(CONTENT_ENCODING, "").lower()
 
-        if encoding == 'deflate':
+        if encoding == "deflate":
             return zlib.decompress(data, -zlib.MAX_WBITS)
-        elif encoding == 'gzip':
+        elif encoding == "gzip":
             return zlib.decompress(data, 16 + zlib.MAX_WBITS)
-        elif encoding == 'identity':
+        elif encoding == "identity":
             return data
         else:
-            raise RuntimeError('unknown content encoding: {}'.format(encoding))
+            raise RuntimeError("unknown content encoding: {}".format(encoding))
 
     def _decode_content_transfer(self, data: bytes) -> bytes:
-        encoding = self.headers.get(CONTENT_TRANSFER_ENCODING, '').lower()
+        encoding = self.headers.get(CONTENT_TRANSFER_ENCODING, "").lower()
 
-        if encoding == 'base64':
+        if encoding == "base64":
             return base64.b64decode(data)
-        elif encoding == 'quoted-printable':
+        elif encoding == "quoted-printable":
             return binascii.a2b_qp(data)
-        elif encoding in ('binary', '8bit', '7bit'):
+        elif encoding in ("binary", "8bit", "7bit"):
             return data
         else:
-            raise RuntimeError('unknown content transfer encoding: {}'
-                               ''.format(encoding))
+            raise RuntimeError("unknown content transfer encoding: {}"
+                               "".format(encoding))
 
     def get_charset(self, default: str) -> str:
         """Returns charset parameter from Content-Type header or default."""
-        ctype = self.headers.get(CONTENT_TYPE, '')
+        ctype = self.headers.get(CONTENT_TYPE, "")
         mimetype = parse_mimetype(ctype)
-        return mimetype.parameters.get('charset', default)
+        return mimetype.parameters.get("charset", default)
 
     @reify
     def name(self) -> Optional[str]:
@@ -514,7 +513,7 @@ class BodyPartReader:
 
         _, params = parse_content_disposition(
             self.headers.get(CONTENT_DISPOSITION))
-        return content_disposition_filename(params, 'name')
+        return content_disposition_filename(params, "name")
 
     @reify
     def filename(self) -> Optional[str]:
@@ -523,24 +522,23 @@ class BodyPartReader:
         """
         _, params = parse_content_disposition(
             self.headers.get(CONTENT_DISPOSITION))
-        return content_disposition_filename(params, 'filename')
+        return content_disposition_filename(params, "filename")
 
 
 @payload_type(BodyPartReader, order=Order.try_first)
 class BodyPartReaderPayload(Payload):
-
-    def __init__(self, value: BodyPartReader,
-                 *args: Any, **kwargs: Any) -> None:
+    def __init__(self, value: BodyPartReader, *args: Any,
+                 **kwargs: Any) -> None:
         super().__init__(value, *args, **kwargs)
 
         params = {}  # type: Dict[str, str]
         if value.name is not None:
-            params['name'] = value.name
+            params["name"] = value.name
         if value.filename is not None:
-            params['filename'] = value.filename
+            params["filename"] = value.filename
 
         if params:
-            self.set_content_disposition('attachment', True, **params)
+            self.set_content_disposition("attachment", True, **params)
 
     async def write(self, writer: Any) -> None:
         field = self._value
@@ -561,28 +559,26 @@ class MultipartReader:
     #: Body part reader class for non multipart/* content types.
     part_reader_cls = BodyPartReader
 
-    def __init__(
-        self,
-        headers: Mapping[str, str],
-        content: StreamReader,
-        *,
-        _newline: bytes = b'\r\n'
-    ) -> None:
+    def __init__(self,
+                 headers: Mapping[str, str],
+                 content: StreamReader,
+                 *,
+                 _newline: bytes = b"\r\n") -> None:
         self.headers = headers
-        self._boundary = ('--' + self._get_boundary()).encode()
+        self._boundary = ("--" + self._get_boundary()).encode()
         self._newline = _newline
         self._content = content
-        self._last_part = None  # type: Optional[Union['MultipartReader', BodyPartReader]]  # noqa
+        self._last_part = (
+            None
+        )  # type: Optional[Union['MultipartReader', BodyPartReader]]  # noqa
         self._at_eof = False
         self._at_bof = True
         self._unread = []  # type: List[bytes]
 
-    def __aiter__(self) -> 'MultipartReader':
+    def __aiter__(self) -> "MultipartReader":
         return self
 
-    async def __anext__(
-        self,
-    ) -> Union['MultipartReader', BodyPartReader]:
+    async def __anext__(self, ) -> Union["MultipartReader", BodyPartReader]:
         part = await self.next()
         if part is None:
             raise StopAsyncIteration  # NOQA
@@ -590,15 +586,15 @@ class MultipartReader:
 
     @classmethod
     def from_response(
-        cls,
-        response: 'ClientResponse',
+            cls,
+            response: "ClientResponse",
     ) -> MultipartResponseWrapper:
         """Constructs reader instance from HTTP response.
 
         :param response: :class:`~aiohttp.client.ClientResponse` instance
         """
-        return cls.response_wrapper_cls(response, cls(response.headers,
-                                                     response.content))
+        return cls.response_wrapper_cls(
+            response, cls(response.headers, response.content))
 
     def at_eof(self) -> bool:
         """Returns True if the final boundary was reached or
@@ -606,9 +602,8 @@ class MultipartReader:
         """
         return self._at_eof
 
-    async def next(
-        self,
-    ) -> Optional[Union['MultipartReader', BodyPartReader]]:
+    async def next(self,
+                   ) -> Optional[Union["MultipartReader", BodyPartReader]]:
         """Emits the next multipart body part."""
         # So, if we're at BOF, we need to skip till the boundary.
         if self._at_eof:
@@ -632,51 +627,49 @@ class MultipartReader:
                 break
             await item.release()
 
-    async def fetch_next_part(
-        self,
-    ) -> Union['MultipartReader', BodyPartReader]:
+    async def fetch_next_part(self,
+                              ) -> Union["MultipartReader", BodyPartReader]:
         """Returns the next body part reader."""
         headers = await self._read_headers()
         return self._get_part_reader(headers)
 
     def _get_part_reader(
-        self,
-        headers: 'CIMultiDictProxy[str]',
-    ) -> Union['MultipartReader', BodyPartReader]:
+            self,
+            headers: "CIMultiDictProxy[str]",
+    ) -> Union["MultipartReader", BodyPartReader]:
         """Dispatches the response by the `Content-Type` header, returning
         suitable reader instance.
 
         :param dict headers: Response headers
         """
-        ctype = headers.get(CONTENT_TYPE, '')
+        ctype = headers.get(CONTENT_TYPE, "")
         mimetype = parse_mimetype(ctype)
 
-        if mimetype.type == 'multipart':
+        if mimetype.type == "multipart":
             if self.multipart_reader_cls is None:
                 return type(self)(headers, self._content)
-            return self.multipart_reader_cls(
-                headers, self._content, _newline=self._newline
-            )
+            return self.multipart_reader_cls(headers,
+                                             self._content,
+                                             _newline=self._newline)
         else:
-            return self.part_reader_cls(
-                self._boundary, headers, self._content, _newline=self._newline
-            )
+            return self.part_reader_cls(self._boundary,
+                                        headers,
+                                        self._content,
+                                        _newline=self._newline)
 
     def _get_boundary(self) -> str:
         mimetype = parse_mimetype(self.headers[CONTENT_TYPE])
 
-        assert mimetype.type == 'multipart', (
-            'multipart/* content type expected'
-        )
+        assert mimetype.type == "multipart", "multipart/* content type expected"
 
-        if 'boundary' not in mimetype.parameters:
-            raise ValueError('boundary missed for Content-Type: %s'
-                             % self.headers[CONTENT_TYPE])
+        if "boundary" not in mimetype.parameters:
+            raise ValueError("boundary missed for Content-Type: %s" %
+                             self.headers[CONTENT_TYPE])
 
-        boundary = mimetype.parameters['boundary']
+        boundary = mimetype.parameters["boundary"]
         if len(boundary) > 70:
-            raise ValueError('boundary %r is too long (70 chars max)'
-                             % boundary)
+            raise ValueError("boundary %r is too long (70 chars max)" %
+                             boundary)
 
         return boundary
 
@@ -688,18 +681,17 @@ class MultipartReader:
     async def _read_until_first_boundary(self) -> None:
         while True:
             chunk = await self._readline()
-            if chunk == b'':
-                raise ValueError("Could not find starting boundary %r"
-                                 % (self._boundary))
+            if chunk == b"":
+                raise ValueError("Could not find starting boundary %r" %
+                                 (self._boundary))
             newline = None
-            end_boundary = self._boundary + b'--'
+            end_boundary = self._boundary + b"--"
             if chunk.startswith(end_boundary):
                 _, newline = chunk.split(end_boundary, 1)
             elif chunk.startswith(self._boundary):
                 _, newline = chunk.split(self._boundary, 1)
             if newline is not None:
-                assert newline in (b'\r\n', b'\n'), (newline,
-                                                     chunk,
+                assert newline in (b"\r\n", b"\n"), (newline, chunk,
                                                      self._boundary)
                 self._newline = newline
 
@@ -714,7 +706,7 @@ class MultipartReader:
         chunk = (await self._readline()).rstrip()
         if chunk == self._boundary:
             pass
-        elif chunk == self._boundary + b'--':
+        elif chunk == self._boundary + b"--":
             self._at_eof = True
             epilogue = await self._readline()
             next_line = await self._readline()
@@ -723,7 +715,7 @@ class MultipartReader:
             # parent multipart boundary, if the parent boundary is found then
             # it should be marked as unread and handed to the parent for
             # processing
-            if next_line[:2] == b'--':
+            if next_line[:2] == b"--":
                 self._unread.append(next_line)
             # otherwise the request is likely missing an epilogue and both
             # lines should be passed to the parent for processing
@@ -731,11 +723,11 @@ class MultipartReader:
             else:
                 self._unread.extend([next_line, epilogue])
         else:
-            raise ValueError('Invalid boundary %r, expected %r'
-                             % (chunk, self._boundary))
+            raise ValueError("Invalid boundary %r, expected %r" %
+                             (chunk, self._boundary))
 
-    async def _read_headers(self) -> 'CIMultiDictProxy[str]':
-        lines = [b'']
+    async def _read_headers(self) -> "CIMultiDictProxy[str]":
+        lines = [b""]
         while True:
             chunk = await self._content.readline()
             chunk = chunk.strip()
@@ -761,8 +753,8 @@ _Part = Tuple[Payload, str, str]
 class MultipartWriter(Payload):
     """Multipart body writer."""
 
-    def __init__(self, subtype: str='mixed',
-                 boundary: Optional[str]=None) -> None:
+    def __init__(self, subtype: str = "mixed",
+                 boundary: Optional[str] = None) -> None:
         boundary = boundary if boundary is not None else uuid.uuid4().hex
         # The underlying Payload API demands a str (utf-8), not bytes,
         # so we need to ensure we don't lose anything during conversion.
@@ -770,24 +762,26 @@ class MultipartWriter(Payload):
         # In both situations.
 
         try:
-            self._boundary = boundary.encode('ascii')
+            self._boundary = boundary.encode("ascii")
         except UnicodeEncodeError:
-            raise ValueError('boundary should contain ASCII only chars') \
-                from None
-        ctype = ('multipart/{}; boundary={}'
-                 .format(subtype, self._boundary_value))
+            raise ValueError(
+                "boundary should contain ASCII only chars") from None
+        ctype = "multipart/{}; boundary={}".format(subtype,
+                                                   self._boundary_value)
 
         super().__init__(None, content_type=ctype)
 
         self._parts = []  # type: List[_Part]  # noqa
 
-    def __enter__(self) -> 'MultipartWriter':
+    def __enter__(self) -> "MultipartWriter":
         return self
 
-    def __exit__(self,
-                 exc_type: Optional[Type[BaseException]],
-                 exc_val: Optional[BaseException],
-                 exc_tb: Optional[TracebackType]) -> None:
+    def __exit__(
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_val: Optional[BaseException],
+            exc_tb: Optional[TracebackType],
+    ) -> None:
         pass
 
     def __iter__(self) -> Iterator[_Part]:
@@ -823,26 +817,23 @@ class MultipartWriter(Payload):
         # VCHAR           = %x21-7E
         value = self._boundary
         if re.match(self._valid_tchar_regex, value):
-            return value.decode('ascii')  # cannot fail
+            return value.decode("ascii")  # cannot fail
 
         if re.search(self._invalid_qdtext_char_regex, value):
             raise ValueError("boundary value contains invalid characters")
 
         # escape %x5C and %x22
-        quoted_value_content = value.replace(b'\\', b'\\\\')
+        quoted_value_content = value.replace(b"\\", b"\\\\")
         quoted_value_content = quoted_value_content.replace(b'"', b'\\"')
 
-        return '"' + quoted_value_content.decode('ascii') + '"'
+        return '"' + quoted_value_content.decode("ascii") + '"'
 
     @property
     def boundary(self) -> str:
-        return self._boundary.decode('ascii')
+        return self._boundary.decode("ascii")
 
-    def append(
-            self,
-            obj: Any,
-            headers: Optional[MultiMapping[str]]=None
-    ) -> Payload:
+    def append(self, obj: Any,
+               headers: Optional[MultiMapping[str]] = None) -> Payload:
         if headers is None:
             headers = CIMultiDict()
 
@@ -853,7 +844,7 @@ class MultipartWriter(Payload):
             try:
                 payload = get_payload(obj, headers=headers)
             except LookupError:
-                raise TypeError('Cannot create payload from %r' % obj)
+                raise TypeError("Cannot create payload from %r" % obj)
             else:
                 return self.append_payload(payload)
 
@@ -862,22 +853,22 @@ class MultipartWriter(Payload):
         # compression
         encoding = payload.headers.get(
             CONTENT_ENCODING,
-            '',
+            "",
         ).lower()  # type: Optional[str]
-        if encoding and encoding not in ('deflate', 'gzip', 'identity'):
-            raise RuntimeError('unknown content encoding: {}'.format(encoding))
-        if encoding == 'identity':
+        if encoding and encoding not in ("deflate", "gzip", "identity"):
+            raise RuntimeError("unknown content encoding: {}".format(encoding))
+        if encoding == "identity":
             encoding = None
 
         # te encoding
         te_encoding = payload.headers.get(
             CONTENT_TRANSFER_ENCODING,
-            '',
+            "",
         ).lower()  # type: Optional[str]
-        if te_encoding not in ('', 'base64', 'quoted-printable', 'binary'):
-            raise RuntimeError('unknown content transfer encoding: {}'
-                               ''.format(te_encoding))
-        if te_encoding == 'binary':
+        if te_encoding not in ("", "base64", "quoted-printable", "binary"):
+            raise RuntimeError("unknown content transfer encoding: {}"
+                               "".format(te_encoding))
+        if te_encoding == "binary":
             te_encoding = None
 
         # size
@@ -888,11 +879,9 @@ class MultipartWriter(Payload):
         self._parts.append((payload, encoding, te_encoding))  # type: ignore
         return payload
 
-    def append_json(
-            self,
-            obj: Any,
-            headers: Optional[MultiMapping[str]]=None
-    ) -> Payload:
+    def append_json(self,
+                    obj: Any,
+                    headers: Optional[MultiMapping[str]] = None) -> Payload:
         """Helper to append JSON part."""
         if headers is None:
             headers = CIMultiDict()
@@ -901,9 +890,8 @@ class MultipartWriter(Payload):
 
     def append_form(
             self,
-            obj: Union[Sequence[Tuple[str, str]],
-                       Mapping[str, str]],
-            headers: Optional[MultiMapping[str]]=None
+            obj: Union[Sequence[Tuple[str, str]], Mapping[str, str]],
+            headers: Optional[MultiMapping[str]] = None,
     ) -> Payload:
         """Helper to append form urlencoded part."""
         assert isinstance(obj, (Sequence, Mapping))
@@ -916,8 +904,9 @@ class MultipartWriter(Payload):
         data = urlencode(obj, doseq=True)
 
         return self.append_payload(
-            StringPayload(data, headers=headers,
-                          content_type='application/x-www-form-urlencoded'))
+            StringPayload(data,
+                          headers=headers,
+                          content_type="application/x-www-form-urlencoded"))
 
     @property
     def size(self) -> Optional[int]:
@@ -927,20 +916,18 @@ class MultipartWriter(Payload):
             if encoding or te_encoding or part.size is None:
                 return None
 
-            total += int(
-                2 + len(self._boundary) + 2 +  # b'--'+self._boundary+b'\r\n'
-                part.size + len(part._binary_headers) +
-                2  # b'\r\n'
-            )
+            total += int(2 + len(self._boundary) + 2 +
+                         part.size  # b'--'+self._boundary+b'\r\n'
+                         + len(part._binary_headers) + 2  # b'\r\n'
+                         )
 
         total += 2 + len(self._boundary) + 4  # b'--'+self._boundary+b'--\r\n'
         return total
 
-    async def write(self, writer: Any,
-                    close_boundary: bool=True) -> None:
+    async def write(self, writer: Any, close_boundary: bool = True) -> None:
         """Write body."""
         for part, encoding, te_encoding in self._parts:
-            await writer.write(b'--' + self._boundary + b'\r\n')
+            await writer.write(b"--" + self._boundary + b"\r\n")
             await writer.write(part._binary_headers)
 
             if encoding or te_encoding:
@@ -954,14 +941,13 @@ class MultipartWriter(Payload):
             else:
                 await part.write(writer)
 
-            await writer.write(b'\r\n')
+            await writer.write(b"\r\n")
 
         if close_boundary:
-            await writer.write(b'--' + self._boundary + b'--\r\n')
+            await writer.write(b"--" + self._boundary + b"--\r\n")
 
 
 class MultipartPayloadWriter:
-
     def __init__(self, writer: Any) -> None:
         self._writer = writer
         self._encoding = None  # type: Optional[str]
@@ -969,15 +955,14 @@ class MultipartPayloadWriter:
         self._encoding_buffer = None  # type: Optional[bytearray]
 
     def enable_encoding(self, encoding: str) -> None:
-        if encoding == 'base64':
+        if encoding == "base64":
             self._encoding = encoding
             self._encoding_buffer = bytearray()
-        elif encoding == 'quoted-printable':
-            self._encoding = 'quoted-printable'
+        elif encoding == "quoted-printable":
+            self._encoding = "quoted-printable"
 
-    def enable_compression(self, encoding: str='deflate') -> None:
-        zlib_mode = (16 + zlib.MAX_WBITS
-                     if encoding == 'gzip' else -zlib.MAX_WBITS)
+    def enable_compression(self, encoding: str = "deflate") -> None:
+        zlib_mode = 16 + zlib.MAX_WBITS if encoding == "gzip" else -zlib.MAX_WBITS
         self._compress = zlib.compressobj(wbits=zlib_mode)
 
     async def write_eof(self) -> None:
@@ -987,9 +972,8 @@ class MultipartPayloadWriter:
                 self._compress = None
                 await self.write(chunk)
 
-        if self._encoding == 'base64' and self._encoding_buffer:
-            await self._writer.write(base64.b64encode(
-                self._encoding_buffer))
+        if self._encoding == "base64" and self._encoding_buffer:
+            await self._writer.write(base64.b64encode(self._encoding_buffer))
 
     async def write(self, chunk: bytes) -> None:
         if self._compress is not None and chunk:
@@ -997,19 +981,19 @@ class MultipartPayloadWriter:
             if not chunk:
                 return
 
-        if self._encoding == 'base64':
+        if self._encoding == "base64":
             buf = self._encoding_buffer
             assert buf is not None
             buf.extend(chunk)
 
             if buf:
                 div, mod = divmod(len(buf), 3)
-                enc_chunk, self._encoding_buffer = (
-                    buf[:div * 3], buf[div * 3:])
+                enc_chunk, self._encoding_buffer = (buf[:div * 3],
+                                                    buf[div * 3:])
                 if enc_chunk:
                     b64chunk = base64.b64encode(enc_chunk)
                     await self._writer.write(b64chunk)
-        elif self._encoding == 'quoted-printable':
+        elif self._encoding == "quoted-printable":
             await self._writer.write(binascii.b2a_qp(chunk))
         else:
             await self._writer.write(chunk)
