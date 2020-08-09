@@ -598,7 +598,7 @@ class MultipartReader:
         :param response: :class:`~aiohttp.client.ClientResponse` instance
         """
         return cls.response_wrapper_cls(response, cls(response.headers,
-                                                     response.content))
+                                                      response.content))
 
     def at_eof(self) -> bool:
         """Returns True if the final boundary was reached or

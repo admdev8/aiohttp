@@ -103,7 +103,8 @@ class HTTPException(Exception):
                     DeprecationWarning,
                     stacklevel=2)
 
-        real_headers = CIMultiDict(headers) if headers is not None else CIMultiDict()
+        real_headers = CIMultiDict(
+            headers) if headers is not None else CIMultiDict()
         if content_type is not None:
             if not text:
                 warnings.warn("content_type without text is deprecated "
