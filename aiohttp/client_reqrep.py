@@ -22,9 +22,10 @@ from typing import (  # noqa
     cast,
 )
 
-import attr
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
 from yarl import URL
+
+import attr
 
 from . import hdrs, helpers, http, multipart, payload
 from .abc import AbstractStreamWriter
