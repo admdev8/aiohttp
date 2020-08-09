@@ -160,8 +160,7 @@ async def test_close_after_response(srv, transport) -> None:
 
     await asyncio.sleep(0.1)
     assert srv._waiter is None
-    assert srv._task_handler is None
-
+    assert h is None
     assert transport.close.called
     assert srv.transport is None
 
@@ -281,8 +280,7 @@ async def test_unhandled_runtime_error(
             raise RuntimeError()
 
     async def handle(request):
-        resp = MyResponse()
-        return resp
+        return MyResponse()
 
     loop = asyncio.get_event_loop()
     loop.set_debug(True)

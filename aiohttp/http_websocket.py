@@ -328,12 +328,11 @@ class WebSocketReader:
                 else:
                     # previous frame was non finished
                     # we should get continuation opcode
-                    if self._partial:
-                        if opcode != WSMsgType.CONTINUATION:
-                            raise WebSocketError(
-                                WSCloseCode.PROTOCOL_ERROR,
-                                'The opcode in non-fin frame is expected '
-                                'to be zero, got {!r}'.format(opcode))
+                    if self._partial and opcode != WSMsgType.CONTINUATION:
+                        raise WebSocketError(
+                            WSCloseCode.PROTOCOL_ERROR,
+                            'The opcode in non-fin frame is expected '
+                            'to be zero, got {!r}'.format(opcode))
 
                     if opcode == WSMsgType.CONTINUATION:
                         assert self._opcode is not None
@@ -579,16 +578,12 @@ class WebSocketWriter:
                 zlib.Z_FULL_FLUSH if self.notakeover else zlib.Z_SYNC_FLUSH)
             if message.endswith(_WS_DEFLATE_TRAILING):
                 message = message[:-4]
-            rsv = rsv | 0x40
+            rsv |= 0x40
 
         msg_length = len(message)
 
         use_mask = self.use_mask
-        if use_mask:
-            mask_bit = 0x80
-        else:
-            mask_bit = 0
-
+        mask_bit = 0x80 if use_mask else 0
         if msg_length < 126:
             header = PACK_LEN1(0x80 | rsv | opcode, msg_length | mask_bit)
         elif msg_length < (1 << 16):

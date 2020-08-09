@@ -103,11 +103,7 @@ class HTTPException(Exception):
                     DeprecationWarning,
                     stacklevel=2)
 
-        if headers is not None:
-            real_headers = CIMultiDict(headers)
-        else:
-            real_headers = CIMultiDict()
-
+        real_headers = CIMultiDict(headers) if headers is not None else CIMultiDict()
         if content_type is not None:
             if not text:
                 warnings.warn("content_type without text is deprecated "
@@ -481,13 +477,16 @@ class HTTPNetworkAuthenticationRequired(HTTPServerError):
 
 def _initialize_default_reason() -> None:
     for obj in globals().values():
-        if isinstance(obj, type) and issubclass(obj, HTTPException):
-            if obj.status_code >= 0:
-                try:
-                    status = HTTPStatus(obj.status_code)
-                    obj.default_reason = status.phrase
-                except ValueError:
-                    pass
+        if (
+            isinstance(obj, type)
+            and issubclass(obj, HTTPException)
+            and obj.status_code >= 0
+        ):
+            try:
+                status = HTTPStatus(obj.status_code)
+                obj.default_reason = status.phrase
+            except ValueError:
+                pass
 
 
 _initialize_default_reason()

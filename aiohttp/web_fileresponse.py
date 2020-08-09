@@ -214,7 +214,7 @@ class FileResponse(StreamResponse):
         chunk = await loop.run_in_executor(None, fobj.read, chunk_size)
         while chunk:
             await writer.write(chunk)
-            count = count - chunk_size
+            count -= chunk_size
             if count <= 0:
                 break
             chunk = await loop.run_in_executor(
