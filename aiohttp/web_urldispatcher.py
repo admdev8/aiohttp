@@ -136,9 +136,7 @@ class AbstractRoute(abc.ABC):
 
         if iscoroutinefunction(handler):
             pass
-        elif isinstance(handler, type) and issubclass(handler, AbstractView):
-            pass
-        else:
+        elif not isinstance(handler, type) or not issubclass(handler, AbstractView):
             raise TypeError("Only async functions are allowed as web-handlers "
                             ", got {!r}".format(handler))
 
@@ -264,8 +262,8 @@ async def _default_expect_handler(request: Request) -> None:
     Just send "100 Continue" to client.
     raise HTTPExpectationFailed if value of header is not "100-continue"
     """
-    expect = request.headers.get(hdrs.EXPECT)
     if request.version == HttpVersion11:
+        expect = request.headers.get(hdrs.EXPECT)
         if expect.lower() == "100-continue":
             await request.writer.write(b"HTTP/1.1 100 Continue\r\n\r\n")
         else:
@@ -284,7 +282,7 @@ class Resource(AbstractResource):
                   ) -> 'ResourceRoute':
 
         for route_obj in self._routes:
-            if route_obj.method == method or route_obj.method == hdrs.METH_ANY:
+            if route_obj.method in [method, hdrs.METH_ANY]:
                 raise RuntimeError("Added route will never be executed, "
                                    "method {route.method} is already "
                                    "registered".format(route=route_obj))
@@ -310,8 +308,7 @@ class Resource(AbstractResource):
             route_method = route_obj.method
             allowed_methods.add(route_method)
 
-            if (route_method == request.method or
-                    route_method == hdrs.METH_ANY):
+            if route_method in [request.method, hdrs.METH_ANY]:
                 return (UrlMappingMatchInfo(match_dict, route_obj),
                         allowed_methods)
         else:
@@ -637,11 +634,7 @@ class StaticResource(PrefixResource):
             file_url = self._prefix + '/' + rel_path
 
             # if file is a directory, add '/' to the end of the name
-            if _file.is_dir():
-                file_name = "{}/".format(_file.name)
-            else:
-                file_name = _file.name
-
+            file_name = "{}/".format(_file.name) if _file.is_dir() else _file.name
             index_list.append(
                 '<li><a href="{url}">{name}</a></li>'.format(url=file_url,
                                                              name=file_name)
@@ -650,9 +643,7 @@ class StaticResource(PrefixResource):
         body = "<body>\n{}\n{}\n</body>".format(h1, ul)
 
         head_str = "<head>\n<title>{}</title>\n</head>".format(index_of)
-        html = "<html>\n{}\n{}\n</html>".format(head_str, body)
-
-        return html
+        return "<html>\n{}\n{}\n</html>".format(head_str, body)
 
     def __repr__(self) -> str:
         name = "'" + self.name + "'" if self.name is not None else ""

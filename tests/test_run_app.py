@@ -435,9 +435,9 @@ def test_run_app_preexisting_inet6_socket(patched_loop) -> None:
 def test_run_app_preexisting_unix_socket(patched_loop, mocker) -> None:
     app = web.Application()
 
-    sock_path = '/tmp/test_preexisting_sock1'
     sock = socket.socket(socket.AF_UNIX)
     with contextlib.closing(sock):
+        sock_path = '/tmp/test_preexisting_sock1'
         sock.bind(sock_path)
         os.unlink(sock_path)
 

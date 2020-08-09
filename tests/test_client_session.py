@@ -309,8 +309,7 @@ async def test_connector(create_session, loop, mocker) -> None:
 async def test_create_connector(create_session, loop, mocker) -> None:
     session = await create_session()
     connector = session.connector
-    mocker.spy(session.connector, 'close')
-
+    mocker.spy(connector, 'close')
     await session.close()
     assert connector.close.called
 

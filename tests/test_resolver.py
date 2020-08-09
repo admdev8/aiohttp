@@ -39,8 +39,7 @@ def fake_addrinfo(hosts):
         if not hosts:
             raise socket.gaierror
 
-        return list([(None, None, None, None, [h, 0])
-                     for h in hosts])
+        return [(None, None, None, None, [h, 0]) for h in hosts]
 
     return fake
 

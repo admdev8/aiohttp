@@ -352,10 +352,7 @@ class ClientRequest:
             c.load(self.headers.get(hdrs.COOKIE, ''))
             del self.headers[hdrs.COOKIE]
 
-        if isinstance(cookies, Mapping):
-            iter_cookies = cookies.items()
-        else:
-            iter_cookies = cookies  # type: ignore
+        iter_cookies = cookies.items() if isinstance(cookies, Mapping) else cookies
         for name, value in iter_cookies:
             if isinstance(value, Morsel):
                 # Preserve coded_value
@@ -433,14 +430,12 @@ class ClientRequest:
         self.body = body
 
         # enable chunked encoding if needed
-        if not self.chunked:
-            if hdrs.CONTENT_LENGTH not in self.headers:
-                size = body.size
-                if size is None:
-                    self.chunked = True
-                else:
-                    if hdrs.CONTENT_LENGTH not in self.headers:
-                        self.headers[hdrs.CONTENT_LENGTH] = str(size)
+        if not self.chunked and hdrs.CONTENT_LENGTH not in self.headers:
+            size = body.size
+            if size is None:
+                self.chunked = True
+            else:
+                self.headers[hdrs.CONTENT_LENGTH] = str(size)
 
         # copy payload headers
         assert body.headers
@@ -463,7 +458,7 @@ class ClientRequest:
     def update_proxy(self, proxy: Optional[URL],
                      proxy_auth: Optional[BasicAuth],
                      proxy_headers: Optional[LooseHeaders]) -> None:
-        if proxy and not proxy.scheme == 'http':
+        if proxy and proxy.scheme != 'http':
             raise ValueError("Only http proxies are supported")
         if proxy_auth and not isinstance(proxy_auth, helpers.BasicAuth):
             raise ValueError("proxy_auth must be None or BasicAuth() tuple")
@@ -701,10 +696,7 @@ class ClientResponse(HeadersMixin):
             self._cleanup_writer()
 
             if self._loop.get_debug():
-                if PY_36:
-                    kwargs = {'source': self}
-                else:
-                    kwargs = {}
+                kwargs = {'source': self} if PY_36 else {}
                 _warnings.warn("Unclosed response {!r}".format(self),
                                ResourceWarning,
                                **kwargs)
@@ -890,7 +882,7 @@ class ClientResponse(HeadersMixin):
         return True
 
     def raise_for_status(self) -> None:
-        if 400 <= self.status:
+        if self.status >= 400:
             # reason should always be not None for a started response
             assert self.reason is not None
             self.release()

@@ -2887,7 +2887,7 @@ async def test_async_payload_generator(aiohttp_client) -> None:
     client = await aiohttp_client(app)
 
     async def gen():
-        for i in range(100):
+        for _ in range(100):
             yield b'1234567890'
 
     resp = await client.post('/', data=gen())

@@ -407,7 +407,7 @@ class BodyPartReader:
             boundary = self._boundary
             last_boundary = self._boundary + b'--'
             # ensure that we read exactly the boundary, not something alike
-            if sline == boundary or sline == last_boundary:
+            if sline in [boundary, last_boundary]:
                 self._at_eof = True
                 self._unread.append(line)
                 return b''
@@ -597,9 +597,8 @@ class MultipartReader:
 
         :param response: :class:`~aiohttp.client.ClientResponse` instance
         """
-        obj = cls.response_wrapper_cls(response, cls(response.headers,
+        return cls.response_wrapper_cls(response, cls(response.headers,
                                                      response.content))
-        return obj
 
     def at_eof(self) -> bool:
         """Returns True if the final boundary was reached or
@@ -883,7 +882,7 @@ class MultipartWriter(Payload):
 
         # size
         size = payload.size
-        if size is not None and not (encoding or te_encoding):
+        if size is not None and not encoding and not te_encoding:
             payload.headers[CONTENT_LENGTH] = str(size)
 
         self._parts.append((payload, encoding, te_encoding))  # type: ignore
@@ -988,17 +987,15 @@ class MultipartPayloadWriter:
                 self._compress = None
                 await self.write(chunk)
 
-        if self._encoding == 'base64':
-            if self._encoding_buffer:
-                await self._writer.write(base64.b64encode(
-                    self._encoding_buffer))
+        if self._encoding == 'base64' and self._encoding_buffer:
+            await self._writer.write(base64.b64encode(
+                self._encoding_buffer))
 
     async def write(self, chunk: bytes) -> None:
-        if self._compress is not None:
-            if chunk:
-                chunk = self._compress.compress(chunk)
-                if not chunk:
-                    return
+        if self._compress is not None and chunk:
+            chunk = self._compress.compress(chunk)
+            if not chunk:
+                return
 
         if self._encoding == 'base64':
             buf = self._encoding_buffer

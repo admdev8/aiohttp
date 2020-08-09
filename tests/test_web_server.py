@@ -89,8 +89,7 @@ async def test_raw_server_cancelled_in_write_eof(aiohttp_raw_server,
             raise asyncio.CancelledError("error")
 
     async def handler(request):
-        resp = MyResponse(text=str(request.rel_url))
-        return resp
+        return MyResponse(text=str(request.rel_url))
 
     loop = asyncio.get_event_loop()
     loop.set_debug(True)

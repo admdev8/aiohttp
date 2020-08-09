@@ -1763,7 +1763,7 @@ async def test_connect_waiters_cleanup_key_error(loop) -> None:
     conn._waiters.clear()
     t.cancel()
     await asyncio.sleep(0)
-    assert not conn._waiters.keys() == []
+    assert conn._waiters.keys() != []
 
 
 async def test_close_with_acquired_connection(loop) -> None:
@@ -1921,7 +1921,7 @@ async def test_error_on_connection_with_cancelled_waiter(
         if i == 1:
             await fut1
             raise exc
-        if i == 2:
+        elif i == 2:
             await fut2
         elif i == 3:
             return proto

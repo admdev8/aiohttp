@@ -55,9 +55,11 @@ class RouteDef(AbstractRouteDef):
     kwargs = attr.ib(type=Dict[str, Any])
 
     def __repr__(self) -> str:
-        info = []
-        for name, value in sorted(self.kwargs.items()):
-            info.append(", {}={!r}".format(name, value))
+        info = [
+            ", {}={!r}".format(name, value)
+            for name, value in sorted(self.kwargs.items())
+        ]
+
         return ("<RouteDef {method} {path} -> {handler.__name__!r}"
                 "{info}>".format(method=self.method, path=self.path,
                                  handler=self.handler, info=''.join(info)))
@@ -78,9 +80,11 @@ class StaticDef(AbstractRouteDef):
     kwargs = attr.ib(type=Dict[str, Any])
 
     def __repr__(self) -> str:
-        info = []
-        for name, value in sorted(self.kwargs.items()):
-            info.append(", {}={!r}".format(name, value))
+        info = [
+            ", {}={!r}".format(name, value)
+            for name, value in sorted(self.kwargs.items())
+        ]
+
         return ("<StaticDef {prefix} -> {path}"
                 "{info}>".format(prefix=self.prefix, path=self.path,
                                  info=''.join(info)))

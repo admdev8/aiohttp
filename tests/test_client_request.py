@@ -905,7 +905,6 @@ async def test_data_stream_exc_chain(loop, conn) -> None:
     async def gen():
         await fut
         return
-        yield
 
     req = ClientRequest('POST', URL('http://python.org/'),
                         data=gen(), loop=loop)

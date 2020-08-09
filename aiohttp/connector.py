@@ -96,25 +96,24 @@ class Connection:
         return 'Connection<{}>'.format(self._key)
 
     def __del__(self, _warnings: Any=warnings) -> None:
-        if self._protocol is not None:
-            if PY_36:
-                kwargs = {'source': self}
-            else:
-                kwargs = {}
-            _warnings.warn('Unclosed connection {!r}'.format(self),
-                           ResourceWarning,
-                           **kwargs)
-            if self._loop.is_closed():
-                return
+        if self._protocol is None:
+            return
 
-            self._connector._release(
-                self._key, self._protocol, should_close=True)
+        kwargs = {'source': self} if PY_36 else {}
+        _warnings.warn('Unclosed connection {!r}'.format(self),
+                       ResourceWarning,
+                       **kwargs)
+        if self._loop.is_closed():
+            return
 
-            context = {'client_connection': self,
-                       'message': 'Unclosed connection'}
-            if self._source_traceback is not None:
-                context['source_traceback'] = self._source_traceback
-            self._loop.call_exception_handler(context)
+        self._connector._release(
+            self._key, self._protocol, should_close=True)
+
+        context = {'client_connection': self,
+                   'message': 'Unclosed connection'}
+        if self._source_traceback is not None:
+            context['source_traceback'] = self._source_traceback
+        self._loop.call_exception_handler(context)
 
     @property
     def transport(self) -> Optional[asyncio.Transport]:
@@ -245,10 +244,7 @@ class BaseConnector:
 
         self._close_immediately()
 
-        if PY_36:
-            kwargs = {'source': self}
-        else:
-            kwargs = {}
+        kwargs = {'source': self} if PY_36 else {}
         _warnings.warn("Unclosed connector {!r}".format(self),
                        ResourceWarning,
                        **kwargs)
@@ -875,24 +871,23 @@ class TCPConnector(BaseConnector):
             3. if verify_ssl is False in req, generate a SSL context that
                won't verify
         """
-        if req.is_ssl():
-            if ssl is None:  # pragma: no cover
-                raise RuntimeError('SSL is not supported.')
-            sslcontext = req.ssl
-            if isinstance(sslcontext, ssl.SSLContext):
-                return sslcontext
-            if sslcontext is not None:
-                # not verified or fingerprinted
-                return self._make_ssl_context(False)
-            sslcontext = self._ssl
-            if isinstance(sslcontext, ssl.SSLContext):
-                return sslcontext
-            if sslcontext is not None:
-                # not verified or fingerprinted
-                return self._make_ssl_context(False)
-            return self._make_ssl_context(True)
-        else:
+        if not req.is_ssl():
             return None
+        if ssl is None:  # pragma: no cover
+            raise RuntimeError('SSL is not supported.')
+        sslcontext = req.ssl
+        if isinstance(sslcontext, ssl.SSLContext):
+            return sslcontext
+        if sslcontext is not None:
+            # not verified or fingerprinted
+            return self._make_ssl_context(False)
+        sslcontext = self._ssl
+        if isinstance(sslcontext, ssl.SSLContext):
+            return sslcontext
+        if sslcontext is not None:
+            # not verified or fingerprinted
+            return self._make_ssl_context(False)
+        return self._make_ssl_context(True)
 
     def _get_fingerprint(self,
                          req: 'ClientRequest') -> Optional['Fingerprint']:
