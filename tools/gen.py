@@ -7,9 +7,11 @@ import multidict
 from collections import defaultdict
 import io
 
-headers = [getattr(aiohttp.hdrs, name)
-           for name in dir(aiohttp.hdrs)
-           if isinstance(getattr(aiohttp.hdrs, name), multidict.istr)]
+headers = [
+    getattr(aiohttp.hdrs, name)
+    for name in dir(aiohttp.hdrs)
+    if isinstance(getattr(aiohttp.hdrs, name), multidict.istr)
+]
 
 
 def factory():
@@ -87,8 +89,8 @@ missing:
 
 
 def gen_prefix(prefix, k):
-    if k == '-':
-        return prefix + '_'
+    if k == "-":
+        return prefix + "_"
     else:
         return prefix + k.upper()
 
@@ -108,9 +110,9 @@ def gen_block(dct, prefix, used_blocks, missing, out):
         if lo != hi:
             case = CASE.format(char=lo, index=index, next=next_prefix)
             cases.append(case)
-    label = prefix if prefix else 'INITIAL'
+    label = prefix if prefix else "INITIAL"
     if cases:
-        block = BLOCK.format(label=label, cases='\n'.join(cases))
+        block = BLOCK.format(label=label, cases="\n".join(cases))
         out.write(block)
     else:
         missing.add(label)
@@ -128,8 +130,8 @@ def gen(dct):
     out = io.StringIO()
     out.write(HEADER)
     missing = set()
-    gen_block(dct, '', set(), missing, out)
-    missing_labels = '\n'.join(m + ':' for m in sorted(missing))
+    gen_block(dct, "", set(), missing, out)
+    missing_labels = "\n".join(m + ":" for m in sorted(missing))
     out.write(FOOTER.format(missing=missing_labels))
     return out
 
@@ -142,9 +144,10 @@ def gen_headers(headers):
     out.write("from . import hdrs\n")
     out.write("cdef tuple headers = (\n")
     for hdr in headers:
-        out.write("    hdrs.{},\n".format(hdr.upper().replace('-', '_')))
+        out.write("    hdrs.{},\n".format(hdr.upper().replace("-", "_")))
     out.write(")\n")
     return out
+
 
 # print(gen(dct).getvalue())
 # print(gen_headers(headers).getvalue())
@@ -152,8 +155,8 @@ def gen_headers(headers):
 
 folder = pathlib.Path(aiohttp.__file__).parent
 
-with (folder / '_find_header.c').open('w') as f:
+with (folder / "_find_header.c").open("w") as f:
     f.write(gen(dct).getvalue())
 
-with (folder / '_headers.pxi').open('w') as f:
+with (folder / "_headers.pxi").open("w") as f:
     f.write(gen_headers(headers).getvalue())
