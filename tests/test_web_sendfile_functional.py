@@ -767,8 +767,7 @@ async def test_static_file_huge_cancel(aiohttp_client, tmp_path) -> None:
         tr = request.transport
         sock = tr.get_extra_info('socket')
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1024)
-        ret = web.FileResponse(file_path)
-        return ret
+        return web.FileResponse(file_path)
 
     app = web.Application()
 
@@ -801,8 +800,7 @@ async def test_static_file_huge_error(aiohttp_client, tmp_path) -> None:
         tr = request.transport
         sock = tr.get_extra_info('socket')
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1024)
-        ret = web.FileResponse(file_path)
-        return ret
+        return web.FileResponse(file_path)
 
     app = web.Application()
 

@@ -77,14 +77,14 @@ async def test_response_prepare(app) -> None:
 
 async def test_non_coroutine(app) -> None:
     signal = Signal(app)
-    kwargs = {'foo': 1, 'bar': 2}
-
     callback = mock.Mock()
 
     signal.append(callback)
     signal.freeze()
 
     with pytest.raises(TypeError):
+        kwargs = {'foo': 1, 'bar': 2}
+
         await signal.send(**kwargs)
 
 

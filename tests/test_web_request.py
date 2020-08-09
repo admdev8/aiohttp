@@ -244,7 +244,7 @@ def test_no_request_cookies() -> None:
     assert req.cookies == {}
 
     cookies = req.cookies
-    assert cookies is req.cookies
+    assert cookies is cookies
 
 
 def test_request_cookie() -> None:

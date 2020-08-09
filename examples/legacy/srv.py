@@ -24,7 +24,7 @@ class HttpRequestHandler(aiohttp.server.ServerHttpProtocol):
 
         path = message.path
 
-        if (not (path.isprintable() and path.startswith('/')) or '/.' in path):
+        if not path.isprintable() or not path.startswith('/') or '/.' in path:
             print('bad path', repr(path))
             path = None
         else:

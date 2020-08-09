@@ -11,10 +11,7 @@ class FrozenList(MutableSequence):
 
     def __init__(self, items=None):
         self._frozen = False
-        if items is not None:
-            items = list(items)
-        else:
-            items = []
+        items = list(items) if items is not None else []
         self._items = items
 
     @property

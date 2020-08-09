@@ -268,10 +268,7 @@ class ClientSession:
     def __del__(self, _warnings: Any=warnings) -> None:
         try:
             if not self.closed:
-                if PY_36:
-                    kwargs = {'source': self}
-                else:
-                    kwargs = {}
+                kwargs = {'source': self} if PY_36 else {}
                 _warnings.warn("Unclosed client session {!r}".format(self),
                                ResourceWarning,
                                **kwargs)
@@ -1016,8 +1013,7 @@ class _BaseRequestContextManager(Coroutine[Any,
         return self._coro.close()
 
     def __await__(self) -> Generator[Any, None, _RetType]:
-        ret = self._coro.__await__()
-        return ret
+        return self._coro.__await__()
 
     def __iter__(self) -> Generator[Any, None, _RetType]:
         return self.__await__()

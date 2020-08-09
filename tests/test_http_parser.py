@@ -329,41 +329,41 @@ def test_headers_connect(parser) -> None:
 
 
 def test_headers_old_websocket_key1(parser) -> None:
-    text = (b'GET /test HTTP/1.1\r\n'
-            b'SEC-WEBSOCKET-KEY1: line\r\n\r\n')
-
     with pytest.raises(http_exceptions.BadHttpMessage):
+        text = (b'GET /test HTTP/1.1\r\n'
+                b'SEC-WEBSOCKET-KEY1: line\r\n\r\n')
+
         parser.feed_data(text)
 
 
 def test_headers_content_length_err_1(parser) -> None:
-    text = (b'GET /test HTTP/1.1\r\n'
-            b'content-length: line\r\n\r\n')
-
     with pytest.raises(http_exceptions.BadHttpMessage):
+        text = (b'GET /test HTTP/1.1\r\n'
+                b'content-length: line\r\n\r\n')
+
         parser.feed_data(text)
 
 
 def test_headers_content_length_err_2(parser) -> None:
-    text = (b'GET /test HTTP/1.1\r\n'
-            b'content-length: -1\r\n\r\n')
-
     with pytest.raises(http_exceptions.BadHttpMessage):
+        text = (b'GET /test HTTP/1.1\r\n'
+                b'content-length: -1\r\n\r\n')
+
         parser.feed_data(text)
 
 
 def test_invalid_header(parser) -> None:
-    text = (b'GET /test HTTP/1.1\r\n'
-            b'test line\r\n\r\n')
     with pytest.raises(http_exceptions.BadHttpMessage):
+        text = (b'GET /test HTTP/1.1\r\n'
+                b'test line\r\n\r\n')
         parser.feed_data(text)
 
 
 def test_invalid_name(parser) -> None:
-    text = (b'GET /test HTTP/1.1\r\n'
-            b'test[]: line\r\n\r\n')
-
     with pytest.raises(http_exceptions.BadHttpMessage):
+        text = (b'GET /test HTTP/1.1\r\n'
+                b'test[]: line\r\n\r\n')
+
         parser.feed_data(text)
 
 
@@ -476,8 +476,8 @@ def test_http_request_parser(parser) -> None:
 
 
 def test_http_request_bad_status_line(parser) -> None:
-    text = b'getpath \r\n\r\n'
     with pytest.raises(http_exceptions.BadStatusLine):
+        text = b'getpath \r\n\r\n'
         parser.feed_data(text)
 
 
@@ -976,7 +976,7 @@ class TestDeflateBuffer:
 
         # First byte should be b'x' in order code not to change the decoder.
         dbuf.feed_data(b'xxxx', 4)
-        assert [b'line'] == list(d for d, _ in buf._buffer)
+        assert [b'line'] == [d for d, _ in buf._buffer]
 
     async def test_feed_data_err(self, stream) -> None:
         buf = aiohttp.FlowControlDataQueue(stream,
@@ -1001,7 +1001,7 @@ class TestDeflateBuffer:
         dbuf.decompressor.flush.return_value = b'line'
 
         dbuf.feed_eof()
-        assert [b'line'] == list(d for d, _ in buf._buffer)
+        assert [b'line'] == [d for d, _ in buf._buffer]
         assert buf._eof
 
     async def test_feed_eof_err_deflate(self, stream) -> None:
@@ -1026,7 +1026,7 @@ class TestDeflateBuffer:
         dbuf.decompressor.eof = False
 
         dbuf.feed_eof()
-        assert [b'line'] == list(d for d, _ in buf._buffer)
+        assert [b'line'] == [d for d, _ in buf._buffer]
 
     async def test_feed_eof_no_err_brotli(self, stream) -> None:
         buf = aiohttp.FlowControlDataQueue(stream,
@@ -1038,7 +1038,7 @@ class TestDeflateBuffer:
         dbuf.decompressor.eof = False
 
         dbuf.feed_eof()
-        assert [b'line'] == list(d for d, _ in buf._buffer)
+        assert [b'line'] == [d for d, _ in buf._buffer]
 
     async def test_empty_body(self, stream) -> None:
         buf = aiohttp.FlowControlDataQueue(stream,

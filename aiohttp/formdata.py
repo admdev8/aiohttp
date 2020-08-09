@@ -98,9 +98,10 @@ class FormData:
 
     def _gen_form_urlencoded(self) -> payload.BytesPayload:
         # form data (x-www-form-urlencoded)
-        data = []
-        for type_options, _, value in self._fields:
-            data.append((type_options['name'], value))
+        data = [
+            (type_options['name'], value)
+            for type_options, _, value in self._fields
+        ]
 
         charset = self._charset if self._charset is not None else 'utf-8'
 

@@ -111,10 +111,10 @@ async def test_proxy_http_idna_support(proxy_test_server, get_request) -> None:
 
 
 async def test_proxy_http_connection_error(get_request) -> None:
-    url = 'http://aiohttp.io/path'
-    proxy_url = 'http://localhost:2242/'
-
     with pytest.raises(aiohttp.ClientConnectorError):
+        url = 'http://aiohttp.io/path'
+        proxy_url = 'http://localhost:2242/'
+
         await get_request(url=url, proxy=proxy_url)
 
 
@@ -323,22 +323,22 @@ async def xtest_proxy_https_idna_support(proxy_test_server, get_request):
 
 
 async def test_proxy_https_connection_error(get_request) -> None:
-    url = 'https://secure.aiohttp.io/path'
-    proxy_url = 'http://localhost:2242/'
-
     with pytest.raises(aiohttp.ClientConnectorError):
+        url = 'https://secure.aiohttp.io/path'
+        proxy_url = 'http://localhost:2242/'
+
         await get_request(url=url, proxy=proxy_url)
 
 
 async def test_proxy_https_bad_response(proxy_test_server,
                                         get_request) -> None:
-    url = 'https://secure.aiohttp.io/path'
     proxy = await proxy_test_server()
     proxy.return_value = dict(
         status=502,
         headers={'Proxy-Agent': 'TestProxy'})
 
     with pytest.raises(aiohttp.ClientHttpProxyError):
+        url = 'https://secure.aiohttp.io/path'
         await get_request(url=url, proxy=proxy.url)
 
     assert len(proxy.requests_list) == 1

@@ -614,10 +614,10 @@ class BaseRequest(MutableMapping[str, Any], HeadersMixin):
 
             field = await multipart.next()
             while field is not None:
-                size = 0
                 field_ct = field.headers.get(hdrs.CONTENT_TYPE)
 
                 if isinstance(field, BodyPartReader):
+                    size = 0
                     if field.filename and field_ct:
                         # store file in temp file
                         tmp = tempfile.TemporaryFile()

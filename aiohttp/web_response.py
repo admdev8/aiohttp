@@ -311,10 +311,7 @@ class StreamResponse(BaseClass, HeadersMixin):
         assert self._content_type is not None
         params = '; '.join("{}={}".format(k, v)
                            for k, v in self._content_dict.items())
-        if params:
-            ctype = self._content_type + '; ' + params
-        else:
-            ctype = self._content_type
+        ctype = self._content_type + '; ' + params if params else self._content_type
         self._headers[CONTENT_TYPE] = ctype
 
     async def _do_start_compression(self, coding: ContentCoding) -> None:
@@ -508,36 +505,40 @@ class Response(StreamResponse):
             raise ValueError("charset must not be in content_type "
                              "argument")
 
-        if text is not None:
-            if hdrs.CONTENT_TYPE in real_headers:
-                if content_type or charset:
-                    raise ValueError("passing both Content-Type header and "
-                                     "content_type or charset params "
-                                     "is forbidden")
-            else:
-                # fast path for filling headers
-                if not isinstance(text, str):
-                    raise TypeError("text argument must be str (%r)" %
-                                    type(text))
-                if content_type is None:
-                    content_type = 'text/plain'
-                if charset is None:
-                    charset = 'utf-8'
-                real_headers[hdrs.CONTENT_TYPE] = (
-                    content_type + '; charset=' + charset)
-                body = text.encode(charset)
-                text = None
+        if (
+            text is not None
+            and hdrs.CONTENT_TYPE in real_headers
+            and (content_type or charset)
+            or text is None
+            and hdrs.CONTENT_TYPE in real_headers
+            and (content_type is not None or charset is not None)
+        ):
+            raise ValueError("passing both Content-Type header and "
+                             "content_type or charset params "
+                             "is forbidden")
+        elif (
+            hdrs.CONTENT_TYPE in real_headers
+            or text is None
+            and content_type is None
+        ):
+            pass
+        elif text is not None:
+            # fast path for filling headers
+            if not isinstance(text, str):
+                raise TypeError("text argument must be str (%r)" %
+                                type(text))
+            if content_type is None:
+                content_type = 'text/plain'
+            if charset is None:
+                charset = 'utf-8'
+            real_headers[hdrs.CONTENT_TYPE] = (
+                content_type + '; charset=' + charset)
+            body = text.encode(charset)
+            text = None
         else:
-            if hdrs.CONTENT_TYPE in real_headers:
-                if content_type is not None or charset is not None:
-                    raise ValueError("passing both Content-Type header and "
-                                     "content_type or charset params "
-                                     "is forbidden")
-            else:
-                if content_type is not None:
-                    if charset is not None:
-                        content_type += '; charset=' + charset
-                    real_headers[hdrs.CONTENT_TYPE] = content_type
+            if charset is not None:
+                content_type += '; charset=' + charset
+            real_headers[hdrs.CONTENT_TYPE] = content_type
 
         super().__init__(status=status, reason=reason, headers=real_headers)
 
@@ -659,12 +660,15 @@ class Response(StreamResponse):
             await super().write_eof()
 
     async def _start(self, request: 'BaseRequest') -> AbstractStreamWriter:
-        if not self._chunked and hdrs.CONTENT_LENGTH not in self._headers:
-            if not self._body_payload:
-                if self._body is not None:
-                    self._headers[hdrs.CONTENT_LENGTH] = str(len(self._body))
-                else:
-                    self._headers[hdrs.CONTENT_LENGTH] = '0'
+        if (
+            not self._chunked
+            and hdrs.CONTENT_LENGTH not in self._headers
+            and not self._body_payload
+        ):
+            if self._body is not None:
+                self._headers[hdrs.CONTENT_LENGTH] = str(len(self._body))
+            else:
+                self._headers[hdrs.CONTENT_LENGTH] = '0'
 
         return await super()._start(request)
 
