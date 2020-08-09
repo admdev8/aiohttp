@@ -41,11 +41,12 @@ from typing import (  # noqa
 from urllib.parse import quote
 from urllib.request import getproxies
 
+from multidict import MultiDict, MultiDictProxy
+from yarl import URL
+
 import async_timeout
 import attr
-from multidict import MultiDict, MultiDictProxy
 from typing_extensions import final
-from yarl import URL
 
 from . import hdrs
 from .log import client_logger

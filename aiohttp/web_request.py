@@ -24,9 +24,10 @@ from typing import (  # noqa
 )
 from urllib.parse import parse_qsl
 
-import attr
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
 from yarl import URL
+
+import attr
 
 from . import hdrs
 from .abc import AbstractStreamWriter
