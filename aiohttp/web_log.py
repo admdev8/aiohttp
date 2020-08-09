@@ -99,7 +99,7 @@ class AccessLogger(AbstractAccessLogger):
         """
         # list of (key, method) tuples, we don't use an OrderedDict as users
         # can repeat the same key more than once
-        methods = list()
+        methods = []
 
         for atom in self.FORMAT_RE.findall(log_format):
             if atom[1] == '':
@@ -219,8 +219,8 @@ class AccessLogger(AbstractAccessLogger):
         try:
             fmt_info = self._format_line(request, response, time)
 
-            values = list()
-            extra = dict()
+            values = []
+            extra = {}
             for key, value in fmt_info:
                 values.append(value)
 

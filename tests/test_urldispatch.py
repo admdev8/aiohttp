@@ -915,7 +915,7 @@ def test_static_resource_get_info(router) -> None:
     assert len(info) == 3
     assert info['directory'] == directory
     assert info['prefix'] == '/st'
-    assert all([type(r) is ResourceRoute for r in info['routes'].values()])
+    assert all(type(r) is ResourceRoute for r in info['routes'].values())
 
 
 async def test_system_route_get_info(router) -> None:
@@ -1047,10 +1047,7 @@ def test_domain_valid():
     ('*.example.com', 'example.com', False),
 ])
 def test_match_domain(a, b, result):
-    if '*' in a:
-        rule = MaskDomain(a)
-    else:
-        rule = Domain(a)
+    rule = MaskDomain(a) if '*' in a else Domain(a)
     assert rule.match_domain(b) is result
 
 

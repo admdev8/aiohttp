@@ -30,16 +30,8 @@ def build_frame(message, opcode, use_mask=False, noheader=False, is_fin=True,
         if message.endswith(_WS_DEFLATE_TRAILING):
             message = message[:-4]
     msg_length = len(message)
-    if use_mask:  # pragma: no cover
-        mask_bit = 0x80
-    else:
-        mask_bit = 0
-
-    if is_fin:
-        header_first_byte = 0x80 | opcode
-    else:
-        header_first_byte = opcode
-
+    mask_bit = 0x80 if use_mask else 0
+    header_first_byte = 0x80 | opcode if is_fin else opcode
     if compress:
         header_first_byte |= 0x40
 
@@ -432,7 +424,7 @@ def test_parse_compress_frame_multi(parser) -> None:
     parser.parse_frame(struct.pack('!H', 4))
     res = parser.parse_frame(b'1234')
     fin, opcode, payload, compress = res[0]
-    assert (1, 1, b'1234', True) == (fin, opcode, payload, not not compress)
+    assert (1, 1, b'1234', True) == (fin, opcode, payload, bool(compress))
 
     parser.parse_frame(struct.pack('!BB', 0b10000001, 126))
     parser.parse_frame(struct.pack('!H', 4))

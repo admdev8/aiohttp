@@ -91,8 +91,8 @@ DEBUG = (getattr(sys.flags, 'dev_mode', False) or
           bool(os.environ.get('PYTHONASYNCIODEBUG'))))  # type: bool
 
 
-CHAR = set(chr(i) for i in range(0, 128))
-CTL = set(chr(i) for i in range(0, 32)) | {chr(127), }
+CHAR = {chr(i) for i in range(128)}
+CTL = {chr(i) for i in range(32)} | {chr(127), }
 SEPARATORS = {'(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']',
               '?', '=', '{', '}', ' ', chr(9)}
 TOKEN = CHAR ^ CTL ^ SEPARATORS

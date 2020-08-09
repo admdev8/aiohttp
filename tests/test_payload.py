@@ -91,7 +91,6 @@ def test_string_io_payload() -> None:
 def test_async_iterable_payload_default_content_type() -> None:
     async def gen():
         return
-        yield
 
     p = payload.AsyncIterablePayload(gen())
     assert p.content_type == 'application/octet-stream'
@@ -100,7 +99,6 @@ def test_async_iterable_payload_default_content_type() -> None:
 def test_async_iterable_payload_explicit_content_type() -> None:
     async def gen():
         return
-        yield
 
     p = payload.AsyncIterablePayload(gen(), content_type='application/custom')
     assert p.content_type == 'application/custom'

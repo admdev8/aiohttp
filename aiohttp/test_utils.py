@@ -134,10 +134,7 @@ class BaseTestServer(ABC):
         assert sockets is not None
         self.port = sockets[0].getsockname()[1]
         if self.scheme is sentinel:
-            if self._ssl:
-                scheme = 'https'
-            else:
-                scheme = 'http'
+            scheme = 'https' if self._ssl else 'http'
             self.scheme = scheme
         self._root = URL('{}://{}:{}'.format(self.scheme,
                                              absolute_host,

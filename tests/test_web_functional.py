@@ -329,8 +329,7 @@ async def test_post_single_file(aiohttp_client) -> None:
         for fs in data.values():
             check_file(fs)
             fs.file.close()
-        resp = web.Response(body=b'OK')
-        return resp
+        return web.Response(body=b'OK')
 
     app = web.Application()
     app.router.add_post('/', handler)
@@ -357,8 +356,7 @@ async def test_files_upload_with_same_key(aiohttp_client) -> None:
             file_names.add(_file.filename)
         assert len(files) == 2
         assert file_names == {'test1.jpeg', 'test2.jpeg'}
-        resp = web.Response(body=b'OK')
-        return resp
+        return web.Response(body=b'OK')
 
     app = web.Application()
     app.router.add_post('/', handler)
@@ -392,8 +390,7 @@ async def test_post_files(aiohttp_client) -> None:
         for fs in data.values():
             check_file(fs)
             fs.file.close()
-        resp = web.Response(body=b'OK')
-        return resp
+        return web.Response(body=b'OK')
 
     app = web.Application()
     app.router.add_post('/', handler)

@@ -37,9 +37,6 @@ async def start_client(loop, url):
                     await ws.close()
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     print('Error during receive %s' % ws.exception())
-                elif msg.type == aiohttp.WSMsgType.CLOSED:
-                    pass
-
                 break
 
     # send request

@@ -218,10 +218,7 @@ class BytesPayload(Payload):
         self._size = len(value)
 
         if self._size > TOO_LARGE_BYTES_BODY:
-            if PY_36:
-                kwargs = {'source': self}
-            else:
-                kwargs = {}
+            kwargs = {'source': self} if PY_36 else {}
             warnings.warn("Sending a large body directly with raw bytes might"
                           " lock the event loop. You should probably pass an "
                           "io.BytesIO object instead", ResourceWarning,
@@ -282,11 +279,14 @@ class IOBasePayload(Payload):
 
         super().__init__(value, *args, **kwargs)
 
-        if self._filename is not None and disposition is not None:
-            if hdrs.CONTENT_DISPOSITION not in self.headers:
-                self.set_content_disposition(
-                    disposition, filename=self._filename
-                )
+        if (
+            self._filename is not None
+            and disposition is not None
+            and hdrs.CONTENT_DISPOSITION not in self.headers
+        ):
+            self.set_content_disposition(
+                disposition, filename=self._filename
+            )
 
     async def write(self, writer: AbstractStreamWriter) -> None:
         loop = asyncio.get_event_loop()

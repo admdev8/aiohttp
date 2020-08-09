@@ -90,7 +90,7 @@ def test_stream_response_eq() -> None:
     resp2 = StreamResponse()
 
     assert resp1 == resp1
-    assert not resp1 == resp2
+    assert resp1 != resp2
 
 
 def test_stream_response_is_mutable_mapping() -> None:

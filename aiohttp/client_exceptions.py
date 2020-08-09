@@ -53,10 +53,7 @@ class ClientResponseError(ClientError):
                  message: str='',
                  headers: Optional[_CIMultiDict]=None) -> None:
         self.request_info = request_info
-        if status is not None:
-            self.status = status
-        else:
-            self.status = 0
+        self.status = status if status is not None else 0
         self.message = message
         self.headers = headers
         self.history = history
