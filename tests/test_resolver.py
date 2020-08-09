@@ -1,11 +1,14 @@
 import asyncio
 import ipaddress
 import socket
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 
-from aiohttp.resolver import AsyncResolver, DefaultResolver, ThreadedResolver
+from aiohttp.resolver import AsyncResolver
+from aiohttp.resolver import DefaultResolver
+from aiohttp.resolver import ThreadedResolver
 
 try:
     import aiodns

@@ -3,7 +3,8 @@ from unittest import mock
 
 import pytest
 
-from aiohttp import client, web
+from aiohttp import client
+from aiohttp import web
 
 
 async def test_simple_server(aiohttp_raw_server, aiohttp_client) -> None:

@@ -1,5 +1,4 @@
 # HTTP client functional tests against aiohttp.web server
-
 import asyncio
 import datetime
 import http.cookies
@@ -13,7 +12,11 @@ import pytest
 from multidict import MultiDict
 
 import aiohttp
-from aiohttp import Fingerprint, ServerFingerprintMismatch, hdrs, helpers, web
+from aiohttp import Fingerprint
+from aiohttp import hdrs
+from aiohttp import helpers
+from aiohttp import ServerFingerprintMismatch
+from aiohttp import web
 from aiohttp.abc import AbstractResolver
 from aiohttp.client_exceptions import TooManyRedirects
 from aiohttp.test_utils import unused_port

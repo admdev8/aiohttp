@@ -1,5 +1,4 @@
 # Tests for aiohttp/server.py
-
 import asyncio
 import platform
 import socket
@@ -8,7 +7,10 @@ from unittest import mock
 
 import pytest
 
-from aiohttp import helpers, http, streams, web
+from aiohttp import helpers
+from aiohttp import http
+from aiohttp import streams
+from aiohttp import web
 
 IS_MACOS = platform.system() == "Darwin"
 

@@ -8,12 +8,21 @@ from concurrent.futures import ThreadPoolExecutor
 from unittest import mock
 
 import pytest
-from multidict import CIMultiDict, CIMultiDictProxy
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
 
-from aiohttp import HttpVersion, HttpVersion10, HttpVersion11, hdrs, signals
+from aiohttp import hdrs
+from aiohttp import HttpVersion
+from aiohttp import HttpVersion10
+from aiohttp import HttpVersion11
+from aiohttp import signals
 from aiohttp.payload import BytesPayload
-from aiohttp.test_utils import make_mocked_coro, make_mocked_request
-from aiohttp.web import ContentCoding, Response, StreamResponse, json_response
+from aiohttp.test_utils import make_mocked_coro
+from aiohttp.test_utils import make_mocked_request
+from aiohttp.web import ContentCoding
+from aiohttp.web import json_response
+from aiohttp.web import Response
+from aiohttp.web import StreamResponse
 
 
 def make_request(

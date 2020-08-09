@@ -3,7 +3,8 @@ import os
 import socket
 import ssl
 import sys
-from hashlib import md5, sha256
+from hashlib import md5
+from hashlib import sha256
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock

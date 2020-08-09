@@ -5,8 +5,10 @@ import pytest
 from multidict import CIMultiDict
 
 from aiohttp.signals import Signal
-from aiohttp.test_utils import make_mocked_coro, make_mocked_request
-from aiohttp.web import Application, Response
+from aiohttp.test_utils import make_mocked_coro
+from aiohttp.test_utils import make_mocked_request
+from aiohttp.web import Application
+from aiohttp.web import Response
 
 
 @pytest.fixture

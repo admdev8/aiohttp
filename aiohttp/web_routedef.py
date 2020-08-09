@@ -1,19 +1,17 @@
 import abc
 import os  # noqa
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    Union,
-    overload,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import overload
+from typing import Sequence
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 import attr
 

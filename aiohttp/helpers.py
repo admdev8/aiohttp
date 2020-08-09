@@ -1,5 +1,4 @@
 """Various helper functions"""
-
 import asyncio
 import base64
 import binascii
@@ -19,34 +18,32 @@ from contextlib import suppress
 from math import ceil
 from pathlib import Path
 from types import TracebackType
-from typing import (  # noqa
-    Any,
-    Awaitable,
-    Callable,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import cast
+from typing import Dict
+from typing import Generator
+from typing import Iterable
+from typing import Iterator
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Pattern
+from typing import Set
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
+from typing import Union
 from urllib.parse import quote
 from urllib.request import getproxies
 
-from multidict import MultiDict, MultiDictProxy
-from yarl import URL
-
 import async_timeout
 import attr
+from multidict import MultiDict
+from multidict import MultiDictProxy
 from typing_extensions import final
+from yarl import URL
 
 from . import hdrs
 from .log import client_logger

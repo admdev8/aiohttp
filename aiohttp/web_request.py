@@ -9,51 +9,47 @@ import types
 from email.utils import parsedate
 from http.cookies import SimpleCookie
 from types import MappingProxyType
-from typing import (  # noqa
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import cast
+from typing import Dict
+from typing import Iterator
+from typing import Mapping
+from typing import MutableMapping
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 from urllib.parse import parse_qsl
 
-from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
-from yarl import URL
-
 import attr
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import MultiDict
+from multidict import MultiDictProxy
+from yarl import URL
 
 from . import hdrs
 from .abc import AbstractStreamWriter
-from .helpers import (
-    ChainMapProxy,
-    HeadersMixin,
-    is_expected_content_type,
-    reify,
-    sentinel,
-    set_result,
-)
+from .helpers import ChainMapProxy
+from .helpers import HeadersMixin
+from .helpers import is_expected_content_type
+from .helpers import reify
+from .helpers import sentinel
+from .helpers import set_result
 from .http_parser import RawRequestMessage
-from .multipart import BodyPartReader, MultipartReader
-from .streams import EmptyStreamReader, StreamReader
-from .typedefs import (
-    DEFAULT_JSON_DECODER,
-    JSONDecoder,
-    LooseHeaders,
-    RawHeaders,
-    StrOrURL,
-)
-from .web_exceptions import (
-    HTTPBadRequest,
-    HTTPRequestEntityTooLarge,
-    HTTPUnsupportedMediaType,
-)
+from .multipart import BodyPartReader
+from .multipart import MultipartReader
+from .streams import EmptyStreamReader
+from .streams import StreamReader
+from .typedefs import DEFAULT_JSON_DECODER
+from .typedefs import JSONDecoder
+from .typedefs import LooseHeaders
+from .typedefs import RawHeaders
+from .typedefs import StrOrURL
+from .web_exceptions import HTTPBadRequest
+from .web_exceptions import HTTPRequestEntityTooLarge
+from .web_exceptions import HTTPUnsupportedMediaType
 from .web_response import StreamResponse
 
 __all__ = ("BaseRequest", "FileField", "Request")

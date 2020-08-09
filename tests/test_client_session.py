@@ -9,14 +9,18 @@ from io import BytesIO
 from unittest import mock
 
 import pytest
-from multidict import CIMultiDict, MultiDict
+from multidict import CIMultiDict
+from multidict import MultiDict
 from yarl import URL
 
 import aiohttp
-from aiohttp import client, hdrs, web
+from aiohttp import client
+from aiohttp import hdrs
+from aiohttp import web
 from aiohttp.client import ClientSession
 from aiohttp.client_reqrep import ClientRequest
-from aiohttp.connector import BaseConnector, TCPConnector
+from aiohttp.connector import BaseConnector
+from aiohttp.connector import TCPConnector
 from aiohttp.helpers import PY_36
 from aiohttp.test_utils import make_mocked_coro
 

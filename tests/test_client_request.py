@@ -1,20 +1,27 @@
 # coding: utf-8
-
 import asyncio
 import hashlib
 import io
 import pathlib
 import zlib
-from http.cookies import BaseCookie, Morsel, SimpleCookie
+from http.cookies import BaseCookie
+from http.cookies import Morsel
+from http.cookies import SimpleCookie
 from unittest import mock
 
 import pytest
-from multidict import CIMultiDict, CIMultiDictProxy, istr
+from multidict import CIMultiDict
+from multidict import CIMultiDictProxy
+from multidict import istr
 from yarl import URL
 
 import aiohttp
-from aiohttp import BaseConnector, hdrs, payload
-from aiohttp.client_reqrep import ClientRequest, ClientResponse, Fingerprint
+from aiohttp import BaseConnector
+from aiohttp import hdrs
+from aiohttp import payload
+from aiohttp.client_reqrep import ClientRequest
+from aiohttp.client_reqrep import ClientResponse
+from aiohttp.client_reqrep import Fingerprint
 from aiohttp.test_utils import make_mocked_coro
 
 

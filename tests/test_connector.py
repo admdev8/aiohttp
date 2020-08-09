@@ -1,5 +1,4 @@
 # Tests of http client with custom Connector
-
 import asyncio
 import gc
 import hashlib
@@ -12,18 +11,23 @@ from collections import deque
 from unittest import mock
 
 import pytest
+from conftest import needs_unix
 from yarl import URL
 
 import aiohttp
-from aiohttp import client, web
-from aiohttp.client import ClientRequest, ClientTimeout
+from aiohttp import client
+from aiohttp import web
+from aiohttp.client import ClientRequest
+from aiohttp.client import ClientTimeout
 from aiohttp.client_reqrep import ConnectionKey
-from aiohttp.connector import Connection, TCPConnector, _DNSCacheTable
+from aiohttp.connector import _DNSCacheTable
+from aiohttp.connector import Connection
+from aiohttp.connector import TCPConnector
 from aiohttp.helpers import PY_37
 from aiohttp.locks import EventResultOrError
-from aiohttp.test_utils import make_mocked_coro, unused_port
+from aiohttp.test_utils import make_mocked_coro
+from aiohttp.test_utils import unused_port
 from aiohttp.tracing import Trace
-from conftest import needs_unix
 
 
 @pytest.fixture()

@@ -8,16 +8,17 @@ import pytest
 
 import aiohttp
 from aiohttp import http_websocket
-from aiohttp.http import WebSocketError, WSCloseCode, WSMessage, WSMsgType
-from aiohttp.http_websocket import (
-    _WS_DEFLATE_TRAILING,
-    PACK_CLOSE_CODE,
-    PACK_LEN1,
-    PACK_LEN2,
-    PACK_LEN3,
-    WebSocketReader,
-    _websocket_mask,
-)
+from aiohttp.http import WebSocketError
+from aiohttp.http import WSCloseCode
+from aiohttp.http import WSMessage
+from aiohttp.http import WSMsgType
+from aiohttp.http_websocket import _websocket_mask
+from aiohttp.http_websocket import _WS_DEFLATE_TRAILING
+from aiohttp.http_websocket import PACK_CLOSE_CODE
+from aiohttp.http_websocket import PACK_LEN1
+from aiohttp.http_websocket import PACK_LEN2
+from aiohttp.http_websocket import PACK_LEN3
+from aiohttp.http_websocket import WebSocketReader
 
 
 def build_frame(

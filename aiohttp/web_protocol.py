@@ -1,4 +1,3 @@
-import asyncio
 import asyncio.streams
 import traceback
 from collections import deque
@@ -6,41 +5,39 @@ from contextlib import suppress
 from html import escape as html_escape
 from http import HTTPStatus
 from logging import Logger
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Awaitable,
-    Callable,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any
+from typing import Awaitable
+from typing import Callable
+from typing import cast
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TYPE_CHECKING
+from typing import Union
 
 import yarl
 
-from .abc import (
-    AbstractAccessLogger,
-    AbstractAsyncAccessLogger,
-    AbstractStreamWriter,
-)
+from .abc import AbstractAccessLogger
+from .abc import AbstractAsyncAccessLogger
+from .abc import AbstractStreamWriter
 from .base_protocol import BaseProtocol
-from .helpers import ceil_timeout, current_task
-from .http import (
-    HttpProcessingError,
-    HttpRequestParser,
-    HttpVersion10,
-    RawRequestMessage,
-    StreamWriter,
-)
-from .log import access_logger, server_logger
-from .streams import EMPTY_PAYLOAD, StreamReader
+from .helpers import ceil_timeout
+from .helpers import current_task
+from .http import HttpProcessingError
+from .http import HttpRequestParser
+from .http import HttpVersion10
+from .http import RawRequestMessage
+from .http import StreamWriter
+from .log import access_logger
+from .log import server_logger
+from .streams import EMPTY_PAYLOAD
+from .streams import StreamReader
 from .tcp_helpers import tcp_keepalive
 from .web_exceptions import HTTPException
 from .web_log import AccessLogger
 from .web_request import BaseRequest
-from .web_response import Response, StreamResponse
+from .web_response import Response
+from .web_response import StreamResponse
 
 __all__ = ("RequestHandler", "RequestPayloadError", "PayloadAccessError")
 
