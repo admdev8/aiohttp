@@ -73,7 +73,6 @@ __all__ = (
     "HTTPNetworkAuthenticationRequired",
 )
 
-
 ############################################################
 # HTTP Exceptions
 ############################################################
@@ -88,14 +87,12 @@ class HTTPException(Exception):
     empty_body = False
     default_reason = ""  # Initialized at the end of the module
 
-    def __init__(
-        self,
-        *,
-        headers: Optional[LooseHeaders] = None,
-        reason: Optional[str] = None,
-        text: Optional[str] = None,
-        content_type: Optional[str] = None
-    ) -> None:
+    def __init__(self,
+                 *,
+                 headers: Optional[LooseHeaders] = None,
+                 reason: Optional[str] = None,
+                 text: Optional[str] = None,
+                 content_type: Optional[str] = None) -> None:
         if reason is None:
             reason = self.default_reason
 
@@ -108,13 +105,13 @@ class HTTPException(Exception):
                     "text argument is deprecated for HTTP status {} "
                     "since 4.0 and scheduled for removal in 5.0 (#3462),"
                     "the response should be provided without a body".format(
-                        self.status_code
-                    ),
+                        self.status_code),
                     DeprecationWarning,
                     stacklevel=2,
                 )
 
-        real_headers = CIMultiDict(headers) if headers is not None else CIMultiDict()
+        real_headers = CIMultiDict(
+            headers) if headers is not None else CIMultiDict()
         if content_type is not None:
             if not text:
                 warnings.warn(
@@ -212,20 +209,19 @@ class HTTPPartialContent(HTTPSuccessful):
 
 
 class HTTPMove(HTTPRedirection):
-    def __init__(
-        self,
-        location: StrOrURL,
-        *,
-        headers: Optional[LooseHeaders] = None,
-        reason: Optional[str] = None,
-        text: Optional[str] = None,
-        content_type: Optional[str] = None
-    ) -> None:
+    def __init__(self,
+                 location: StrOrURL,
+                 *,
+                 headers: Optional[LooseHeaders] = None,
+                 reason: Optional[str] = None,
+                 text: Optional[str] = None,
+                 content_type: Optional[str] = None) -> None:
         if not location:
             raise ValueError("HTTP redirects need a location to redirect to.")
-        super().__init__(
-            headers=headers, reason=reason, text=text, content_type=content_type
-        )
+        super().__init__(headers=headers,
+                         reason=reason,
+                         text=text,
+                         content_type=content_type)
         self._location = URL(location)
         self.headers["Location"] = str(self.location)
 
@@ -303,20 +299,19 @@ class HTTPNotFound(HTTPClientError):
 class HTTPMethodNotAllowed(HTTPClientError):
     status_code = 405
 
-    def __init__(
-        self,
-        method: str,
-        allowed_methods: Iterable[str],
-        *,
-        headers: Optional[LooseHeaders] = None,
-        reason: Optional[str] = None,
-        text: Optional[str] = None,
-        content_type: Optional[str] = None
-    ) -> None:
+    def __init__(self,
+                 method: str,
+                 allowed_methods: Iterable[str],
+                 *,
+                 headers: Optional[LooseHeaders] = None,
+                 reason: Optional[str] = None,
+                 text: Optional[str] = None,
+                 content_type: Optional[str] = None) -> None:
         allow = ",".join(sorted(allowed_methods))
-        super().__init__(
-            headers=headers, reason=reason, text=text, content_type=content_type
-        )
+        super().__init__(headers=headers,
+                         reason=reason,
+                         text=text,
+                         content_type=content_type)
         self.headers["Allow"] = allow
         self._allowed = set(allowed_methods)  # type: Set[str]
         self._method = method
@@ -417,18 +412,17 @@ class HTTPRequestHeaderFieldsTooLarge(HTTPClientError):
 class HTTPUnavailableForLegalReasons(HTTPClientError):
     status_code = 451
 
-    def __init__(
-        self,
-        link: StrOrURL,
-        *,
-        headers: Optional[LooseHeaders] = None,
-        reason: Optional[str] = None,
-        text: Optional[str] = None,
-        content_type: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            headers=headers, reason=reason, text=text, content_type=content_type
-        )
+    def __init__(self,
+                 link: StrOrURL,
+                 *,
+                 headers: Optional[LooseHeaders] = None,
+                 reason: Optional[str] = None,
+                 text: Optional[str] = None,
+                 content_type: Optional[str] = None) -> None:
+        super().__init__(headers=headers,
+                         reason=reason,
+                         text=text,
+                         content_type=content_type)
         self.headers["Link"] = '<{}>; rel="blocked-by"'.format(str(link))
         self._link = URL(link)
 
@@ -495,11 +489,8 @@ class HTTPNetworkAuthenticationRequired(HTTPServerError):
 
 def _initialize_default_reason() -> None:
     for obj in globals().values():
-        if (
-            isinstance(obj, type)
-            and issubclass(obj, HTTPException)
-            and obj.status_code >= 0
-        ):
+        if (isinstance(obj, type) and issubclass(obj, HTTPException)
+                and obj.status_code >= 0):
             try:
                 status = HTTPStatus(obj.status_code)
                 obj.default_reason = status.phrase

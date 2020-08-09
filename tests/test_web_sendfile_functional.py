@@ -137,7 +137,8 @@ async def test_static_file_custom_content_type(aiohttp_client, sender) -> None:
     resp.close()
 
 
-async def test_static_file_custom_content_type_compress(aiohttp_client, sender):
+async def test_static_file_custom_content_type_compress(
+        aiohttp_client, sender):
     filepath = pathlib.Path(__file__).parent / "hello.txt"
 
     async def handler(request):
@@ -158,7 +159,8 @@ async def test_static_file_custom_content_type_compress(aiohttp_client, sender):
     resp.close()
 
 
-async def test_static_file_with_content_encoding(aiohttp_client, sender) -> None:
+async def test_static_file_with_content_encoding(aiohttp_client,
+                                                 sender) -> None:
     filepath = pathlib.Path(__file__).parent / "hello.txt.gz"
 
     async def handler(request):
@@ -204,7 +206,8 @@ async def test_static_file_if_modified_since(aiohttp_client, sender) -> None:
     resp.close()
 
 
-async def test_static_file_if_modified_since_past_date(aiohttp_client, sender) -> None:
+async def test_static_file_if_modified_since_past_date(aiohttp_client,
+                                                       sender) -> None:
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -222,7 +225,8 @@ async def test_static_file_if_modified_since_past_date(aiohttp_client, sender) -
     resp.close()
 
 
-async def test_static_file_if_modified_since_invalid_date(aiohttp_client, sender):
+async def test_static_file_if_modified_since_invalid_date(
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -240,7 +244,8 @@ async def test_static_file_if_modified_since_invalid_date(aiohttp_client, sender
     resp.close()
 
 
-async def test_static_file_if_modified_since_future_date(aiohttp_client, sender):
+async def test_static_file_if_modified_since_future_date(
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -263,7 +268,10 @@ async def test_static_file_if_modified_since_future_date(aiohttp_client, sender)
 
 @pytest.mark.skipif(not ssl, reason="ssl not supported")
 async def test_static_file_ssl(
-    aiohttp_server, ssl_ctx, aiohttp_client, client_ssl_ctx,
+        aiohttp_server,
+        ssl_ctx,
+        aiohttp_client,
+        client_ssl_ctx,
 ) -> None:
     dirname = pathlib.Path(__file__).parent
     filename = "data.unknown_mime_type"
@@ -368,29 +376,29 @@ async def test_static_file_range(aiohttp_client, sender) -> None:
         client.get("/", headers={"Range": "bytes=2000-"}),
     )
     assert len(responses) == 3
-    assert responses[0].status == 206, "failed 'bytes=0-999': %s" % responses[0].reason
+    assert responses[
+        0].status == 206, "failed 'bytes=0-999': %s" % responses[0].reason
     assert responses[0].headers["Content-Range"] == "bytes 0-999/{0}".format(
-        filesize
-    ), "failed: Content-Range Error"
-    assert responses[1].status == 206, (
-        "failed 'bytes=1000-1999': %s" % responses[1].reason
-    )
-    assert responses[1].headers["Content-Range"] == "bytes 1000-1999/{0}".format(
-        filesize
-    ), "failed: Content-Range Error"
-    assert responses[2].status == 206, "failed 'bytes=2000-': %s" % responses[2].reason
-    assert responses[2].headers["Content-Range"] == "bytes 2000-{0}/{1}".format(
-        filesize - 1, filesize
-    ), "failed: Content-Range Error"
+        filesize), "failed: Content-Range Error"
+    assert responses[1].status == 206, ("failed 'bytes=1000-1999': %s" %
+                                        responses[1].reason)
+    assert responses[1].headers[
+        "Content-Range"] == "bytes 1000-1999/{0}".format(
+            filesize), "failed: Content-Range Error"
+    assert responses[
+        2].status == 206, "failed 'bytes=2000-': %s" % responses[2].reason
+    assert responses[2].headers[
+        "Content-Range"] == "bytes 2000-{0}/{1}".format(
+            filesize - 1, filesize), "failed: Content-Range Error"
 
-    body = await asyncio.gather(*(resp.read() for resp in responses),)
+    body = await asyncio.gather(*(resp.read() for resp in responses), )
 
-    assert len(body[0]) == 1000, "failed 'bytes=0-999', received %d bytes" % len(
-        body[0]
-    )
-    assert len(body[1]) == 1000, "failed 'bytes=1000-1999', received %d bytes" % len(
-        body[1]
-    )
+    assert len(
+        body[0]) == 1000, "failed 'bytes=0-999', received %d bytes" % len(
+            body[0])
+    assert len(
+        body[1]) == 1000, "failed 'bytes=1000-1999', received %d bytes" % len(
+            body[1])
     responses[0].close()
     responses[1].close()
     responses[2].close()
@@ -412,19 +420,18 @@ async def test_static_file_range_end_bigger_than_size(aiohttp_client, sender):
         content = f.read()
 
         # Ensure the whole file requested in parts is correct
-        response = await client.get("/", headers={"Range": "bytes=54000-55000"})
+        response = await client.get("/",
+                                    headers={"Range": "bytes=54000-55000"})
 
-        assert response.status == 206, (
-            "failed 'bytes=54000-55000': %s" % response.reason
-        )
-        assert (
-            response.headers["Content-Range"] == "bytes 54000-54996/54997"
-        ), "failed: Content-Range Error"
+        assert response.status == 206, ("failed 'bytes=54000-55000': %s" %
+                                        response.reason)
+        assert (response.headers["Content-Range"] == "bytes 54000-54996/54997"
+                ), "failed: Content-Range Error"
 
         body = await response.read()
-        assert len(body) == 997, "failed 'bytes=54000-55000', received %d bytes" % len(
+        assert len(
             body
-        )
+        ) == 997, "failed 'bytes=54000-55000', received %d bytes" % len(body)
 
         assert content[54000:] == body
 
@@ -440,11 +447,11 @@ async def test_static_file_range_beyond_eof(aiohttp_client, sender) -> None:
     client = await aiohttp_client(app)
 
     # Ensure the whole file requested in parts is correct
-    response = await client.get("/", headers={"Range": "bytes=1000000-1200000"})
+    response = await client.get("/",
+                                headers={"Range": "bytes=1000000-1200000"})
 
-    assert response.status == 416, (
-        "failed 'bytes=1000000-1200000': %s" % response.reason
-    )
+    assert response.status == 416, ("failed 'bytes=1000000-1200000': %s" %
+                                    response.reason)
 
 
 async def test_static_file_range_tail(aiohttp_client, sender) -> None:
@@ -463,9 +470,8 @@ async def test_static_file_range_tail(aiohttp_client, sender) -> None:
     # Ensure the tail of the file is correct
     resp = await client.get("/", headers={"Range": "bytes=-500"})
     assert resp.status == 206, resp.reason
-    assert (
-        resp.headers["Content-Range"] == "bytes 54497-54996/54997"
-    ), "failed: Content-Range Error"
+    assert (resp.headers["Content-Range"] == "bytes 54497-54996/54997"
+            ), "failed: Content-Range Error"
     body4 = await resp.read()
     resp.close()
     assert content[-500:] == body4
@@ -473,9 +479,8 @@ async def test_static_file_range_tail(aiohttp_client, sender) -> None:
     # Ensure out-of-range tails could be handled
     resp2 = await client.get("/", headers={"Range": "bytes=-99999999999999"})
     assert resp2.status == 206, resp.reason
-    assert (
-        resp2.headers["Content-Range"] == "bytes 0-54996/54997"
-    ), "failed: Content-Range Error"
+    assert (resp2.headers["Content-Range"] == "bytes 0-54996/54997"
+            ), "failed: Content-Range Error"
 
 
 async def test_static_file_invalid_range(aiohttp_client, sender) -> None:
@@ -519,7 +524,8 @@ async def test_static_file_invalid_range(aiohttp_client, sender) -> None:
     resp.close()
 
 
-async def test_static_file_if_unmodified_since_past_with_range(aiohttp_client, sender):
+async def test_static_file_if_unmodified_since_past_with_range(
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -532,16 +538,17 @@ async def test_static_file_if_unmodified_since_past_with_range(aiohttp_client, s
 
     lastmod = "Mon, 1 Jan 1990 01:01:01 GMT"
 
-    resp = await client.get(
-        "/", headers={"If-Unmodified-Since": lastmod, "Range": "bytes=2-"}
-    )
+    resp = await client.get("/",
+                            headers={
+                                "If-Unmodified-Since": lastmod,
+                                "Range": "bytes=2-"
+                            })
     assert 412 == resp.status
     resp.close()
 
 
 async def test_static_file_if_unmodified_since_future_with_range(
-    aiohttp_client, sender
-):
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -554,9 +561,11 @@ async def test_static_file_if_unmodified_since_future_with_range(
 
     lastmod = "Fri, 31 Dec 9999 23:59:59 GMT"
 
-    resp = await client.get(
-        "/", headers={"If-Unmodified-Since": lastmod, "Range": "bytes=2-"}
-    )
+    resp = await client.get("/",
+                            headers={
+                                "If-Unmodified-Since": lastmod,
+                                "Range": "bytes=2-"
+                            })
     assert 206 == resp.status
     assert resp.headers["Content-Range"] == "bytes 2-12/13"
     assert resp.headers["Content-Length"] == "11"
@@ -576,7 +585,11 @@ async def test_static_file_if_range_past_with_range(aiohttp_client, sender):
 
     lastmod = "Mon, 1 Jan 1990 01:01:01 GMT"
 
-    resp = await client.get("/", headers={"If-Range": lastmod, "Range": "bytes=2-"})
+    resp = await client.get("/",
+                            headers={
+                                "If-Range": lastmod,
+                                "Range": "bytes=2-"
+                            })
     assert 200 == resp.status
     assert resp.headers["Content-Length"] == "13"
     resp.close()
@@ -595,7 +608,11 @@ async def test_static_file_if_range_future_with_range(aiohttp_client, sender):
 
     lastmod = "Fri, 31 Dec 9999 23:59:59 GMT"
 
-    resp = await client.get("/", headers={"If-Range": lastmod, "Range": "bytes=2-"})
+    resp = await client.get("/",
+                            headers={
+                                "If-Range": lastmod,
+                                "Range": "bytes=2-"
+                            })
     assert 206 == resp.status
     assert resp.headers["Content-Range"] == "bytes 2-12/13"
     assert resp.headers["Content-Length"] == "11"
@@ -603,8 +620,7 @@ async def test_static_file_if_range_future_with_range(aiohttp_client, sender):
 
 
 async def test_static_file_if_unmodified_since_past_without_range(
-    aiohttp_client, sender
-):
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -623,8 +639,7 @@ async def test_static_file_if_unmodified_since_past_without_range(
 
 
 async def test_static_file_if_unmodified_since_future_without_range(
-    aiohttp_client, sender
-):
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -662,7 +677,8 @@ async def test_static_file_if_range_past_without_range(aiohttp_client, sender):
     resp.close()
 
 
-async def test_static_file_if_range_future_without_range(aiohttp_client, sender):
+async def test_static_file_if_range_future_without_range(
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 
@@ -681,7 +697,8 @@ async def test_static_file_if_range_future_without_range(aiohttp_client, sender)
     resp.close()
 
 
-async def test_static_file_if_unmodified_since_invalid_date(aiohttp_client, sender):
+async def test_static_file_if_unmodified_since_invalid_date(
+        aiohttp_client, sender):
     filename = "data.unknown_mime_type"
     filepath = pathlib.Path(__file__).parent / filename
 

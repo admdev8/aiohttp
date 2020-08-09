@@ -60,7 +60,8 @@ def fill_routes(router):
     def go():
         route1 = router.add_route("GET", "/plain", make_handler())
         route2 = router.add_route("GET", "/variable/{name}", make_handler())
-        resource = router.add_static("/static", pathlib.Path(aiohttp.__file__).parent)
+        resource = router.add_static("/static",
+                                     pathlib.Path(aiohttp.__file__).parent)
         return [route1, route2] + list(resource)
 
     return go
@@ -365,9 +366,9 @@ def test_route_dynamic(router) -> None:
 
 
 def test_add_static(router) -> None:
-    resource = router.add_static(
-        "/st", pathlib.Path(aiohttp.__file__).parent, name="static"
-    )
+    resource = router.add_static("/st",
+                                 pathlib.Path(aiohttp.__file__).parent,
+                                 name="static")
     assert router["static"] is resource
     url = resource.url_for(filename="/dir/a.txt")
     assert "/st/dir/a.txt" == str(url)
@@ -375,51 +376,62 @@ def test_add_static(router) -> None:
 
 
 def test_add_static_append_version(router) -> None:
-    resource = router.add_static("/st", pathlib.Path(__file__).parent, name="static")
-    url = resource.url_for(filename="/data.unknown_mime_type", append_version=True)
-    expect_url = (
-        "/st/data.unknown_mime_type?" "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D"
-    )
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 name="static")
+    url = resource.url_for(filename="/data.unknown_mime_type",
+                           append_version=True)
+    expect_url = ("/st/data.unknown_mime_type?"
+                  "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D")
     assert expect_url == str(url)
 
 
 def test_add_static_append_version_set_from_constructor(router) -> None:
-    resource = router.add_static(
-        "/st", pathlib.Path(__file__).parent, append_version=True, name="static"
-    )
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 append_version=True,
+                                 name="static")
     url = resource.url_for(filename="/data.unknown_mime_type")
-    expect_url = (
-        "/st/data.unknown_mime_type?" "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D"
-    )
+    expect_url = ("/st/data.unknown_mime_type?"
+                  "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D")
     assert expect_url == str(url)
 
 
 def test_add_static_append_version_override_constructor(router) -> None:
-    resource = router.add_static(
-        "/st", pathlib.Path(__file__).parent, append_version=True, name="static"
-    )
-    url = resource.url_for(filename="/data.unknown_mime_type", append_version=False)
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 append_version=True,
+                                 name="static")
+    url = resource.url_for(filename="/data.unknown_mime_type",
+                           append_version=False)
     expect_url = "/st/data.unknown_mime_type"
     assert expect_url == str(url)
 
 
 def test_add_static_append_version_filename_without_slash(router) -> None:
-    resource = router.add_static("/st", pathlib.Path(__file__).parent, name="static")
-    url = resource.url_for(filename="data.unknown_mime_type", append_version=True)
-    expect_url = (
-        "/st/data.unknown_mime_type?" "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D"
-    )
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 name="static")
+    url = resource.url_for(filename="data.unknown_mime_type",
+                           append_version=True)
+    expect_url = ("/st/data.unknown_mime_type?"
+                  "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D")
     assert expect_url == str(url)
 
 
 def test_add_static_append_version_non_exists_file(router) -> None:
-    resource = router.add_static("/st", pathlib.Path(__file__).parent, name="static")
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 name="static")
     url = resource.url_for(filename="/non_exists_file", append_version=True)
     assert "/st/non_exists_file" == str(url)
 
 
-def test_add_static_append_version_non_exists_file_without_slash(router) -> None:
-    resource = router.add_static("/st", pathlib.Path(__file__).parent, name="static")
+def test_add_static_append_version_non_exists_file_without_slash(router
+                                                                 ) -> None:
+    resource = router.add_static("/st",
+                                 pathlib.Path(__file__).parent,
+                                 name="static")
     url = resource.url_for(filename="non_exists_file", append_version=True)
     assert "/st/non_exists_file" == str(url)
 
@@ -431,20 +443,21 @@ def test_add_static_append_version_follow_symlink(router, tmp_path) -> None:
     pathlib.Path(str(symlink_path)).symlink_to(str(symlink_target_path), True)
 
     # Register global static route:
-    resource = router.add_static(
-        "/st", str(tmp_path), follow_symlinks=True, append_version=True
-    )
+    resource = router.add_static("/st",
+                                 str(tmp_path),
+                                 follow_symlinks=True,
+                                 append_version=True)
 
-    url = resource.url_for(filename="/append_version_symlink/data.unknown_mime_type")
+    url = resource.url_for(
+        filename="/append_version_symlink/data.unknown_mime_type")
 
-    expect_url = (
-        "/st/append_version_symlink/data.unknown_mime_type?"
-        "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D"
-    )
+    expect_url = ("/st/append_version_symlink/data.unknown_mime_type?"
+                  "v=aUsn8CHEhhszc81d28QmlcBW0KQpfS2F4trgQKhOYd8%3D")
     assert expect_url == str(url)
 
 
-def test_add_static_append_version_not_follow_symlink(router, tmp_path) -> None:
+def test_add_static_append_version_not_follow_symlink(router,
+                                                      tmp_path) -> None:
     # Tests the access to a symlink, in static folder with apeend_version
 
     symlink_path = tmp_path / "append_version_symlink"
@@ -453,9 +466,10 @@ def test_add_static_append_version_not_follow_symlink(router, tmp_path) -> None:
     pathlib.Path(str(symlink_path)).symlink_to(str(symlink_target_path), True)
 
     # Register global static route:
-    resource = router.add_static(
-        "/st", str(tmp_path), follow_symlinks=False, append_version=True
-    )
+    resource = router.add_static("/st",
+                                 str(tmp_path),
+                                 follow_symlinks=False,
+                                 append_version=True)
 
     filename = "/append_version_symlink/data.unknown_mime_type"
     url = resource.url_for(filename=filename)
@@ -477,7 +491,9 @@ def test_dynamic_not_match(router) -> None:
 
 
 async def test_static_not_match(router) -> None:
-    router.add_static("/pre", pathlib.Path(aiohttp.__file__).parent, name="name")
+    router.add_static("/pre",
+                      pathlib.Path(aiohttp.__file__).parent,
+                      name="name")
     resource = router["name"]
     ret = await resource.resolve(make_mocked_request("GET", "/another/path"))
     assert (None, set()) == ret
@@ -513,7 +529,9 @@ def test_contains(router) -> None:
 
 
 def test_static_repr(router) -> None:
-    router.add_static("/get", pathlib.Path(aiohttp.__file__).parent, name="name")
+    router.add_static("/get",
+                      pathlib.Path(aiohttp.__file__).parent,
+                      name="name")
     assert re.match(r"<StaticResource 'name' /get", repr(router["name"]))
 
 
@@ -523,7 +541,8 @@ def test_static_adds_slash(router) -> None:
 
 
 def test_static_remove_trailing_slash(router) -> None:
-    route = router.add_static("/prefix/", pathlib.Path(aiohttp.__file__).parent)
+    route = router.add_static("/prefix/",
+                              pathlib.Path(aiohttp.__file__).parent)
     assert "/prefix" == route._prefix
 
 
@@ -583,13 +602,8 @@ def test_add_route_with_invalid_re(router) -> None:
     with pytest.raises(ValueError) as ctx:
         router.add_route("GET", r"/handler/{to:+++}", handler)
     s = str(ctx.value)
-    assert s.startswith(
-        "Bad pattern '"
-        + PATH_SEP
-        + "handler"
-        + PATH_SEP
-        + "(?P<to>+++)': nothing to repeat"
-    )
+    assert s.startswith("Bad pattern '" + PATH_SEP + "handler" + PATH_SEP +
+                        "(?P<to>+++)': nothing to repeat")
     assert ctx.value.__cause__ is None
 
 
@@ -632,7 +646,8 @@ async def test_regular_match_info(router) -> None:
     req = make_mocked_request("GET", "/get/john")
     match_info = await router.resolve(req)
     assert {"name": "john"} == match_info
-    assert re.match("<MatchInfo {'name': 'john'}: .+<Dynamic.+>>", repr(match_info))
+    assert re.match("<MatchInfo {'name': 'john'}: .+<Dynamic.+>>",
+                    repr(match_info))
 
 
 async def test_match_info_with_plus(router) -> None:
@@ -671,7 +686,10 @@ def test_custom_expect_handler_plain(router) -> None:
     async def handler(request):
         pass
 
-    route = router.add_route("GET", "/", make_handler(), expect_handler=handler)
+    route = router.add_route("GET",
+                             "/",
+                             make_handler(),
+                             expect_handler=handler)
     assert route._expect_handler is handler
     assert isinstance(route, ResourceRoute)
 
@@ -680,9 +698,10 @@ def test_custom_expect_handler_dynamic(router) -> None:
     async def handler(request):
         pass
 
-    route = router.add_route(
-        "GET", "/get/{name}", make_handler(), expect_handler=handler
-    )
+    route = router.add_route("GET",
+                             "/get/{name}",
+                             make_handler(),
+                             expect_handler=handler)
     assert route._expect_handler is handler
     assert isinstance(route, ResourceRoute)
 
@@ -699,8 +718,7 @@ async def test_dynamic_match_non_ascii(router) -> None:
     handler = make_handler()
     router.add_route("GET", "/{var}", handler)
     req = make_mocked_request(
-        "GET", "/%D1%80%D1%83%D1%81%20%D1%82%D0%B5%D0%BA%D1%81%D1%82"
-    )
+        "GET", "/%D1%80%D1%83%D1%81%20%D1%82%D0%B5%D0%BA%D1%81%D1%82")
     match_info = await router.resolve(req)
     assert {"var": "рус текст"} == match_info
 
@@ -782,10 +800,13 @@ def test_named_resources_abc(router) -> None:
 
 def test_named_resources(router) -> None:
     route1 = router.add_route("GET", "/plain", make_handler(), name="route1")
-    route2 = router.add_route("GET", "/variable/{name}", make_handler(), name="route2")
-    route3 = router.add_static(
-        "/static", pathlib.Path(aiohttp.__file__).parent, name="route3"
-    )
+    route2 = router.add_route("GET",
+                              "/variable/{name}",
+                              make_handler(),
+                              name="route2")
+    route3 = router.add_static("/static",
+                               pathlib.Path(aiohttp.__file__).parent,
+                               name="route3")
     names = {route1.name, route2.name, route3.name}
 
     assert 3 == len(router.named_resources())
@@ -885,10 +906,10 @@ async def test_match_info_get_info_dynamic2(router) -> None:
     req = make_mocked_request("GET", "/path/to")
     info = await router.resolve(req)
     assert info.get_info() == {
-        "pattern": re.compile(
-            PATH_SEP + "(?P<a>[^{}/]+)" + PATH_SEP + "(?P<b>[^{}/]+)"
-        ),
-        "formatter": "/{a}/{b}",
+        "pattern":
+        re.compile(PATH_SEP + "(?P<a>[^{}/]+)" + PATH_SEP + "(?P<b>[^{}/]+)"),
+        "formatter":
+        "/{a}/{b}",
     }
 
 
@@ -975,15 +996,16 @@ async def test_check_allowed_method_for_found_resource(router) -> None:
 
 
 def test_url_for_in_static_resource(router) -> None:
-    resource = router.add_static("/static", pathlib.Path(aiohttp.__file__).parent)
+    resource = router.add_static("/static",
+                                 pathlib.Path(aiohttp.__file__).parent)
     assert URL("/static/file.txt") == resource.url_for(filename="file.txt")
 
 
 def test_url_for_in_static_resource_pathlib(router) -> None:
-    resource = router.add_static("/static", pathlib.Path(aiohttp.__file__).parent)
+    resource = router.add_static("/static",
+                                 pathlib.Path(aiohttp.__file__).parent)
     assert URL("/static/file.txt") == resource.url_for(
-        filename=pathlib.Path("file.txt")
-    )
+        filename=pathlib.Path("file.txt"))
 
 
 def test_url_for_in_resource_route(router) -> None:
@@ -1106,7 +1128,8 @@ def test_subapp_url_for(app) -> None:
 def test_subapp_repr(app) -> None:
     subapp = web.Application()
     resource = app.add_subapp("/pre", subapp)
-    assert repr(resource).startswith("<PrefixedSubAppResource /pre -> <Application")
+    assert repr(resource).startswith(
+        "<PrefixedSubAppResource /pre -> <Application")
 
 
 def test_subapp_len(app) -> None:
@@ -1151,7 +1174,8 @@ def test_frozen_app_on_subapp(app) -> None:
 
 
 def test_set_options_route(router) -> None:
-    resource = router.add_static("/static", pathlib.Path(aiohttp.__file__).parent)
+    resource = router.add_static("/static",
+                                 pathlib.Path(aiohttp.__file__).parent)
     options = None
     for route in resource:
         if route.method == "OPTIONS":

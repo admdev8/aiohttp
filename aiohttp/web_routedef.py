@@ -26,7 +26,6 @@ if TYPE_CHECKING:  # pragma: no cover
 else:
     Request = StreamResponse = UrlDispatcher = AbstractRoute = None
 
-
 __all__ = (
     "AbstractRouteDef",
     "RouteDef",
@@ -69,8 +68,10 @@ class RouteDef(AbstractRouteDef):
         ]
 
         return "<RouteDef {method} {path} -> {handler.__name__!r}" "{info}>".format(
-            method=self.method, path=self.path, handler=self.handler, info="".join(info)
-        )
+            method=self.method,
+            path=self.path,
+            handler=self.handler,
+            info="".join(info))
 
     def register(self, router: UrlDispatcher) -> List[AbstractRoute]:
         if self.method in hdrs.METH_ALL:
@@ -78,7 +79,8 @@ class RouteDef(AbstractRouteDef):
             return [reg(self.path, self.handler, **self.kwargs)]
         else:
             return [
-                router.add_route(self.method, self.path, self.handler, **self.kwargs)
+                router.add_route(self.method, self.path, self.handler,
+                                 **self.kwargs)
             ]
 
 
@@ -95,8 +97,7 @@ class StaticDef(AbstractRouteDef):
         ]
 
         return "<StaticDef {prefix} -> {path}" "{info}>".format(
-            prefix=self.prefix, path=self.path, info="".join(info)
-        )
+            prefix=self.prefix, path=self.path, info="".join(info))
 
     def register(self, router: UrlDispatcher) -> List[AbstractRoute]:
         resource = router.add_static(self.prefix, self.path, **self.kwargs)
@@ -104,7 +105,8 @@ class StaticDef(AbstractRouteDef):
         return routes.values()
 
 
-def route(method: str, path: str, handler: _HandlerType, **kwargs: Any) -> RouteDef:
+def route(method: str, path: str, handler: _HandlerType,
+          **kwargs: Any) -> RouteDef:
     return RouteDef(method, path, handler, kwargs)
 
 
@@ -116,17 +118,18 @@ def options(path: str, handler: _HandlerType, **kwargs: Any) -> RouteDef:
     return route(hdrs.METH_OPTIONS, path, handler, **kwargs)
 
 
-def get(
-    path: str,
-    handler: _HandlerType,
-    *,
-    name: Optional[str] = None,
-    allow_head: bool = True,
-    **kwargs: Any
-) -> RouteDef:
-    return route(
-        hdrs.METH_GET, path, handler, name=name, allow_head=allow_head, **kwargs
-    )
+def get(path: str,
+        handler: _HandlerType,
+        *,
+        name: Optional[str] = None,
+        allow_head: bool = True,
+        **kwargs: Any) -> RouteDef:
+    return route(hdrs.METH_GET,
+                 path,
+                 handler,
+                 name=name,
+                 allow_head=allow_head,
+                 **kwargs)
 
 
 def post(path: str, handler: _HandlerType, **kwargs: Any) -> RouteDef:

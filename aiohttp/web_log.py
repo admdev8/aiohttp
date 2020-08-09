@@ -65,7 +65,8 @@ class AccessLogger(AbstractAccessLogger):
     CLEANUP_RE = re.compile(r"(%[^s])")
     _FORMAT_CACHE = {}  # type: Dict[str, Tuple[str, List[KeyMethod]]]
 
-    def __init__(self, logger: logging.Logger, log_format: str = LOG_FORMAT) -> None:
+    def __init__(self, logger: logging.Logger,
+                 log_format: str = LOG_FORMAT) -> None:
         """Initialise the logger.
 
         logger is a logger object to be used for logging.
@@ -114,7 +115,8 @@ class AccessLogger(AbstractAccessLogger):
             else:
                 format_key2 = (self.LOG_FORMAT_MAP[atom[2]], atom[1])
                 m = getattr(AccessLogger, "_format_%s" % atom[2])
-                key_method = KeyMethod(format_key2, functools.partial(m, atom[1]))
+                key_method = KeyMethod(format_key2,
+                                       functools.partial(m, atom[1]))
 
             methods.append(key_method)
 
@@ -123,9 +125,8 @@ class AccessLogger(AbstractAccessLogger):
         return log_format, methods
 
     @staticmethod
-    def _format_i(
-        key: str, request: BaseRequest, response: StreamResponse, time: float
-    ) -> str:
+    def _format_i(key: str, request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         if request is None:
             return "(no headers)"
 
@@ -133,32 +134,35 @@ class AccessLogger(AbstractAccessLogger):
         return request.headers.get(key, "-")
 
     @staticmethod
-    def _format_o(
-        key: str, request: BaseRequest, response: StreamResponse, time: float
-    ) -> str:
+    def _format_o(key: str, request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         # suboptimal, make istr(key) once
         return response.headers.get(key, "-")
 
     @staticmethod
-    def _format_a(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_a(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         if request is None:
             return "-"
         ip = request.remote
         return ip if ip is not None else "-"
 
     @staticmethod
-    def _format_t(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_t(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         tz = datetime.timezone(datetime.timedelta(seconds=-time_mod.timezone))
         now = datetime.datetime.now(tz)
         start_time = now - datetime.timedelta(seconds=time)
         return start_time.strftime("[%d/%b/%Y:%H:%M:%S %z]")
 
     @staticmethod
-    def _format_P(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_P(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         return "<%s>" % os.getpid()
 
     @staticmethod
-    def _format_r(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_r(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         if request is None:
             return "-"
         return "%s %s HTTP/%s.%s" % (
@@ -169,31 +173,39 @@ class AccessLogger(AbstractAccessLogger):
         )
 
     @staticmethod
-    def _format_s(request: BaseRequest, response: StreamResponse, time: float) -> int:
+    def _format_s(request: BaseRequest, response: StreamResponse,
+                  time: float) -> int:
         return response.status
 
     @staticmethod
-    def _format_b(request: BaseRequest, response: StreamResponse, time: float) -> int:
+    def _format_b(request: BaseRequest, response: StreamResponse,
+                  time: float) -> int:
         return response.body_length
 
     @staticmethod
-    def _format_T(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_T(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         return str(round(time))
 
     @staticmethod
-    def _format_Tf(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_Tf(request: BaseRequest, response: StreamResponse,
+                   time: float) -> str:
         return "%06f" % time
 
     @staticmethod
-    def _format_D(request: BaseRequest, response: StreamResponse, time: float) -> str:
+    def _format_D(request: BaseRequest, response: StreamResponse,
+                  time: float) -> str:
         return str(round(time * 1000000))
 
     def _format_line(
-        self, request: BaseRequest, response: StreamResponse, time: float
-    ) -> Iterable[Tuple[str, Callable[[BaseRequest, StreamResponse, float], str]]]:
-        return [(key, method(request, response, time)) for key, method in self._methods]
+            self, request: BaseRequest, response: StreamResponse, time: float
+    ) -> Iterable[
+            Tuple[str, Callable[[BaseRequest, StreamResponse, float], str]]]:
+        return [(key, method(request, response, time))
+                for key, method in self._methods]
 
-    def log(self, request: BaseRequest, response: StreamResponse, time: float) -> None:
+    def log(self, request: BaseRequest, response: StreamResponse,
+            time: float) -> None:
         try:
             fmt_info = self._format_line(request, response, time)
 

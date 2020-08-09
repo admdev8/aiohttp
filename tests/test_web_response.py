@@ -25,14 +25,12 @@ from aiohttp.web import Response
 from aiohttp.web import StreamResponse
 
 
-def make_request(
-    method,
-    path,
-    headers=CIMultiDict(),
-    version=HttpVersion11,
-    on_response_prepare=None,
-    **kwargs
-):
+def make_request(method,
+                 path,
+                 headers=CIMultiDict(),
+                 version=HttpVersion11,
+                 on_response_prepare=None,
+                 **kwargs):
     app = kwargs.pop("app", None) or mock.Mock()
     app._debug = False
     if on_response_prepare is None:
@@ -40,9 +38,13 @@ def make_request(
     app.on_response_prepare = on_response_prepare
     app.on_response_prepare.freeze()
     protocol = kwargs.pop("protocol", None) or mock.Mock()
-    return make_mocked_request(
-        method, path, headers, version=version, protocol=protocol, app=app, **kwargs
-    )
+    return make_mocked_request(method,
+                               path,
+                               headers,
+                               version=version,
+                               protocol=protocol,
+                               app=app,
+                               **kwargs)
 
 
 @pytest.fixture
@@ -64,11 +66,9 @@ def writer(buf):
         buf.extend(chunk)
 
     async def write_headers(status_line, headers):
-        headers = (
-            status_line
-            + "\r\n"
-            + "".join([k + ": " + v + "\r\n" for k, v in headers.items()])
-        )
+        headers = (status_line + "\r\n" +
+                   "".join([k + ": " + v + "\r\n"
+                            for k, v in headers.items()]))
         headers = headers.encode("utf-8") + b"\r\n"
         buf.extend(headers)
 
@@ -309,7 +309,8 @@ async def test_chunked_encoding_forbidden_for_http_10() -> None:
 
     with pytest.raises(RuntimeError) as ctx:
         await resp.prepare(req)
-    assert re.match("Using chunked encoding is forbidden for HTTP/1.0", str(ctx.value))
+    assert re.match("Using chunked encoding is forbidden for HTTP/1.0",
+                    str(ctx.value))
 
 
 async def test_compression_no_accept() -> None:
@@ -326,9 +327,10 @@ async def test_compression_no_accept() -> None:
 
 
 async def test_compression_default_coding() -> None:
-    req = make_request(
-        "GET", "/", headers=CIMultiDict({hdrs.ACCEPT_ENCODING: "gzip, deflate"})
-    )
+    req = make_request("GET",
+                       "/",
+                       headers=CIMultiDict(
+                           {hdrs.ACCEPT_ENCODING: "gzip, deflate"}))
     resp = StreamResponse()
     assert not resp.chunked
 
@@ -344,9 +346,10 @@ async def test_compression_default_coding() -> None:
 
 
 async def test_force_compression_deflate() -> None:
-    req = make_request(
-        "GET", "/", headers=CIMultiDict({hdrs.ACCEPT_ENCODING: "gzip, deflate"})
-    )
+    req = make_request("GET",
+                       "/",
+                       headers=CIMultiDict(
+                           {hdrs.ACCEPT_ENCODING: "gzip, deflate"}))
     resp = StreamResponse()
 
     resp.enable_compression(ContentCoding.deflate)
@@ -370,9 +373,10 @@ async def test_force_compression_no_accept_deflate() -> None:
 
 
 async def test_force_compression_gzip() -> None:
-    req = make_request(
-        "GET", "/", headers=CIMultiDict({hdrs.ACCEPT_ENCODING: "gzip, deflate"})
-    )
+    req = make_request("GET",
+                       "/",
+                       headers=CIMultiDict(
+                           {hdrs.ACCEPT_ENCODING: "gzip, deflate"}))
     resp = StreamResponse()
 
     resp.enable_compression(ContentCoding.gzip)
@@ -411,9 +415,9 @@ async def test_change_content_threaded_compression_enabled_explicit() -> None:
     body_thread_size = 1024
     body = b"answer" * body_thread_size
     with ThreadPoolExecutor(1) as executor:
-        resp = Response(
-            body=body, zlib_executor_size=body_thread_size, zlib_executor=executor
-        )
+        resp = Response(body=body,
+                        zlib_executor_size=body_thread_size,
+                        zlib_executor=executor)
         resp.enable_compression(ContentCoding.gzip)
 
         await resp.prepare(req)
@@ -426,7 +430,8 @@ async def test_change_content_length_if_compression_enabled() -> None:
     resp.enable_compression(ContentCoding.gzip)
 
     await resp.prepare(req)
-    assert resp.content_length is not None and resp.content_length != len(b"answer")
+    assert resp.content_length is not None and resp.content_length != len(
+        b"answer")
 
 
 async def test_set_content_length_if_compression_enabled() -> None:
@@ -640,15 +645,12 @@ def test_response_cookies() -> None:
 
     resp.cookies["name"] = "another_other_value"
     resp.cookies["name"]["max-age"] = 10
-    assert (
-        str(resp.cookies) == "Set-Cookie: name=another_other_value; Max-Age=10; Path=/"
-    )
+    assert (str(resp.cookies) ==
+            "Set-Cookie: name=another_other_value; Max-Age=10; Path=/")
 
     resp.del_cookie("name")
-    expected = (
-        'Set-Cookie: name=("")?; '
-        "expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/"
-    )
+    expected = ('Set-Cookie: name=("")?; '
+                "expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/")
     assert re.match(expected, str(resp.cookies))
 
     resp.set_cookie("name", "value", domain="local.host")
@@ -677,17 +679,15 @@ def test_response_cookie_path() -> None:
         version="2.0",
         samesite="lax",
     )
-    assert (
-        str(resp.cookies).lower() == "set-cookie: name=value; "
-        "domain=example.com; "
-        "expires=123; "
-        "httponly; "
-        "max-age=10; "
-        "path=/home; "
-        "samesite=lax; "
-        "secure; "
-        "version=2.0"
-    )
+    assert (str(resp.cookies).lower() == "set-cookie: name=value; "
+            "domain=example.com; "
+            "expires=123; "
+            "httponly; "
+            "max-age=10; "
+            "path=/home; "
+            "samesite=lax; "
+            "secure; "
+            "version=2.0")
 
 
 def test_response_cookie__issue_del_cookie() -> None:
@@ -697,10 +697,8 @@ def test_response_cookie__issue_del_cookie() -> None:
     assert str(resp.cookies) == ""
 
     resp.del_cookie("name")
-    expected = (
-        'Set-Cookie: name=("")?; '
-        "expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/"
-    )
+    expected = ('Set-Cookie: name=("")?; '
+                "expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/")
     assert re.match(expected, str(resp.cookies))
 
 
@@ -782,7 +780,10 @@ async def test_prepare_calls_signal() -> None:
     sig = make_mocked_coro()
     on_response_prepare = signals.Signal(app)
     on_response_prepare.append(sig)
-    req = make_request("GET", "/", app=app, on_response_prepare=on_response_prepare)
+    req = make_request("GET",
+                       "/",
+                       app=app,
+                       on_response_prepare=on_response_prepare)
     resp = StreamResponse()
 
     await resp.prepare(req)
@@ -804,7 +805,12 @@ def test_response_ctor() -> None:
 
 
 async def test_ctor_with_headers_and_status() -> None:
-    resp = Response(body=b"body", status=201, headers={"Age": "12", "DATE": "date"})
+    resp = Response(body=b"body",
+                    status=201,
+                    headers={
+                        "Age": "12",
+                        "DATE": "date"
+                    })
 
     assert 201 == resp.status
     assert b"body" == resp.body
@@ -836,7 +842,8 @@ async def test_ctor_text() -> None:
     assert 200 == resp.status
     assert "OK" == resp.reason
     assert 9 == resp.content_length
-    assert CIMultiDict([("CONTENT-TYPE", "text/plain; charset=utf-8")]) == resp.headers
+    assert CIMultiDict([("CONTENT-TYPE", "text/plain; charset=utf-8")
+                        ]) == resp.headers
 
     assert resp.body == b"test text"
     assert resp.text == "test text"
@@ -875,7 +882,8 @@ def test_ctor_content_type_with_extra() -> None:
     resp = Response(text="test test", content_type="text/plain; version=0.0.4")
 
     assert resp.content_type == "text/plain"
-    assert resp.headers["content-type"] == "text/plain; version=0.0.4; charset=utf-8"
+    assert resp.headers[
+        "content-type"] == "text/plain; version=0.0.4; charset=utf-8"
 
 
 def test_ctor_both_content_type_param_and_header_with_text() -> None:
@@ -889,19 +897,21 @@ def test_ctor_both_content_type_param_and_header_with_text() -> None:
 
 def test_ctor_both_charset_param_and_header_with_text() -> None:
     with pytest.raises(ValueError):
-        Response(
-            headers={"Content-Type": "application/json"}, charset="koi8-r", text="text"
-        )
+        Response(headers={"Content-Type": "application/json"},
+                 charset="koi8-r",
+                 text="text")
 
 
 def test_ctor_both_content_type_param_and_header() -> None:
     with pytest.raises(ValueError):
-        Response(headers={"Content-Type": "application/json"}, content_type="text/html")
+        Response(headers={"Content-Type": "application/json"},
+                 content_type="text/html")
 
 
 def test_ctor_both_charset_param_and_header() -> None:
     with pytest.raises(ValueError):
-        Response(headers={"Content-Type": "application/json"}, charset="koi8-r")
+        Response(headers={"Content-Type": "application/json"},
+                 charset="koi8-r")
 
 
 async def test_assign_nonbyteish_body() -> None:
@@ -1081,7 +1091,8 @@ def test_text_in_ctor_with_content_type() -> None:
 
 
 def test_text_in_ctor_with_content_type_header() -> None:
-    resp = Response(text="текст", headers={"Content-Type": "text/html; charset=koi8-r"})
+    resp = Response(text="текст",
+                    headers={"Content-Type": "text/html; charset=koi8-r"})
     assert "текст".encode("koi8-r") == resp.body
     assert "text/html" == resp.content_type
     assert "koi8-r" == resp.charset
@@ -1115,9 +1126,8 @@ def test_response_with_content_length_header_without_body() -> None:
 
 
 def test_response_with_immutable_headers() -> None:
-    resp = Response(
-        text="text", headers=CIMultiDictProxy(CIMultiDict({"Header": "Value"}))
-    )
+    resp = Response(text="text",
+                    headers=CIMultiDictProxy(CIMultiDict({"Header": "Value"})))
     assert resp.headers == {
         "Header": "Value",
         "Content-Type": "text/plain; charset=utf-8",
@@ -1155,5 +1165,6 @@ class TestJSONResponse:
         assert json.dumps({"foo": 42}) == resp.text
 
     def test_content_type_is_overrideable(self) -> None:
-        resp = json_response({"foo": 42}, content_type="application/vnd.json+api")
+        resp = json_response({"foo": 42},
+                             content_type="application/vnd.json+api")
         assert "application/vnd.json+api" == resp.content_type

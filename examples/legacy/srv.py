@@ -16,11 +16,8 @@ except ImportError:  # pragma: no cover
 
 class HttpRequestHandler(aiohttp.server.ServerHttpProtocol):
     async def handle_request(self, message, payload):
-        print(
-            "method = {!r}; path = {!r}; version = {!r}".format(
-                message.method, message.path, message.version
-            )
-        )
+        print("method = {!r}; path = {!r}; version = {!r}".format(
+            message.method, message.path, message.version))
 
         path = message.path
 
@@ -43,11 +40,13 @@ class HttpRequestHandler(aiohttp.server.ServerHttpProtocol):
 
         if isdir and not path.endswith("/"):
             path = path + "/"
-            raise aiohttp.HttpProcessingError(
-                code=302, headers=(("URI", path), ("Location", path))
-            )
+            raise aiohttp.HttpProcessingError(code=302,
+                                              headers=(("URI", path),
+                                                       ("Location", path)))
 
-        response = aiohttp.Response(self.writer, 200, http_version=message.version)
+        response = aiohttp.Response(self.writer,
+                                    200,
+                                    http_version=message.version)
         response.add_header("Transfer-Encoding", "chunked")
 
         # content encoding
@@ -74,21 +73,11 @@ class HttpRequestHandler(aiohttp.server.ServerHttpProtocol):
                         pass
                     else:
                         if os.path.isdir(os.path.join(path, name)):
-                            response.write(
-                                b'<li><a href="'
-                                + bname
-                                + b'/">'
-                                + bname
-                                + b"/</a></li>\r\n"
-                            )
+                            response.write(b'<li><a href="' + bname + b'/">' +
+                                           bname + b"/</a></li>\r\n")
                         else:
-                            response.write(
-                                b'<li><a href="'
-                                + bname
-                                + b'">'
-                                + bname
-                                + b"</a></li>\r\n"
-                            )
+                            response.write(b'<li><a href="' + bname + b'">' +
+                                           bname + b"</a></li>\r\n")
             response.write(b"</ul>")
         else:
             response.add_header("Content-type", "text/plain")
@@ -109,21 +98,36 @@ class HttpRequestHandler(aiohttp.server.ServerHttpProtocol):
 
 
 ARGS = argparse.ArgumentParser(description="Run simple HTTP server.")
-ARGS.add_argument(
-    "--host", action="store", dest="host", default="127.0.0.1", help="Host name"
-)
-ARGS.add_argument(
-    "--port", action="store", dest="port", default=8080, type=int, help="Port number"
-)
+ARGS.add_argument("--host",
+                  action="store",
+                  dest="host",
+                  default="127.0.0.1",
+                  help="Host name")
+ARGS.add_argument("--port",
+                  action="store",
+                  dest="port",
+                  default=8080,
+                  type=int,
+                  help="Port number")
 # make iocp and ssl mutually exclusive because ProactorEventLoop is
 # incompatible with SSL
 group = ARGS.add_mutually_exclusive_group()
-group.add_argument(
-    "--iocp", action="store_true", dest="iocp", help="Windows IOCP event loop"
-)
-group.add_argument("--ssl", action="store_true", dest="ssl", help="Run ssl mode.")
-ARGS.add_argument("--sslcert", action="store", dest="certfile", help="SSL cert file.")
-ARGS.add_argument("--sslkey", action="store", dest="keyfile", help="SSL key file.")
+group.add_argument("--iocp",
+                   action="store_true",
+                   dest="iocp",
+                   help="Windows IOCP event loop")
+group.add_argument("--ssl",
+                   action="store_true",
+                   dest="ssl",
+                   help="Run ssl mode.")
+ARGS.add_argument("--sslcert",
+                  action="store",
+                  dest="certfile",
+                  help="SSL cert file.")
+ARGS.add_argument("--sslkey",
+                  action="store",
+                  dest="keyfile",
+                  help="SSL key file.")
 
 
 def main():

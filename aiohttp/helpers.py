@@ -66,9 +66,8 @@ except ImportError:
     from typing_extensions import ContextManager
 
 
-def all_tasks(
-    loop: Optional[asyncio.AbstractEventLoop] = None,
-) -> Set["asyncio.Task[Any]"]:
+def all_tasks(loop: Optional[asyncio.AbstractEventLoop] = None,
+              ) -> Set["asyncio.Task[Any]"]:
     tasks = list(asyncio.Task.all_tasks(loop))
     return {t for t in tasks if not t.done()}
 
@@ -76,9 +75,7 @@ def all_tasks(
 if PY_37:
     all_tasks = getattr(asyncio, "all_tasks")  # noqa
 
-
 _T = TypeVar("_T")
-
 
 sentinel = object()  # type: Any
 NO_EXTENSIONS = bool(os.environ.get("AIOHTTP_NO_EXTENSIONS"))  # type: bool
@@ -86,14 +83,14 @@ NO_EXTENSIONS = bool(os.environ.get("AIOHTTP_NO_EXTENSIONS"))  # type: bool
 # N.B. sys.flags.dev_mode is available on Python 3.7+, use getattr
 # for compatibility with older versions
 DEBUG = getattr(sys.flags, "dev_mode", False) or (
-    not sys.flags.ignore_environment and bool(os.environ.get("PYTHONASYNCIODEBUG"))
-)  # type: bool
-
+    not sys.flags.ignore_environment
+    and bool(os.environ.get("PYTHONASYNCIODEBUG")))  # type: bool
 
 CHAR = {chr(i) for i in range(128)}
-CTL = {chr(i) for i in range(32)} | {
-    chr(127),
-}
+CTL = {chr(i)
+       for i in range(32)} | {
+           chr(127),
+       }
 SEPARATORS = {
     "(",
     ")",
@@ -139,9 +136,8 @@ json_re = re.compile(r"^application/(?:[\w.+-]+?\+)?json")
 class BasicAuth(namedtuple("BasicAuth", ["login", "password", "encoding"])):
     """Http basic authentication helper."""
 
-    def __new__(
-        cls, login: str, password: str = "", encoding: str = "latin1"
-    ) -> "BasicAuth":
+    def __new__(cls, login: str, password: str = "",
+                encoding: str = "latin1") -> "BasicAuth":
         if login is None:
             raise ValueError("None is not allowed as login value")
 
@@ -149,7 +145,8 @@ class BasicAuth(namedtuple("BasicAuth", ["login", "password", "encoding"])):
             raise ValueError("None is not allowed as password value")
 
         if ":" in login:
-            raise ValueError('A ":" is not allowed in login (RFC 1945#section-11.1)')
+            raise ValueError(
+                'A ":" is not allowed in login (RFC 1945#section-11.1)')
 
         return super().__new__(cls, login, password, encoding)
 
@@ -165,9 +162,8 @@ class BasicAuth(namedtuple("BasicAuth", ["login", "password", "encoding"])):
             raise ValueError("Unknown authorization method %s" % auth_type)
 
         try:
-            decoded = base64.b64decode(
-                encoded_credentials.encode("ascii"), validate=True
-            ).decode(encoding)
+            decoded = base64.b64decode(encoded_credentials.encode("ascii"),
+                                       validate=True).decode(encoding)
         except binascii.Error:
             raise ValueError("Invalid base64 encoding.")
 
@@ -183,7 +179,8 @@ class BasicAuth(namedtuple("BasicAuth", ["login", "password", "encoding"])):
         return cls(username, password, encoding=encoding)
 
     @classmethod
-    def from_url(cls, url: URL, *, encoding: str = "latin1") -> Optional["BasicAuth"]:
+    def from_url(cls, url: URL, *,
+                 encoding: str = "latin1") -> Optional["BasicAuth"]:
         """Create BasicAuth from url."""
         if not isinstance(url, URL):
             raise TypeError("url should be yarl.URL instance")
@@ -227,9 +224,8 @@ def netrc_from_env() -> Optional[netrc.netrc]:
             )
             return None
 
-        netrc_path = home_dir / (
-            "_netrc" if platform.system() == "Windows" else ".netrc"
-        )
+        netrc_path = home_dir / ("_netrc" if platform.system() == "Windows"
+                                 else ".netrc")
 
     try:
         return netrc.netrc(str(netrc_path))
@@ -254,8 +250,7 @@ class ProxyInfo:
 def proxies_from_env() -> Dict[str, ProxyInfo]:
     proxy_urls = {
         k: URL(v)
-        for k, v in getproxies().items()
-        if k in ("http", "https", "ws", "wss")
+        for k, v in getproxies().items() if k in ("http", "https", "ws", "wss")
     }
     netrc_obj = netrc_from_env()
     stripped = {k: strip_auth_from_url(v) for k, v in proxy_urls.items()}
@@ -263,9 +258,8 @@ def proxies_from_env() -> Dict[str, ProxyInfo]:
     for proto, val in stripped.items():
         proxy, auth = val
         if proxy.scheme in ("https", "wss"):
-            client_logger.warning(
-                "%s proxies %s are not supported, ignoring", proxy.scheme.upper(), proxy
-            )
+            client_logger.warning("%s proxies %s are not supported, ignoring",
+                                  proxy.scheme.upper(), proxy)
             continue
         if netrc_obj and auth is None:
             auth_from_netrc = None
@@ -282,9 +276,8 @@ def proxies_from_env() -> Dict[str, ProxyInfo]:
     return ret
 
 
-def current_task(
-    loop: Optional[asyncio.AbstractEventLoop] = None,
-) -> "asyncio.Task[Any]":
+def current_task(loop: Optional[asyncio.AbstractEventLoop] = None,
+                 ) -> "asyncio.Task[Any]":
     if PY_37:
         return asyncio.current_task(loop=loop)  # type: ignore
     else:
@@ -303,7 +296,8 @@ else:
 def get_running_loop() -> asyncio.AbstractEventLoop:
     loop = asyncio.get_event_loop()
     if not loop.is_running():
-        raise RuntimeError("The object should be created within an async function")
+        raise RuntimeError(
+            "The object should be created within an async function")
     return loop
 
 
@@ -339,36 +333,33 @@ def parse_mimetype(mimetype: str) -> MimeType:
 
     """
     if not mimetype:
-        return MimeType(
-            type="", subtype="", suffix="", parameters=MultiDictProxy(MultiDict())
-        )
+        return MimeType(type="",
+                        subtype="",
+                        suffix="",
+                        parameters=MultiDictProxy(MultiDict()))
 
     parts = mimetype.split(";")
     params = MultiDict()  # type: MultiDict[str]
     for item in parts[1:]:
         if not item:
             continue
-        key, value = cast(
-            Tuple[str, str], item.split("=", 1) if "=" in item else (item, "")
-        )
+        key, value = cast(Tuple[str, str],
+                          item.split("=", 1) if "=" in item else (item, ""))
         params.add(key.lower().strip(), value.strip(' "'))
 
     fulltype = parts[0].strip().lower()
     if fulltype == "*":
         fulltype = "*/*"
 
-    mtype, stype = (
-        cast(Tuple[str, str], fulltype.split("/", 1))
-        if "/" in fulltype
-        else (fulltype, "")
-    )
-    stype, suffix = (
-        cast(Tuple[str, str], stype.split("+", 1)) if "+" in stype else (stype, "")
-    )
+    mtype, stype = (cast(Tuple[str, str], fulltype.split("/", 1))
+                    if "/" in fulltype else (fulltype, ""))
+    stype, suffix = (cast(Tuple[str, str], stype.split("+", 1))
+                     if "+" in stype else (stype, ""))
 
-    return MimeType(
-        type=mtype, subtype=stype, suffix=suffix, parameters=MultiDictProxy(params)
-    )
+    return MimeType(type=mtype,
+                    subtype=stype,
+                    suffix=suffix,
+                    parameters=MultiDictProxy(params))
 
 
 def guess_filename(obj: Any, default: Optional[str] = None) -> Optional[str]:
@@ -378,9 +369,9 @@ def guess_filename(obj: Any, default: Optional[str] = None) -> Optional[str]:
     return default
 
 
-def content_disposition_header(
-    disptype: str, quote_fields: bool = True, **params: str
-) -> str:
+def content_disposition_header(disptype: str,
+                               quote_fields: bool = True,
+                               **params: str) -> str:
     """Sets ``Content-Disposition`` header.
 
     disptype is a disposition type: inline, attachment, form-data.
@@ -389,16 +380,16 @@ def content_disposition_header(
     params is a dict with disposition params.
     """
     if not disptype or not (TOKEN > set(disptype)):
-        raise ValueError("bad content disposition type {!r}" "".format(disptype))
+        raise ValueError("bad content disposition type {!r}"
+                         "".format(disptype))
 
     value = disptype
     if params:
         lparams = []
         for key, val in params.items():
             if not key or not (TOKEN > set(key)):
-                raise ValueError(
-                    "bad content disposition parameter" " {!r}={!r}".format(key, val)
-                )
+                raise ValueError("bad content disposition parameter"
+                                 " {!r}={!r}".format(key, val))
             qval = quote(val, "") if quote_fields else val
             lparams.append((key, '"%s"' % qval))
             if key == "filename":
@@ -408,9 +399,8 @@ def content_disposition_header(
     return value
 
 
-def is_expected_content_type(
-    response_content_type: str, expected_content_type: str
-) -> bool:
+def is_expected_content_type(response_content_type: str,
+                             expected_content_type: str) -> bool:
     if expected_content_type == "application/json":
         return json_re.match(response_content_type) is not None
     return expected_content_type in response_content_type
@@ -457,10 +447,8 @@ try:
 except ImportError:
     pass
 
-_ipv4_pattern = (
-    r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-    r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-)
+_ipv4_pattern = (r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+                 r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 _ipv6_pattern = (
     r"^(?:(?:(?:[A-F0-9]{1,4}:){6}|(?=(?:[A-F0-9]{0,4}:){0,6}"
     r"(?:[0-9]{1,3}\.){3}[0-9]{1,3}$)(([0-9A-F]{1,4}:){0,5}|:)"
@@ -469,17 +457,15 @@ _ipv6_pattern = (
     r"(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])|(?:[A-F0-9]{1,4}:){7}"
     r"[A-F0-9]{1,4}|(?=(?:[A-F0-9]{0,4}:){0,7}[A-F0-9]{0,4}$)"
     r"(([0-9A-F]{1,4}:){1,7}|:)((:[0-9A-F]{1,4}){1,7}|:)|(?:[A-F0-9]{1,4}:){7}"
-    r":|:(:[A-F0-9]{1,4}){7})$"
-)
+    r":|:(:[A-F0-9]{1,4}){7})$")
 _ipv4_regex = re.compile(_ipv4_pattern)
 _ipv6_regex = re.compile(_ipv6_pattern, flags=re.IGNORECASE)
 _ipv4_regexb = re.compile(_ipv4_pattern.encode("ascii"))
 _ipv6_regexb = re.compile(_ipv6_pattern.encode("ascii"), flags=re.IGNORECASE)
 
 
-def _is_ip_address(
-    regex: Pattern[str], regexb: Pattern[bytes], host: Optional[Union[str, bytes]]
-) -> bool:
+def _is_ip_address(regex: Pattern[str], regexb: Pattern[bytes],
+                   host: Optional[Union[str, bytes]]) -> bool:
     if host is None:
         return False
     if isinstance(host, str):
@@ -487,22 +473,23 @@ def _is_ip_address(
     elif isinstance(host, (bytes, bytearray, memoryview)):
         return bool(regexb.match(host))
     else:
-        raise TypeError("{} [{}] is not a str or bytes".format(host, type(host)))
+        raise TypeError("{} [{}] is not a str or bytes".format(
+            host, type(host)))
 
 
 is_ipv4_address = functools.partial(_is_ip_address, _ipv4_regex, _ipv4_regexb)
 is_ipv6_address = functools.partial(_is_ip_address, _ipv6_regex, _ipv6_regexb)
 
 
-def is_ip_address(host: Optional[Union[str, bytes, bytearray, memoryview]]) -> bool:
+def is_ip_address(host: Optional[Union[str, bytes, bytearray, memoryview]]
+                  ) -> bool:
     return is_ipv4_address(host) or is_ipv6_address(host)
 
 
 def next_whole_second() -> datetime.datetime:
     """Return current time rounded up to the next whole second."""
     return datetime.datetime.now(datetime.timezone.utc).replace(
-        microsecond=0
-    ) + datetime.timedelta(seconds=0)
+        microsecond=0) + datetime.timedelta(seconds=0)
 
 
 _cached_current_datetime = None  # type: Optional[int]
@@ -575,18 +562,16 @@ def call_later(cb, timeout, loop):  # type: ignore
 class TimeoutHandle:
     """ Timeout handle """
 
-    def __init__(
-        self, loop: asyncio.AbstractEventLoop, timeout: Optional[float]
-    ) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop,
+                 timeout: Optional[float]) -> None:
         self._timeout = timeout
         self._loop = loop
         self._callbacks = (
             []
         )  # type: List[Tuple[Callable[..., None], Tuple[Any, ...], Dict[str, Any]]]  # noqa
 
-    def register(
-        self, callback: Callable[..., None], *args: Any, **kwargs: Any
-    ) -> None:
+    def register(self, callback: Callable[..., None], *args: Any,
+                 **kwargs: Any) -> None:
         self._callbacks.append((callback, args, kwargs))
 
     def close(self) -> None:
@@ -624,10 +609,10 @@ class TimerNoop(BaseTimerContext):
         return self
 
     def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_val: Optional[BaseException],
+            exc_tb: Optional[TracebackType],
     ) -> None:
         return
 
@@ -644,9 +629,8 @@ class TimerContext(BaseTimerContext):
         task = current_task(loop=self._loop)
 
         if task is None:
-            raise RuntimeError(
-                "Timeout context manager should be used " "inside a task"
-            )
+            raise RuntimeError("Timeout context manager should be used "
+                               "inside a task")
 
         if self._cancelled:
             task.cancel()
@@ -656,10 +640,10 @@ class TimerContext(BaseTimerContext):
         return self
 
     def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_val: Optional[BaseException],
+            exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:
         if self._tasks:
             self._tasks.pop()
@@ -742,16 +726,14 @@ def set_exception(fut: "asyncio.Future[_T]", exc: BaseException) -> None:
 
 @final
 class ChainMapProxy(Mapping[str, Any]):
-    __slots__ = ("_maps",)
+    __slots__ = ("_maps", )
 
     def __init__(self, maps: Iterable[Mapping[str, Any]]) -> None:
         self._maps = tuple(maps)
 
     def __init_subclass__(cls) -> None:
-        raise TypeError(
-            "Inheritance class {} from ChainMapProxy "
-            "is forbidden".format(cls.__name__)
-        )
+        raise TypeError("Inheritance class {} from ChainMapProxy "
+                        "is forbidden".format(cls.__name__))
 
     def __getitem__(self, key: str) -> Any:
         for mapping in self._maps:

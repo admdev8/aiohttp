@@ -54,7 +54,8 @@ async def test_async_resolver_positive_lookup(loop) -> None:
         resolver = AsyncResolver()
         real = await resolver.resolve("www.python.org")
         ipaddress.ip_address(real[0]["host"])
-        mock().gethostbyname.assert_called_with("www.python.org", socket.AF_INET)
+        mock().gethostbyname.assert_called_with("www.python.org",
+                                                socket.AF_INET)
 
 
 @pytest.mark.skipif(not gethostbyname, reason="aiodns 1.1 required")
@@ -147,7 +148,8 @@ async def test_async_resolver_ipv6_positive_lookup(loop) -> None:
         resolver = AsyncResolver()
         real = await resolver.resolve("www.python.org", family=socket.AF_INET6)
         ipaddress.ip_address(real[0]["host"])
-        mock().gethostbyname.assert_called_with("www.python.org", socket.AF_INET6)
+        mock().gethostbyname.assert_called_with("www.python.org",
+                                                socket.AF_INET6)
 
 
 async def test_async_resolver_aiodns_not_present(loop, monkeypatch) -> None:
